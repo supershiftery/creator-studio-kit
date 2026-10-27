@@ -1,0 +1,38 @@
+{
+  "id": "P21",
+  "name": "Editor Phone",
+  "blurb": "P02 Browser Research + the editor's toolkit: stamp / chart / money-rain graphics and cartoon FX transitions (channel study 2026-10-24).",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "reveal",
+      "watch"
+    ],
+    "every": 1,
+    "max": 10,
+    "maxlen": 5.0,
+    "_why": "watch line gets a clip, the short turn line keeps its designed beat (dhgate coupons 2026-10-22: 4 s still word on 'watch to the end', 32% near-still)",
+    "_why2": "P21: a real clip may go on every line (coupons 2026-10-24: every=2 kept his haul clips off lines 1 and 3); the intro checks stop long holds / repeats"
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "key",
+      "t": 0.3,
+      "vol": 0.12,
+      "d": 0.9
+    }
+  ],
+  "editor": true,
+  "context_gfx": true,
+  "page_once": true,
+  "backdrops": false,
+  "_why3": "2026-10-24: clip-free lines get context graphics (checkout / total / app / promo tickets / save), each page once, no stock backdrops",
+  "story_sfx": true,
+  "bed": -28,
+  "_why4": "2026-10-24 'turn it up': story sounds on each beat, music bed -28 (phone default -31)",
+  "_why5": "2026-10-24: no flashes / light leaks (friend: 'random flashes were too much'); template click/ping removed, the story sounds cover the turn and the end"
+}

@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <!-- Designed VO intro (2026-10-21): the same scene kit as the approved hand-made Uber Eats intro (deal tags -> cart +
+         receipt adding up -> price slam -> blackout -> secret methods / price struck to FREE / friends -> title slam),
+         placed on the VO's own words by auto_intro.py. No caption text: every word on screen is part of a designed UI. -->
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+      #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #06080c; font-family: "Segoe UI", Arial, sans-serif; }
+      .layer { position: absolute; inset: 0; overflow: hidden; }
+      .abs { position: absolute; }
+      #bg-el { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, color-mix(in srgb, {{ACCENT}} 22%, #06080c) 0%, #07100c 45%, #030405 100%); }
+      #grid-el { position: absolute; inset: -200px; background-image: linear-gradient(color-mix(in srgb, {{ACCENT}} 10%, transparent) 2px, transparent 2px),
+        linear-gradient(90deg, color-mix(in srgb, {{ACCENT}} 10%, transparent) 2px, transparent 2px); background-size: 70px 70px; }
+      #vig-el { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.7) 100%); }
+      .flash-el { position: absolute; inset: 0; background: #fff; opacity: 0; }
+
+      /* deals */
+      #d-icon { left: 810px; top: 250px; width: 300px; height: 300px; border-radius: 70px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 80px color-mix(in srgb, {{ACCENT}} 40%, transparent); }
+      #d-icon img, .ap img { width: 100%; height: 100%; display: block; }
+      #d-txt { left: 0; right: 0; top: 620px; text-align: center; font-weight: 900; font-size: 96px; color: #fff; letter-spacing: 2px; text-shadow: 0 8px 30px rgba(0,0,0,.6); opacity: 0; }
+      #d-txt span { color: {{ACCENT}}; }
+      .tag { position: absolute; padding: 10px 22px; border-radius: 999px; background: #fff; color: #111; font-weight: 900; font-size: 34px;
+        box-shadow: 0 14px 30px rgba(0,0,0,.45); white-space: nowrap; opacity: 0; }
+      .ap { position: absolute; width: 170px; height: 170px; border-radius: 40px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,.55); opacity: 0; }
+
+      /* cart + receipt */
+      .phone { position: absolute; width: 420px; height: 900px; border-radius: 52px; overflow: hidden; background: #000;
+        box-shadow: 0 0 0 10px #15181d, 0 0 0 12px #2a2e35, 0 30px 80px rgba(0,0,0,.7); }
+      #cartui { position: absolute; inset: 0; background: #fff; padding: 26px 24px; }
+      .cu-top { display: flex; justify-content: space-between; font-weight: 700; font-size: 20px; color: #111; }
+      .cu-h { font-weight: 900; font-size: 44px; color: #111; margin: 26px 0 18px; }
+      .cu-card { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 18px; background: #f3f3f3; margin-bottom: 14px; opacity: 0; }
+      .cu-logo { width: 64px; height: 64px; border-radius: 16px; color: #fff; font-weight: 900; font-size: 34px; display: flex; align-items: center; justify-content: center; flex: none; }
+      .cu-n { font-weight: 800; font-size: 28px; color: #111; }
+      .cu-m { font-weight: 600; font-size: 22px; color: #555; }
+      .cu-btn { position: absolute; left: 24px; right: 24px; bottom: 34px; height: 84px; border-radius: 16px; background: {{ACCENT}}; color: #fff;
+        display: flex; justify-content: space-between; align-items: center; padding: 0 28px; font-weight: 800; font-size: 28px; opacity: 0; }
+      #receipt { left: 1040px; top: 150px; width: 640px; padding: 34px 38px; border-radius: 30px; background: #fbfbf8; box-shadow: 0 30px 80px rgba(0,0,0,.6); opacity: 0; }
+      #r-h { font-weight: 900; font-size: 40px; color: #0b0d12; letter-spacing: 3px; border-bottom: 3px dashed #cfd2cc; padding-bottom: 16px; }
+      .r-l { display: flex; justify-content: space-between; font-weight: 700; font-size: 36px; color: #22262d; margin-top: 18px; opacity: 0; }
+      .r-l.fee { color: #c0362c; }
+      #r-tot { display: flex; justify-content: space-between; font-weight: 900; font-size: 54px; color: #0b0d12; margin-top: 22px; padding-top: 16px; border-top: 3px solid #0b0d12; }
+      #big { left: 0; right: 0; top: 330px; text-align: center; font-weight: 900; font-size: 330px; color: #ff3b30; line-height: 1;
+        text-shadow: 0 18px 60px rgba(0,0,0,.7), 0 0 60px rgba(255,59,48,.5); opacity: 0; }
+      #big-sub { left: 0; right: 0; top: 720px; text-align: center; font-weight: 900; font-size: 64px; color: #fff; letter-spacing: 3px; opacity: 0; text-shadow: 0 8px 30px rgba(0,0,0,.7); }
+
+      /* reveal */
+      #folder { left: 130px; top: 170px; width: 820px; height: 600px; }
+      #f-back { position: absolute; left: 0; top: 40px; width: 820px; height: 560px; border-radius: 26px; background: #e2b45a; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+      #f-tab { position: absolute; left: 0; top: 0; width: 300px; height: 70px; border-radius: 22px 22px 0 0; background: #e2b45a; }
+      #f-stamp { position: absolute; left: 190px; top: 250px; padding: 14px 30px; border: 9px solid #c0362c; border-radius: 18px; color: #c0362c; font-weight: 900;
+        font-size: 84px; letter-spacing: 6px; transform: rotate(-10deg); opacity: 0; white-space: nowrap; }
+      .mcard { position: absolute; left: 150px; top: 120px; width: 520px; height: 300px; border-radius: 24px; background: #fff; box-shadow: 0 24px 60px rgba(0,0,0,.5);
+        padding: 30px 36px; opacity: 0; }
+      .mcard b { display: block; font-weight: 900; font-size: 30px; color: {{ACCENT}}; letter-spacing: 4px; }
+      .mcard i { display: block; font-style: normal; font-weight: 900; font-size: 64px; color: #111; margin-top: 18px; }
+      .mcard u { display: block; text-decoration: none; margin-top: 26px; height: 18px; width: 70%; border-radius: 9px; background: #e7e7e7; }
+      #price { left: 1150px; top: 220px; font-weight: 900; font-size: 170px; color: #fff; opacity: 0; text-shadow: 0 12px 40px rgba(0,0,0,.6); }
+      #strike { left: 1130px; top: 320px; width: 0; height: 20px; background: #ff3b30; border-radius: 10px; transform: rotate(-8deg); transform-origin: 0 50%; }
+      #zero { left: 1170px; top: 420px; font-weight: 900; font-size: 150px; color: {{ACCENT}}; opacity: 0; text-shadow: 0 12px 40px rgba(0,0,0,.6); }
+      #free { left: 1120px; top: 640px; padding: 18px 34px; border: 10px solid {{ACCENT}}; border-radius: 26px; color: {{ACCENT}}; font-weight: 900; font-size: 104px;
+        letter-spacing: 4px; transform: rotate(-8deg); background: color-mix(in srgb, {{ACCENT}} 10%, transparent); opacity: 0; white-space: nowrap; }
+      #chat { left: 140px; top: 170px; width: 820px; }
+      .bub { position: absolute; padding: 28px 40px; border-radius: 36px; font-weight: 800; font-size: 58px; max-width: 900px; opacity: 0;
+        box-shadow: 0 18px 40px rgba(0,0,0,.45); white-space: nowrap; }
+      .bub.l { left: 0; background: #2b2f36; color: #fff; border-bottom-left-radius: 8px; }
+      .bub.r { right: 0; background: {{ACCENT}}; color: #fff; border-bottom-right-radius: 8px; }
+      #orders { left: 140px; top: 760px; width: 820px; display: flex; gap: 18px; }
+      .ord { width: 190px; height: 140px; border-radius: 22px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        font-weight: 900; color: #111; font-size: 30px; opacity: 0; box-shadow: 0 14px 30px rgba(0,0,0,.45); }
+      .ord span { color: {{ACCENT}}; font-size: 44px; }
+
+      /* title */
+      #t-icon { left: 300px; top: 300px; width: 330px; height: 330px; border-radius: 76px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 90px color-mix(in srgb, {{ACCENT}} 50%, transparent); }
+      #t-icon img { width: 100%; height: 100%; display: block; }
+      #t-main { left: 690px; top: 300px; font-weight: 900; font-size: 150px; color: #fff; line-height: .95; text-shadow: 0 12px 40px rgba(0,0,0,.6); }
+      #t-main span { color: {{ACCENT}}; }
+      #t-pill { left: 700px; top: 640px; padding: 14px 34px; border-radius: 999px; background: {{ACCENT}}; color: #fff; font-weight: 900; font-size: 56px; letter-spacing: 4px; }
+      .wp { position: absolute; top: -10%; height: 120%; width: 140%; left: -20%; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="{{DUR}}" data-width="1920" data-height="1080">
+      <div id="bg" class="clip layer" data-start="0" data-duration="{{DUR}}" data-track-index="0"><div id="bg-el"></div><div id="grid-el"></div></div>
+
+      <div id="sDeals" class="layer" style="opacity:0">
+        <div id="d-icon" class="abs"><img src="{{ICON}}" /></div>
+        {{OTHER_APPS}}
+        <div class="tag" id="tag1" style="left:330px;top:300px">$0.99 delivery</div>
+        <div class="tag" id="tag2" style="left:1290px;top:220px">$5 OFF</div>
+        <div class="tag" id="tag3" style="left:1380px;top:470px">Free pickup</div>
+        <div id="d-txt" class="abs">SEEMS <span>CHEAP</span>...</div>
+      </div>
+
+      <div id="sCart" class="layer" style="opacity:0">
+        <div id="ph" class="phone" style="left:420px;top:90px">
+          <div id="cartui">
+            <div class="cu-top"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+            <div class="cu-h">Carts</div>
+            {{CART_CARDS}}
+            <div class="cu-btn" id="cbtn"><span>Checkout</span><span id="cbtn-p">$0.00</span></div>
+          </div>
+        </div>
+        <div id="receipt" class="abs">
+          <div id="r-h">YOUR ORDER</div>
+          {{RECEIPT}}
+          <div id="r-tot"><span>TOTAL</span><span id="tot">$0.00</span></div>
+        </div>
+        <div id="big" class="abs">{{BIG}}</div>
+        <div id="big-sub" class="abs">{{BIG_SUB}}</div>
+      </div>
+
+      <div id="sReveal" class="layer" style="opacity:0">
+        <div id="folder" class="abs" style="opacity:0">
+          <div id="f-tab"></div><div id="f-back"></div>
+          <div class="mcard" id="m1"><b>METHOD 1</b><i>{{M1}}</i><u></u></div>
+          <div class="mcard" id="m2"><b>METHOD 2</b><i>{{M2}}</i><u></u></div>
+          <div class="mcard" id="m3"><b>METHOD 3</b><i>{{M3}}</i><u></u></div>
+          <div id="f-stamp">TOP SECRET</div>
+        </div>
+        <div id="chat" class="abs">
+          <div class="bub l" id="b1" style="top:0">bro how'd you get it free??</div>
+          <div class="bub r" id="b2" style="top:170px">same method again</div>
+          <div class="bub l" id="b3" style="top:340px">send it to me rn</div>
+        </div>
+        <div id="orders" class="abs">
+          <div class="ord" id="o1">ORDER<span>$0.00</span></div><div class="ord" id="o2">ORDER<span>$0.00</span></div>
+          <div class="ord" id="o3">ORDER<span>$0.00</span></div><div class="ord" id="o4">ORDER<span>$0.00</span></div>
+        </div>
+        <div id="price" class="abs">{{TOTAL}}</div>
+        <div id="strike" class="abs"></div>
+        <div id="zero" class="abs">$0.00</div>
+        <div id="free" class="abs">100% FREE</div>
+      </div>
+
+      <div id="sTitle" class="layer" style="opacity:0">
+        <div id="t-icon" class="abs"><img src="{{ICON}}" /></div>
+        <div id="t-main" class="abs">FREE<br /><span>{{APP_NAME}}</span></div>
+        <div id="t-pill" class="abs">100% FREE · PROMO CODES</div>
+      </div>
+
+      <div id="flash1" class="clip layer" data-start="{{SLAM}}" data-duration="0.4" data-track-index="6"><div id="flash1-el" class="flash-el"></div></div>
+      <div id="flash2" class="clip layer" data-start="{{GO}}" data-duration="0.45" data-track-index="6"><div id="flash2-el" class="flash-el"></div></div>
+      <div id="blackout" class="clip layer" data-start="{{TURN}}" data-duration="0.24" data-track-index="6" style="background:#000"></div>
+      <div id="wipeout" class="clip layer" data-start="{{WIPE_T}}" data-duration="0.6" data-track-index="7"><div class="wp" id="wo2" style="background:#fff"></div><div class="wp" id="wo1" style="background:{{ACCENT}}"></div></div>
+      <div id="vig" class="clip layer" data-start="0" data-duration="{{DUR}}" data-track-index="8"><div id="vig-el"></div></div>
+      <audio id="vo" src="assets/vo-norm.wav" data-start="0" data-duration="{{VO_DUR}}" data-track-index="10" data-volume="1"></audio>
+      <audio id="mus" src="assets/music-intro.wav" data-start="0" data-duration="{{DUR}}" data-media-start="0" data-track-index="11" data-volume="1"></audio>
+      <audio id="s-wo" src="assets/sfx/click.mp3" data-start="{{WIPE_T}}" data-duration="0.37" data-track-index="13" data-volume="0.24"></audio>
+{{SFX_TAGS}}
+    </div>
+    <script>
+      const T = {{TIMES}};
+      const tl = gsap.timeline({ paused: true });
+      const pop = (sel, t, from = 0.3, d = 0.4) => tl.fromTo(sel, { scale: from, opacity: 0 }, { scale: 1, opacity: 1, duration: d, ease: "back.out(2)" }, t);
+      const shake = (t, amp = 14, n = 6) => { for (let i = 0; i < n; i++) tl.to("#root", { x: (i % 2 ? -1 : 1) * amp * (1 - i / n), y: (i % 2 ? 1 : -1) * amp * 0.5 * (1 - i / n), duration: 0.035 }, t + i * 0.035); tl.to("#root", { x: 0, y: 0, duration: 0.04 }, t + n * 0.035); };
+      // (a scene starting at 0 gets no "hidden at 0" set: two sets on the same instant left the cart blank)
+      const show = (sel, a, b) => { if (a > 0) tl.set(sel, { opacity: 0 }, 0); tl.set(sel, { opacity: 1 }, Math.max(a, 0.001)); tl.set(sel, { opacity: 0 }, b); };
+      const count = (el, from, to, t, d) => { const o = { v: from }, e = document.getElementById(el); tl.to(o, { v: to, duration: d, ease: "power1.in", onUpdate: () => { e.textContent = "$" + o.v.toFixed(2); } }, t); };
+      tl.fromTo("#grid-el", { y: 0 }, { y: 70, duration: {{DUR}}, ease: "none" }, 0);
+
+      // deals: the app looks cheap
+      if (T.deals) {
+        show("#sDeals", T.deals[0], T.deals[1]);
+        pop("#d-icon", T.deals[0] + 0.05, 0.2, 0.5);
+        tl.fromTo("#d-icon", { rotation: -12 }, { rotation: 0, duration: 0.6, ease: "back.out(2)" }, T.deals[0] + 0.05);
+        document.querySelectorAll(".ap").forEach((s, i) => pop(s, T.deals[0] + 0.3 + i * 0.18));
+        ["#tag1", "#tag2", "#tag3"].forEach((s, i) => { pop(s, T.deals[0] + 0.5 + i * 0.22); tl.to(s, { y: -30, duration: 3, ease: "sine.inOut" }, T.deals[0] + 0.7 + i * 0.2); });
+        tl.fromTo("#d-txt", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "back.out(2)" }, T.dealsTxt);
+        tl.to(["#d-icon", "#d-txt", ".tag", ".ap"], { x: -1400, opacity: 0, duration: 0.35, ease: "power3.in", stagger: 0.03 }, T.deals[1] - 0.4);
+      }
+      // cart + receipt add up, then the total slams
+      show("#sCart", T.cart[0], T.turn + 0.01);
+      tl.fromTo("#ph", { x: -900, rotation: -8 }, { x: 0, rotation: 0, duration: 0.5, ease: "power3.out" }, T.cart[0]);
+      tl.fromTo(".cu-card", { x: 60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, stagger: 0.16, ease: "back.out(2)" }, T.cart[0] + 0.25);
+      tl.fromTo("#receipt", { x: 900, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, T.cart[0] + 0.15);
+      tl.fromTo("#cbtn", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 }, T.cart[0] + 0.6);
+      T.lines.forEach((t, i) => tl.fromTo("#l" + (i + 1), { x: 50, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: "back.out(2)" }, t));
+      const steps = {{STEPS}};
+      T.lines.forEach((t, i) => { count("tot", i ? steps[i - 1] : 0, steps[i], t, 0.3); count("cbtn-p", i ? steps[i - 1] : 0, steps[i], t, 0.3); });
+      tl.to("#r-tot", { color: "#ff3b30", duration: 0.2 }, T.slam - 0.2);
+      tl.fromTo("#big", { scale: 3, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.28, ease: "power4.out" }, T.slam); shake(T.slam + 0.04, 24, 8);
+      tl.fromTo("#flash1-el", { opacity: 0.85 }, { opacity: 0, duration: 0.38 }, T.slam);
+      tl.to(["#ph", "#receipt"], { opacity: 0.35, duration: 0.25 }, T.slam);
+      tl.fromTo("#big-sub", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: "back.out(2)" }, T.slam + 0.5);
+      tl.to("#big", { scale: 1.06, duration: 1.4, ease: "sine.inOut" }, T.slam + 0.3);
+      // reveal: secret methods, the price struck to free, friends doing it again and again
+      show("#sReveal", T.turn + 0.24, T.go);
+      tl.fromTo("#folder", { y: 500, opacity: 0, rotation: 6 }, { y: 0, opacity: 1, rotation: 0, duration: 0.45, ease: "power3.out" }, T.turn + 0.26);
+      ["#m1", "#m2", "#m3"].forEach((s, i) => tl.fromTo(s, { y: 140, opacity: 0, rotation: 0 }, { y: -40 + Math.abs(i - 1) * 40, x: (i - 1) * 230, rotation: (i - 1) * 9, opacity: 1, duration: 0.4, ease: "back.out(1.8)" }, T.methods + i * 0.18));
+      tl.fromTo("#f-stamp", { scale: 2.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.25, ease: "power4.out" }, T.secret); shake(T.secret + 0.03, 10, 5);
+      tl.fromTo("#price", { x: 200, opacity: 0 }, { x: 0, opacity: 1, duration: 0.35, ease: "power3.out" }, T.turn + 0.5);
+      tl.fromTo("#strike", { width: 0 }, { width: 560, duration: 0.3, ease: "power3.out" }, T.free - 0.35);
+      tl.to("#price", { opacity: 0.45, duration: 0.3 }, T.free - 0.3);
+      tl.fromTo("#zero", { scale: 2.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.28, ease: "power4.out" }, T.free - 0.1);
+      tl.fromTo("#free", { scale: 2.6, opacity: 0, rotation: -20 }, { scale: 1, opacity: 1, rotation: -8, duration: 0.3, ease: "power4.out" }, T.free); shake(T.free + 0.03, 12, 5);
+      if (T.friends) {
+        tl.to("#folder", { x: -1100, opacity: 0, duration: 0.35, ease: "power3.in" }, T.friends - 0.3);
+        ["#b1", "#b2", "#b3"].forEach((s, i) => tl.fromTo(s, { y: 40, opacity: 0, scale: 0.8 }, { y: 0, opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, T.friends + i * 0.45));
+      }
+      if (T.again) ["#o1", "#o2", "#o3", "#o4"].forEach((s, i) => pop(s, T.again + i * 0.22, 0.4, 0.3));
+      // title slam
+      show("#sTitle", T.go, {{DUR}} + 1);
+      tl.fromTo("#t-icon", { scale: 0.2, rotation: -30, opacity: 0 }, { scale: 1, rotation: 0, opacity: 1, duration: 0.4, ease: "back.out(2.2)" }, T.go + 0.02);
+      tl.fromTo("#t-main", { scale: 2.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "power4.out" }, T.go + 0.04); shake(T.go + 0.08, 22, 8);
+      tl.fromTo("#t-pill", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: "back.out(2)" }, T.go + 0.3);
+      tl.fromTo("#flash2-el", { opacity: 1 }, { opacity: 0, duration: 0.42 }, T.go);
+      tl.to("#t-main", { scale: 1.04, duration: 1.2, ease: "sine.inOut" }, T.go + 0.4);
+      gsap.set(".wp", { skewX: -12 });
+      tl.fromTo("#wo2", { xPercent: -110 }, { xPercent: 8, duration: 0.3, ease: "power3.in" }, {{WIPE_T}});
+      tl.fromTo("#wo1", { xPercent: -110 }, { xPercent: 0, duration: 0.3, ease: "power3.in" }, {{WIPE_T}} + 0.06);
+      tl.set({}, {}, {{DUR}});
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

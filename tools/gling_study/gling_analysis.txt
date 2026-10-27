@@ -1,0 +1,39 @@
+words 1888 kept words 1226
+air before first word: [0.16, 0.15, 0.37, 0.16, 0.34, 0.16, 0.24, 0.18, 0.54, 0.15, 0.1, 0.43, 0.42, 0.15, 0.15]
+air after last word: [-0.34, -1.31, -0.01, 0.2, 0.21, 0.39, 2.67, -0.27, -0.03, 0.18, 0.09, -0.22, 0.11, 0.05, 0.69]
+pauses >0.6 s Gling LEFT inside pieces: 4 [0.8, 0.76, 0.66, 0.6]
+
+CUT     0.0-   41.2 ( 41.2s, sim 0.13): nding over $1 ,500 at the aloe yoga websites, I finally have come to the conclusion that I have finally found Hey guys, not {{REVIEW_CHANNEL}} here. Welcome back to yet again another video in today. I'm gonna be going over the best DH gate aloe yoga clothing. I'm super Hey
+   KEPT    41.2-   68.9: guys, not {{REVIEW_CHANNEL}} here. Welcome back to yet again another video in today I'm gonna be going over the best aloe clothing from DH gate after spending over
+CUT    68.9-  156.9 ( 88.0s, sim 0.53): So to start so to start things off so to start things off I do have the aloe quarter so
+   KEPT   156.9-  189.2: to start things off I do have an aloe pullover sweatshirt I'm not sure if this is the accolade one or the double take one and one thing I will say abo
+CUT   189.2-  203.6 ( 14.4s, sim 0.00): One thing
+   KEPT   203.6-  226.6: to know is the aloe print is a little bit on the cheaper side. It feels almost like flimsy and not really real to be honest with you. The real deal de
+CUT   226.6-  326.0 ( 99.4s, sim 0.07): se pieces will probably set you back $140 but the only trade -off is some of the quality on the logo and other places such as fabric may be a little bit degraded but overall I will be rating this an 8 out of 10 if you decide to buy aloe from this. So here's so
+   KEPT   326.0-  368.1: here's what it looks like on body honestly not bad noticeably you won't really see much of a difference as you can see I do have it on it is true to s
+CUT   368.1-  402.2 ( 34.1s, sim 0.40): Here's the real owl piece. Here's the real owl pullover sweatshirt and you can see here's
+   KEPT   402.2-  435.8: the real owl pullover sweatshirt. And if I go out and get a closer look here, we can actually see that the logo is just more pronounced, more fur, jus
+CUT   435.8-  500.8 ( 65.1s, sim 0.20): ry, here's what it looks like, here's what looks like on body I will say the real deal is more comfortable but again so here's what it looks like on body I will say the real owl does feel more comfortable a lot warmer and overall so here's what they're real so
+   KEPT   500.8-  525.0: here's what real owl looks like on body I mean pretty much the same thing looks wise but if you have both of them side by side you'll probably pick th
+CUT   525.0-  546.1 ( 21.1s, sim 0.47): last but not least we do have the quarter last but not least we have the fake last
+   KEPT   546.1-  569.2: but not least we have the fake quarter zip from the HP let's see if this is any good I decided to put this back in the bag I had it laying around but 
+CUT   569.2-  594.2 ( 25.0s, sim 0.54): last but not least we do have the quarters in last
+   KEPT   594.2-  602.4: but not least we do have Decorters in and I know a lot of you guys have been looking for this specific piece. So that's why I got it I got it in this 
+CUT   602.4-  603.1 (  0.7s, sim 0.00): way and
+   KEPT   603.1-  607.8: it's also gonna be in a size medium So hopefully this actually fits as you guys can see pretty much the same deal Let's go ahead and feel the owl logo
+CUT   607.8-  608.4 (  0.7s, sim 0.00): as
+   KEPT   608.4-  626.9: you guys can see pretty much the same deal Let's go ahead and feel the owl logo. I will say with this one weirdly enough It's actually firmer than the
+CUT   626.9-  642.8 ( 15.9s, sim 0.00): 
+   KEPT   642.8-  646.8: 
+CUT   646.8-  647.8 (  1.0s, sim 0.00): 
+   KEPT   647.8-  649.8: 
+CUT   649.8-  666.4 ( 16.6s, sim 0.12): And
+   KEPT   666.4-  694.2: here's what it looks like on body, honestly, not bad. And I'm probably gonna give this one a 9 out of 10 just because the material feels a little bit 
+CUT   694.2-  865.8 (171.6s, sim 0.00): t worry, this seller's got you covered. But again, I do recommend picking up many different owl pieces to see which ones you like. Me personally, I like the quarter zips and a pullover shirts, but you may actually like some of the sweatpants as well. So if you
+   KEPT   865.8-  888.6: are wondering where to purchase owl from it's very simple simply go over to solo dot to slash shift three. I'll try to leave a direct link. But just i
+CUT   888.6-  901.4 ( 12.8s, sim 0.00): once you
+   KEPT   901.4-  945.8: find the aloe quarter zip simply click on the link it's going to say one -to -one premium quality and you're in a good place there. You can see there'
+CUT   945.8-  963.3 ( 17.5s, sim 0.27): In terms of sizing you can see right here that we do have everything from small to 3xl which is very accommodating for all types of body types. In
+   KEPT   963.3-  974.6: terms of sizing we do have everything from small all the way up to 3XL which is very accommodating for many different people but overall I'll be ratin
+CUT   974.6-  991.3 ( 16.7s, sim 0.60): But anyways guys that's pretty much it but anyways guys that's pretty much It stays video if you guys enjoyed and we're able to figure out if DH But
+   KEPT   991.3- 1010.1: anyways guys that's pretty much it stays video if you guys enjoyed and we're able to gonna figure out if DH gate How is for you me personally? I'm rea

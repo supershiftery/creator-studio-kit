@@ -1,0 +1,29 @@
+{
+  "id": "R21",
+  "name": "Editor Cut",
+  "blurb": "His human editor's look (channel study 2026-10-24): opens on a real clip, 2-4 word glowing phrase captions with echo copies on key words, stamp / chart / money-rain graphics on his words, 3-4 cartoon FX transitions, a huge yellow word-by-word hero ending over his product footage. Engine = R01 (the approved reselling spreadsheet intro).",
+  "ref": "{{REVIEW_CHANNEL}} reviews North Face + AirPods intros",
+  "status": "test",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 1,
+    "max": 16,
+    "maxlen": 9.0,
+    "start_after": 0.0
+  },
+  "hold": 1.9,
+  "sfx": [
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.16,
+      "d": 0.3
+    }
+  ],
+  "editor": true
+}

@@ -1,0 +1,6 @@
+{
+ "why": "Intro lines that knock other resellers / influencers ('selling you poor quality vendor links') show a scroll through another reseller's supplier site, never his own DHgate listings (user, ultimate dhgate free reselling spreadsheet 2026-10-23, 0:08). ROTATED: each video gets the least-used site (review_intro.competitor_footage, ledger _state/competitor_sites_used.json), a rebuild keeps its site (user, remote test prada 2026-10-26: 'a new website for each video ... at least 10 that we can fall back to ... we're not calling out a specific YouTuber'). Found 2026-10-26 from the description links of YouTube 'vendor list' videos; each loads with no wall and shows a grid of vendor bundles with prices. Left out: pages that also sell receipt generators (zachresells, bandosupplies, shopwithjah), coaching pages (resellingblueprint, kennyresells), a carding-looking domain. piaresells.com is the one he gave.",
+ "sites": ["https://piaresells.com/", "https://vendorplug.live/", "https://acemovez.com/", "https://masteryresells.com/",
+           "https://kennyresell.com/", "https://crazyyvendor.myshopify.com/", "https://flipsonly.com/", "https://aynjulflips.com/",
+           "https://resellempire.com/", "https://resti.store/"]
+}

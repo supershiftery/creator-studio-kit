@@ -1,0 +1,27 @@
+{
+ "id": "R17",
+ "name": "Group Chat",
+ "blurb": "The intro plays out as a phone text thread: a friend's bubble asks the question, every VO line comes back as your blue bubble (key words bold), B-roll lands as photo messages with a 'delivered' tick, typing dots between; on the turn the friend replies 'WAIT WHAT' and the thread races; the title arrives as a pinned message banner.",
+ "status": "off",
+ "footage": {
+  "roles": [
+   "problem",
+   "turn",
+   "reveal"
+  ],
+  "every": 2,
+  "max": 4,
+  "maxlen": 4.0
+ },
+ "hold": 2.0,
+ "sfx": [
+  {
+   "sfx": "notify",
+   "t": "turn",
+   "off": 0.4,
+   "vol": 0.1,
+   "d": 0.6
+  }
+ ],
+ "off_why": "off with R12 (s25 ultra 2026-10-23): a phone text thread is a narrow column, the user never wants a narrow intro"
+}

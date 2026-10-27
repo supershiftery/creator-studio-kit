@@ -1,0 +1,7 @@
+{
+  "id": "P01",
+  "name": "Cart & Receipt (classic)",
+  "blurb": "The original approved Uber Eats kit (phone_edit/auto_intro.py): deals, then a cart + receipt adding up to a red total slam; blackout on 'in today's'; TOP SECRET folder + method cards; price struck to $0.00 + 100% FREE; group chat + $0.00 orders; FREE <APP> title, green wipe out.",
+  "status": "ready",
+  "external": "auto_intro"
+}

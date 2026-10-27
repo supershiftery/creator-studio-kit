@@ -1,0 +1,97 @@
+{
+ "title": "DHgate Cartier watch (review)",
+ "lesson": "Story arc: L0-L5 are the problem (he wants it, can't afford it), L6 is the turn (DHgate), L7-L8 the reveal. Problem lines use the turntable spins (#0-#7): the watch as the dream object. Wearing/hands shots (#9, #11, #13) are saved for L8 'the quality was insane' because they are the payoff; using the wrist on L2 'always wanted to add to my collection' would spoil that he gets it later. L1 names a specific model he never filmed (Cartier Skeleton) and L4 names a car: real pictures with precise searches. L5 'unattainable' and L9 'let's go' have nothing literal to show: type only. L6 says DHgate: store page #14/#15. L7 'a fraction of the cost' is a price claim: the store page with the prices visible (#15) is the proof, not hands on the watch. Neighbouring lines start with different clips (#3, then #7, then #5).",
+ "input": "Plan what each line of this review video intro shows on screen.\n\nVideo: \"dhgate cartier watch\"  (product: watch)  template: R01 Smoke Words\nThe VO is split into lines. Lines marked SLOT get a full-screen footage/picture slot under the captions; the others are\nthe template's own text-only look (still answer them: \"type\" or a picture that pops in).\n\nLINES\nL0 [0.0-2.0s] role=hook SLOT: Cartier watches, but more specifically,\nL1 [2.4-4.6s] role=problem SLOT: the Cartier Skeleton has been something I always\nL2 [4.6-7.0s] role=problem SLOT: wanted to add into my collection for a long time.\nL3 [7.4-10.4s] role=problem SLOT: But unfortunately with one costing around $25,000,\nL4 [11.0-13.7s] role=problem SLOT: the same price as a brand new 2026 Kia,\nL5 [14.2-16.0s] role=problem SLOT: it seems like it's going to be unattainable.\nL6 [16.3-19.4s] role=turn SLOT: But I decided to turn the DHgate to see exactly what I could find.\nL7 [19.8-22.1s] role=reveal SLOT: These watches are literally a fraction of the cost\nL8 [22.1-24.1s] role=reveal SLOT: and the quality was absolutely insane.\nL9 [24.5-25.0s] role=go: Let's go.\n\nCLIPS (the creator's own footage; the attached image shows one frame of each, labelled #index)\n#0: tag=product kind=broll own-broll\n#1: tag=product kind=broll own-broll\n#2: tag=product kind=broll own-broll\n#3: tag=product kind=broll own-broll\n#4: tag=product kind=broll own-broll\n#5: tag=product kind=broll own-broll\n#6: tag=product kind=broll own-broll\n#7: tag=product kind=broll own-broll\n#8: tag=product kind=broll crop=right\n#9: tag=product kind=broll crop=right\n#10: tag=product kind=broll crop=right\n#11: tag=product kind=broll crop=right\n#12: tag=product kind=broll crop=right\n#13: tag=product kind=broll crop=right\n#14: tag=store page kind=broll crop=left meant-for=[\"dhgate\", \"where to get\", \"where to buy\", \"link\", \"website\", \"site\", \"store\", \"page\", \"online\", \"spreadsheet\", \"dollars\", \"dollar\", \"bucks\", \"price\"]\n#15: tag=store page kind=broll crop=left meant-for=[\"dhgate\", \"where to get\", \"where to buy\", \"link\", \"website\", \"site\", \"store\", \"page\", \"online\", \"spreadsheet\", \"dollars\", \"dollar\", \"bucks\", \"price\"]\n\nRULES\n# Intro director rules (sent to Claude with every intro plan)\n\nAdd a line here whenever the user gives intro feedback; the next build follows it.\n\n## All types\n- Every line should SHOW the literal thing it says: the named product, place, car, brand, person or action.\n- A line with nothing literal to show continues the shot before it, or is kinetic type only. Never random filler.\n- Never repeat the same clip moment on two lines in a row.\n- No dates, years or months on screen. No emojis. No generic cash/banknote stock.\n- Pictures must be provably the thing: \"Cartier\" = a Cartier watch, never a place called Cartier.\n\n## review (DHgate / product reviews)\n- The creator's OWN B-roll (own=true) is the first choice for product lines. A long spin feeds several lines at different moments.\n- Never the talking camera: a muted shot of him talking reads as lip-sync.\n- Price lines (\"costs $25,000\"): the price-tag graphic carries it; show the real product or the store page, not cash.\n- Comparison lines (\"the same price as a brand new Kia\"): a picture of THAT thing (the car), not the store page.\n- Store/link/DHgate lines: the store page screen recording.\n- Travel talk (airport, TSA, flight, suitcase): stock B-roll.\n- Fewer repeats of the same product shot: mix own B-roll, product camera, store page, pictures and type-only beats.\n\n\nFor EVERY line choose one:\n- {\"show\":\"footage\",\"clips\":[indices in preference order]}  one of the creator's clips (look at the frames: only clips that really show what the line says; never a frame with a face talking)\n- {\"show\":\"picture\",\"query\":\"<precise Wikimedia Commons search, e.g. 'Cartier Santos watch' or 'Kia Sportage car'>\",\"kind\":\"photo|logo\",\"word\":\"<the word in the line it lands on>\"}  a real photo of a named thing the clips don't show\n- {\"show\":\"stock\",\"query\":\"<2-3 word stock video search>\"}  generic action/place B-roll (travel, shopping, delivery), at most 3 per intro\n- {\"show\":\"type\"}  kinetic type only\n\nReply with ONLY JSON: {\"lines\":[{\"i\":0,\"show\":\"...\", ..., \"why\":\"<8 words>\"}, ...], \"notes\":\"<one sentence on the intro as a whole>\"}\n\nWHAT THE ATTACHED IMAGE(S) SHOW (described cell by cell by your vision assistant):\n#0: red Cartier-style watch box on white rotating turntable, patterned rug with partial letters, cables on floor; face visible and talking? no; readable text: none (partial rug letters only); quality: wide/fisheye angle, fine\n#1: top-down close-up of open red box with silver-tone watch on white cushion, patterned carpet; face visible and talking? no; readable text: none; quality: good, slight fisheye\n#2: closed upright red box on white turntable, rug letters and background cables; face visible and talking? no; readable text: none; quality: fine\n#3: top-down of open red box showing small silver watch in inner tray; face visible and talking? no; readable text: none; quality: fine\n#4: wide shot of open red box on turntable, rug and cables visible; face visible and talking? no; readable text: none; quality: fine, slightly distant subject\n#5: angled top-down of open box with silver watch, lid raised; face visible and talking? no; readable text: none; quality: fine\n#6: closed red box standing upright on turntable, rug letters in background; face visible and talking? no; readable text: none; quality: fine\n#7: top-down of open box with watch, lid lying to the right; face visible and talking? no; readable text: none; quality: fine\n#8: desk setup: black cloud-pattern mousepad, small clock display reading \"2:28\", Stream Deck-style keypad with colorful buttons, red box in background, person's arm at edge, RGB lighting; face visible and talking? no; readable text: \"2:28\" on clock, partial text on mousepad; quality: fine, cluttered frame\n#9: person's hands holding a watch over open red box on desk, Stream Deck visible, bracelet on wrist; face visible and talking? no; readable text: none; quality: fine, tight crop on hands\n#10: hand reaching into open red box, second person wearing turquoise bracelet/watch; face visible and talking? no; readable text: none; quality: fine\n#11: close-up of wrist wearing silver metal-link watch with dark dial, other hand pointing at it, desk and keypad in background; face visible and talking? no; readable text: none (watch dial not legible); quality: fine\n#12: person holding open certificate/warranty booklet with greenish border and red seal stamp, wearing black long sleeve and turquoise beaded bracelet, Stream Deck on desk; face visible and talking? no (cropped out); readable text: certificate text present but not legible; quality: fine\n#13: hand wearing the silver watch held over open red box, second person's turquoise-bracelet wrist nearby; face visible and talking? no; readable text: none; quality: fine\n#14: screenshot of DHgate store page: two rose-gold women's watches marked \"27mm\" and \"22mm\", watermark \"www.DHgate.com\", overlay \"#11\"; face visible and talking? no; readable text: prices \"US $54.53\", \"US $54.64\", \"US $53.51\", \"US $52.95\", \"Total Cost US $82.45\", \"Buy Now\", \"Add to Cart\"; quality: screen capture, slight glare\n#15: screenshot of DHgate store page: silver square-dial watch worn on a model's wrist in product photo, overlay \"#22\"; face visible and talking? no (only a wrist in the listing photo); readable text: prices \"US $65.36\", \"US $54.64\", \"US $53.51\", \"US $52.95\", \"Total Cost US $82.45\", \"Buy Now\", \"Add to Cart\"; quality: screen capture, fine",
+ "output": {
+  "lines": [
+   {
+    "i": 0,
+    "show": "footage",
+    "clips": [
+     3,
+     1,
+     5
+    ],
+    "why": "Own Cartier box spin opens the hook"
+   },
+   {
+    "i": 1,
+    "show": "picture",
+    "query": "Cartier skeleton watch",
+    "kind": "photo",
+    "word": "Skeleton",
+    "why": "Named model not in creator's clips"
+   },
+   {
+    "i": 2,
+    "show": "footage",
+    "clips": [
+     7,
+     0,
+     4
+    ],
+    "why": "Own spin, different angle, collection idea"
+   },
+   {
+    "i": 3,
+    "show": "footage",
+    "clips": [
+     5,
+     1,
+     6
+    ],
+    "why": "Real product under the price-tag graphic"
+   },
+   {
+    "i": 4,
+    "show": "picture",
+    "query": "Kia Sportage car",
+    "kind": "photo",
+    "word": "Kia",
+    "why": "Shows the car being compared to"
+   },
+   {
+    "i": 5,
+    "show": "type",
+    "why": "Abstract feeling, kinetic type beat only"
+   },
+   {
+    "i": 6,
+    "show": "footage",
+    "clips": [
+     14,
+     15
+    ],
+    "why": "DHgate named, show the store page"
+   },
+   {
+    "i": 7,
+    "show": "footage",
+    "clips": [
+     15,
+     14
+    ],
+    "why": "Store listing price shows the fraction"
+   },
+   {
+    "i": 8,
+    "show": "footage",
+    "clips": [
+     13,
+     11,
+     9
+    ],
+    "why": "Watch on wrist proves the quality"
+   },
+   {
+    "i": 9,
+    "show": "type",
+    "why": "Short kicker, type-only beat"
+   }
+  ],
+  "notes": "Mixes own turntable B-roll, two real pictures, the DHgate store page and wrist shots, with type beats for the abstract lines; the Kia picture is shown without the year."
+ },
+ "from": "intro_director-48ea86c045ddfda7e300.json",
+ "corrected": true,
+ "added": "2026-10-22 20:00"
+}

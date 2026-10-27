@@ -1,0 +1,9 @@
+{
+ "claude": {
+  "opus": "claude-opus-5-5",
+  "sonnet": "claude-sonnet-5-5",
+  "haiku": "claude-haiku-5-5"
+ },
+ "examples_per_prompt": 2,
+ "_note": "Which Claude model each role uses. Swap opus for sonnet to make intro planning cheaper on a small plan."
+}

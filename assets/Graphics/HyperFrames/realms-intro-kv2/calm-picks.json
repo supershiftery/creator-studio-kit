@@ -1,0 +1,53 @@
+[
+ {
+  "entry": "slam",
+  "trans": "cut",
+  "layout": "stack",
+  "dirt": "zoom",
+  "mascot": "slide",
+  "xp": "mcxp",
+  "title": "left",
+  "id": 8,
+  "list": "row",
+  "frames": [
+   "card",
+   "split",
+   "tv"
+  ],
+  "slug": "slam-cut-stack-row-card+split+tv"
+ },
+ {
+  "entry": "rise",
+  "trans": "whip",
+  "layout": "stack",
+  "dirt": "drift",
+  "mascot": "peek",
+  "xp": "kvbar",
+  "title": "left",
+  "id": 16,
+  "list": "fan",
+  "frames": [
+   "circle",
+   "split",
+   "tv"
+  ],
+  "slug": "rise-whip-stack-fan-circle+split+tv"
+ },
+ {
+  "entry": "rise",
+  "trans": "dirtwall",
+  "layout": "stack",
+  "dirt": "pan",
+  "mascot": "pop",
+  "xp": "kvbar",
+  "title": "stack",
+  "id": 19,
+  "list": "carousel",
+  "frames": [
+   "card",
+   "split",
+   "tv"
+  ],
+  "slug": "rise-dirtwall-stack-carousel-card+split+tv"
+ }
+]

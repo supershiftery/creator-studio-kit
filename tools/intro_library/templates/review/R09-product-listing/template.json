@@ -1,0 +1,35 @@
+{
+ "id": "R09",
+ "name": "Product Listing",
+ "blurb": "A clean marketplace product page builds itself: B-roll is the main product photo, thumbnails fill in per line, the title text types, star rating and 'sold' counters roll up; a cursor clicks colours/sizes on key words; on the turn it hits ADD TO CART, the cart badge pops and the page zooms into the photo for the reveal; title on the checkout button.",
+ "status": "off",
+ "footage": {
+  "roles": [
+   "hook",
+   "problem",
+   "turn",
+   "reveal",
+   "watch"
+  ],
+  "every": 1,
+  "max": 16,
+  "maxlen": 5.0
+ },
+ "hold": 2.0,
+ "sfx": [
+  {
+   "sfx": "click",
+   "t": "turn",
+   "vol": 0.2,
+   "d": 0.3
+  },
+  {
+   "sfx": "ping",
+   "t": "turn",
+   "off": 0.25,
+   "vol": 0.12,
+   "d": 0.6
+  }
+ ],
+ "off_note": "OFF (dhgate jordan 3 2026-10-23): one listing card with turntable footage in its photo box for 18 s, 'the same element ... it just doesn't move ... it got boring very very quickly', plus an empty grey photo box on type-only lines ('a white page for a good second')."
+}

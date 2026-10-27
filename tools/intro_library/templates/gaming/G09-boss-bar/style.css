@@ -1,0 +1,15 @@
+:root { --g-acc: #ff7ad9; --g-acc2: #c2189b; --g-panel: rgba(20,4,14,.88); --g-edge: #c2189b; --g-wipe: #2a0606; }
+#sky { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 110%, #6b1208 0%, #2a0606 40%, #0b0204 75%); }
+#embers { position: absolute; inset: 0; }
+#boss { position: absolute; left: 360px; top: 40px; width: 1200px; display: flex; flex-direction: column; align-items: center; gap: 12px; opacity: 0; z-index: 50; }
+#boss .bar { position: relative; width: 1200px; height: 36px; background: #1a0a1a; border: 5px solid #000; box-shadow: 0 0 0 3px #3b1d3b; }
+#boss .hp, #boss .ghost { position: absolute; left: 0; top: 0; height: 100%; width: 100%; transform-origin: 0 50%; }
+#boss .ghost { background: #fff; opacity: .55; }
+#boss .hp { background: linear-gradient(180deg, #ff6bd8, #c2189b); }
+#boss .hp::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 58px, rgba(0,0,0,.35) 58px 60px); }
+.dir .scene { z-index: 10; }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; opacity: 0; z-index: 46; }
+.xp { left: 560px; width: 800px; }
+.xp-lab { font-family: "MC", monospace; font-weight: 400; color: #80ff20; text-shadow: 3px 3px 0 #000; font-size: 34px; }
+.xp-bar { height: 26px; border: 4px solid #000; border-radius: 0; background: #2b2b2b; }
+.xp-fill { background: linear-gradient(180deg, #b8ff4a, #64c814); }

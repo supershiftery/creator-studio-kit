@@ -1,0 +1,10 @@
+{
+  "id": "R02",
+  "name": "Grid Notebook",
+  "blurb": "Grid paper desk: the hook types into a search bar, red pen circles and arrows point at printed colour photos of the product, googly-eye sticker on the sad line; the page flips on 'in today's video' into full-colour B-roll; title circled in red pen.",
+  "ref": "{{REVIEW_CHANNEL}} Moncler review intro (grid paper + red marker)",
+  "status": "ready",
+  "footage": {"roles": ["hook", "problem", "turn", "reveal", "watch"], "every": 1, "max": 16, "maxlen": 9.0, "extend_last": true},
+  "hold": 2.0,
+  "sfx": [{"sfx": "key", "t": 0.25, "vol": 0.12, "d": 0.9}, {"sfx": "click", "t": "turn", "vol": 0.16, "d": 0.3}]
+}

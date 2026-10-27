@@ -1,0 +1,46 @@
+{
+  "id": "P04",
+  "name": "Jackpot Lights",
+  "blurb": "Casino night: a border of chasing marquee bulbs frames every scene and a JACKPOT meter along the bottom fills a little on every line, flashing on the money lines; on the turn the bulbs go wild and the meter hits JACKPOT; your own clips play inside the scenes; title on the marquee.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.2,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "turn",
+      "off": 1.3,
+      "vol": 0.14,
+      "d": 0.6
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

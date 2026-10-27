@@ -1,0 +1,16 @@
+#paper, #board, #strips, #sheet2 { position: absolute; inset: 0; }
+#sheet2 { opacity: 0; }
+.print { position: absolute; background: #f8f6f0; padding: 16px 16px 16px; box-shadow: 0 16px 34px rgba(60,40,10,.35); opacity: 0; }
+.print .in { position: relative; width: 100%; height: 100%; overflow: hidden; background: #333; }
+.print.bw .in .slot { filter: saturate(1.1); }
+.tape { position: absolute; width: 150px; height: 46px; background: rgba(240,230,190,.72); box-shadow: 0 2px 4px rgba(0,0,0,.12); }
+.strip { position: absolute; padding: 14px 34px; background: #fffdf7; font: 400 70px "Typewriter", monospace; color: #1b1b1b; white-space: nowrap; opacity: 0;
+  box-shadow: 0 10px 20px rgba(60,40,10,.3); clip-path: polygon(0 6%, 4% 0, 12% 5%, 22% 1%, 35% 6%, 48% 0, 61% 5%, 74% 1%, 86% 6%, 96% 0, 100% 8%, 99% 92%, 94% 100%, 82% 95%, 70% 100%, 57% 94%, 44% 100%, 31% 95%, 18% 100%, 6% 94%, 0 98%); }
+.strip .k, .strip .neg { color: #c4161c; }
+.rn { display: inline-block; padding: 4px 12px; margin: 0 3px; font-size: 96px; line-height: 1; box-shadow: 0 6px 12px rgba(0,0,0,.3); }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; opacity: 0; z-index: 45; }
+#title .letters { display: flex; flex-wrap: nowrap; align-items: center; justify-content: center; }
+#title .t2 { font: 400 54px "Typewriter", monospace; color: #1b1b1b; background: #fffdf7; padding: 10px 30px; box-shadow: 0 8px 18px rgba(60,40,10,.3); }
+.xp-lab { color: #1b1b1b; font-family: "Typewriter", monospace; text-shadow: none; }
+.xp-bar { border-color: #1b1b1b; background: #fffdf7; border-radius: 4px; }
+.xp-fill { background: #c4161c; }

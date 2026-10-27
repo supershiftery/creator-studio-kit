@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{STUDIO_NAME}}</title>
+<link rel="icon" href="studio.png">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="redesign.css">
+<link rel="stylesheet" href="ideas.css">
+</head>
+<body>
+<div id="app">
+  <aside id="side">
+    <div class="brand"><img class="logo" src="studio.png" alt=""><div><b>{{STUDIO_NAME}}</b><small id="mode-tag">loading…</small></div></div>
+    <div class="side-new"><button id="btn-new" class="primary">＋ New project</button><button id="btn-adopt" class="icon" title="Open an existing project folder">
+      <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button></div>
+    <button id="btn-search" class="side-search" title="Search every transcript (Ctrl+K)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search transcripts<kbd>Ctrl K</kbd></button>
+    <nav>
+      <a data-view="projects" class="active"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg>Projects</a>
+      <a data-view="queue"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="17" r="3"/></svg>Queue<b id="queue-count" class="ncount" style="display:none"></b></a>
+    </nav>
+    <div id="side-jobs"></div>
+    <nav class="nav-foot">
+      <a data-view="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</a>
+    </nav>
+  </aside>
+  <main id="main"></main>
+</div>
+<div id="modal-root"></div>
+<div id="toasts"></div>
+<div id="drop-veil"><div>Drop to add to this project</div></div>
+<script src="app.js"></script>
+<script src="app2.js"></script>
+<script src="app3.js"></script>
+<script src="app4.js"></script>
+<script src="kit_update.js"></script>
+<script src="app5.js"></script>
+<script src="app6.js"></script>
+</body>
+</html>

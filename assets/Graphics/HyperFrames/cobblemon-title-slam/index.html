@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #000;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+      }
+      /* shake wrapper: every picture layer lives inside it */
+      #stage {
+        position: absolute;
+        inset: 0;
+      }
+      .layer {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+      }
+      .fill {
+        display: block;
+        width: 1920px;
+        height: 1080px;
+        object-fit: cover;
+      }
+      /* title + plate are cut from the Higgsfield still, which sits 0.5% smaller than clip frame 0 */
+      #plate-img,
+      #title-wrap {
+        transform-origin: 960px 505px;
+      }
+      #title-wrap {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+      }
+      #shine {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+        -webkit-mask-image: url("assets/title-cut.png");
+        mask-image: url("assets/title-cut.png");
+        -webkit-mask-size: 1920px 1080px;
+        mask-size: 1920px 1080px;
+        overflow: hidden;
+      }
+      #shine-band {
+        position: absolute;
+        top: -200px;
+        left: 0;
+        width: 240px;
+        height: 1480px;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.85) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        mix-blend-mode: screen;
+      }
+      #ring-el {
+        position: absolute;
+        left: 610px;
+        top: 375px;
+        width: 700px;
+        height: 260px;
+        border: 12px solid #fff;
+        border-radius: 50%;
+        opacity: 0;
+      }
+      .blk {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        opacity: 0;
+        box-shadow: inset -5px -5px 0 rgba(0, 0, 0, 0.35);
+      }
+      #flash-el {
+        position: absolute;
+        inset: 0;
+        background: #fff;
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-4nyc"
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="6"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div data-hf-id="hf-1rt5" id="stage">
+        <!-- 0.0-0.5: title-free plate under the incoming title -->
+        <div data-hf-id="hf-3v5s" id="plate" class="clip layer" data-start="0" data-duration="0.5" data-track-index="0">
+          <img data-hf-id="hf-31tl" id="plate-img" class="fill" src="assets/plate.jpg" alt="" />
+        </div>
+        <!-- 0.5-1.6: exact first frame of the Higgsfield clip (baked title hidden under the cutout) -->
+        <div data-hf-id="hf-65tq" id="still" class="clip layer" data-start="0.5" data-duration="1.1" data-track-index="0">
+          <img data-hf-id="hf-8f6m" class="fill" src="assets/clip-f0.png" alt="" />
+        </div>
+        <!-- 1.6-6.0: the Higgsfield clip takes over seamlessly from frame 0 -->
+        <video data-hf-id="hf-z3mr"
+          id="hf-clip"
+          class="clip layer fill"
+          src="assets/title-clip.mp4"
+          muted
+          playsinline
+          data-start="1.6"
+          data-duration="4.4"
+          data-media-start="0"
+          data-track-index="0"
+        ></video>
+
+        <div data-hf-id="hf-8jbn" id="ring" class="clip layer" data-start="0.5" data-duration="0.7" data-track-index="2">
+          <div data-hf-id="hf-gejr" id="ring-el"></div>
+        </div>
+        <div data-hf-id="hf-336t" id="blocks" class="clip layer" data-start="0.5" data-duration="1.1" data-track-index="3"></div>
+
+        <!-- the cut-out title: slam, settle, shine, then hand off to the clip -->
+        <div data-hf-id="hf-rhzf" id="title" class="clip layer" data-start="0" data-duration="1.6" data-track-index="1">
+          <div data-hf-id="hf-cnra" id="title-wrap">
+            <img data-hf-id="hf-casn" class="fill" src="assets/title-cut.png" alt="Cobblemon Bedrock Edition" />
+            <div data-hf-id="hf-svny" id="shine"><div data-hf-id="hf-22ju" id="shine-band"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div data-hf-id="hf-u7xk" id="flash" class="clip layer" data-start="0.5" data-duration="0.35" data-track-index="4">
+        <div data-hf-id="hf-gph1" id="flash-el"></div>
+      </div>
+
+      <audio data-hf-id="hf-o8y7" id="sfx-whoosh" src=".media/audio/sfx/sfx_001.mp3" data-start="0" data-duration="0.57" data-track-index="5" data-volume="0.8"></audio>
+      <audio data-hf-id="hf-a08d" id="sfx-boom" src=".media/audio/sfx/sfx_002.mp3" data-start="0.47" data-duration="2.1" data-track-index="6" data-volume="0.9"></audio>
+      <audio data-hf-id="hf-gn5l" id="sfx-click" src="assets/click.wav" data-start="0.5" data-duration="0.63" data-track-index="7" data-volume="1"></audio>
+    </div>
+    <script>
+      const HIT = 0.5;
+      const BASE = 1.005; // still -> clip frame 0 scale
+      const tl = gsap.timeline({ paused: true });
+
+      // plate: fast push into place, motion blur clearing as the title lands
+      tl.fromTo("#plate-img", { scale: 1.2, filter: "blur(10px)" }, { scale: BASE, filter: "blur(2px)", duration: HIT, ease: "power2.in" }, 0);
+
+      // title slam
+      tl.fromTo("#title-wrap", { scale: 2.3, rotation: -8, filter: "blur(8px)" },
+        { scale: BASE, rotation: 0, filter: "blur(0px)", duration: HIT, ease: "power3.in" }, 0);
+      tl.fromTo("#title-wrap", { opacity: 0 }, { opacity: 1, duration: 0.15, ease: "none" }, 0);
+      // impact pop, settling from above only (never smaller than the baked title underneath)
+      tl.to("#title-wrap", { scale: BASE * 1.07, duration: 0.06, ease: "power2.out" }, HIT);
+      tl.to("#title-wrap", { scale: BASE, duration: 0.5, ease: "power3.out" }, HIT + 0.06);
+
+      // flash + shockwave
+      tl.fromTo("#flash-el", { opacity: 0.9 }, { opacity: 0, duration: 0.3, ease: "power2.out" }, HIT);
+      tl.fromTo("#ring-el", { scale: 0.45, opacity: 0.9 }, { scale: 2.3, opacity: 0, duration: 0.6, ease: "power2.out" }, HIT);
+
+      // decaying camera shake (fixed offsets, deterministic)
+      const shake = [[-22, 14], [18, -12], [-14, 9], [11, -8], [-7, 5], [5, -3], [-2, 2], [0, 0]];
+      shake.forEach(([x, y], i) => tl.to("#stage", { x, y, duration: 0.045, ease: "none" }, HIT + i * 0.045));
+
+      // Minecraft block burst from the title edges
+      const colors = ["#e2231a", "#ffffff", "#2b2b2b", "#f7d518", "#e2231a", "#ffffff", "#8a5a2b"];
+      const blocksEl = document.getElementById("blocks");
+      const N = 18;
+      for (let i = 0; i < N; i++) {
+        const b = document.createElement("div");
+        b.className = "blk";
+        const t = i / (N - 1);
+        const sx = 260 + t * 1400;
+        const top = i % 2 === 0;
+        const sy = top ? 330 : 690;
+        const size = 38 + ((i * 7) % 24);
+        b.style.left = sx + "px";
+        b.style.top = sy + "px";
+        b.style.width = size + "px";
+        b.style.height = size + "px";
+        b.style.background = colors[i % colors.length];
+        blocksEl.appendChild(b);
+        const dx = (t - 0.5) * 900 + ((i * 37) % 120) - 60;
+        const up = top ? 220 + ((i * 53) % 140) : 90 + ((i * 29) % 80);
+        const fall = 520 + ((i * 41) % 200);
+        tl.set(b, { opacity: 1, x: 0, y: 0, rotation: 0 }, HIT);
+        tl.to(b, { x: dx, rotation: (i % 2 ? 1 : -1) * (180 + i * 20), duration: 1.0, ease: "power1.out" }, HIT);
+        tl.to(b, { y: -up, duration: 0.32, ease: "power2.out" }, HIT);
+        tl.to(b, { y: fall, duration: 0.68, ease: "power2.in" }, HIT + 0.32);
+        tl.to(b, { opacity: 0, duration: 0.25, ease: "none" }, HIT + 0.8);
+      }
+
+      // shine sweep across the letters
+      tl.fromTo("#shine-band", { x: -300, skewX: -20 }, { x: 2000, skewX: -20, duration: 0.75, ease: "power2.inOut" }, 0.75);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

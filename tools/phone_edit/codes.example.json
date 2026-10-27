@@ -1,0 +1,8 @@
+{
+ "_note": "YOUR own referral / promo codes, one per app id from apps.json. The phone pipeline puts them on the code cards. Example shape below - replace it with your real codes (setup does this with you).",
+ "example app": {
+  "code": "EXAMPLECODE",
+  "label": "EXAMPLE APP PROMO CODE",
+  "sub": "$10 OFF"
+ }
+}

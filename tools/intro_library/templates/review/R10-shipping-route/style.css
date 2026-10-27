@@ -1,0 +1,28 @@
+#map { position: absolute; inset: 0; background: #0c1320; overflow: hidden; }
+.land { position: absolute; background: #1b2a40; border-radius: 46% 54% 40% 60% / 50% 40% 60% 50%; }
+.dotgrid { position: absolute; inset: 0; background: radial-gradient(circle, rgba(120,170,255,.16) 1.6px, transparent 2px) 0 0 / 26px 26px; }
+.pin { position: absolute; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 30%, transparent); }
+.parcel { position: absolute; left: 0; top: 0; font: 64px "Emoji"; }
+#status { position: absolute; left: 80px; top: 640px; display: flex; flex-direction: column; gap: 16px; }
+.st { display: flex; gap: 22px; align-items: center; background: rgba(20,32,52,.92); border: 2px solid #2b4466; border-radius: 18px; padding: 18px 28px; opacity: 0; width: 760px; }
+.st i { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); flex: none; }
+.st b { font: 800 26px "Inter", sans-serif; color: #8fb3e6; letter-spacing: 3px; width: 250px; flex: none; }
+.st span { font: 800 42px "Poppins", sans-serif; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#win { position: absolute; left: 1000px; top: 450px; width: 840px; height: 520px; border-radius: 20px; overflow: hidden; background: #000; border: 3px solid #2b4466; opacity: 0; }
+#win .in { position: absolute; inset: 0; }
+#win .cap { position: absolute; left: 18px; top: 14px; font: 800 22px "Inter", sans-serif; color: #fff; background: #e02020; padding: 4px 12px; border-radius: 6px; z-index: 3; letter-spacing: 2px; }
+#box { position: absolute; left: 360px; top: 260px; width: 1200px; height: 720px; opacity: 0; }
+#box .body { position: absolute; left: 0; top: 160px; width: 1200px; height: 560px; background: linear-gradient(180deg, #c99a5b, #a87a40); border-radius: 10px; box-shadow: 0 40px 80px rgba(0,0,0,.6); }
+#box .body::after { content: ""; position: absolute; left: 540px; top: 0; width: 120px; height: 100%; background: rgba(240,225,170,.55); }
+#box .flap { position: absolute; top: 120px; width: 600px; height: 80px; background: #b88b4f; transform-origin: 50% 100%; }
+#box .flap.l { left: 0; transform-origin: 0% 100%; } #box .flap.r { right: 0; transform-origin: 100% 100%; }
+#box .in { position: absolute; left: 80px; top: 0; width: 1040px; height: 585px; border-radius: 14px; overflow: hidden; opacity: 0; box-shadow: 0 20px 50px rgba(0,0,0,.5); }
+.kin.map { font: 800 96px "Poppins", sans-serif; color: #fff; text-shadow: 0 0 24px rgba(0,0,0,.9); }
+.kin.map .k { color: var(--accent); }
+#title { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; z-index: 45; background: #c99a5b; }
+#title .label { background: #fff; width: 1500px; padding: 50px 70px; border-radius: 10px; box-shadow: 0 30px 70px rgba(0,0,0,.35); }
+#title .row { display: flex; justify-content: space-between; font: 800 40px "Inter", sans-serif; color: #111; border-bottom: 6px solid #111; padding-bottom: 16px; }
+#title .t1 { font: 900 150px "Inter", sans-serif; color: #111; text-transform: uppercase; white-space: nowrap; margin: 20px 0; letter-spacing: -3px; }
+#title .bars { height: 110px; background: repeating-linear-gradient(90deg, #111 0 6px, transparent 6px 10px, #111 10px 12px, transparent 12px 19px, #111 19px 27px, transparent 27px 31px); }
+#title .t2 { font: 700 34px "SpaceMono", monospace; color: #111; margin-top: 16px; letter-spacing: 6px; text-transform: uppercase; }
+.xp-fill { background: var(--accent); }

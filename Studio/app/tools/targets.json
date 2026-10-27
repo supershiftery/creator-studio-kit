@@ -1,0 +1,168 @@
+{
+ "_note": "Playbook targets measured from the approved finals (2026-10-22): Shein FINAL (phone), Top 5 Realms + Top 10 Servers (gaming), DHgate Asics + DHgate Prada Cups (review). See memory video-editing-playbook section 3b. [min, max] ranges; null = no limit. tools/targets_check.py compares each new draft/final against these and flags misses. Edit numbers here when the user approves a new reference.",
+ "gaming": {
+  "intro_s": [
+   20,
+   34
+  ],
+  "first_content_s": [
+   null,
+   60
+  ],
+  "first_content_ideal_s": 50,
+  "section_s": [
+   60,
+   135
+  ],
+  "intro_changes_per_min": [
+   8,
+   null
+  ],
+  "body_changes_per_min": [
+   3.5,
+   null
+  ],
+  "body_changes_ideal": 5.2,
+  "lufs": [
+   -18.2,
+   -16.2
+  ],
+  "lra": [
+   null,
+   8.0
+  ],
+  "true_peak": [
+   null,
+   -1.0
+  ],
+  "kept_pct": [
+   15,
+   30
+  ],
+  "wpm": [
+   190,
+   240
+  ],
+  "reference": "Top 10 Servers final: intro 32 s, first entry 0:49, entries 71-121 s, 5.2 big changes/min, -17.2 LUFS"
+ },
+ "phone": {
+  "intro_s": [
+   12,
+   30
+  ],
+  "first_content_s": [
+   null,
+   50
+  ],
+  "first_content_ideal_s": 41,
+  "section_s": null,
+  "intro_changes_per_min": [
+   20,
+   null
+  ],
+  "body_changes_per_min": [
+   1.0,
+   null
+  ],
+  "body_changes_ideal": 1.4,
+  "lufs": [
+   -17.0,
+   -15.0
+  ],
+  "lra": [
+   null,
+   6.0
+  ],
+  "true_peak": [
+   null,
+   -1.0
+  ],
+  "kept_pct": [
+   18,
+   35
+  ],
+  "wpm": [
+   190,
+   240
+  ],
+  "reference": "Shein FINAL: intro 17 s, first code 0:41, 214 wpm, 24% kept, -16.0 LUFS"
+ },
+ "review": {
+  "intro_s": [
+   18,
+   40
+  ],
+  "first_content_s": null,
+  "first_content_ideal_s": null,
+  "section_s": null,
+  "intro_changes_per_min": [
+   12,
+   null
+  ],
+  "body_changes_per_min": [
+   1.2,
+   null
+  ],
+  "body_changes_ideal": 2.0,
+  "lufs": [
+   -17.0,
+   -15.0
+  ],
+  "lra": [
+   null,
+   6.0
+  ],
+  "true_peak": [
+   null,
+   -1.0
+  ],
+  "kept_pct": [
+   18,
+   55
+  ],
+  "wpm": null,
+  "reference": "DHgate Asics final_intro: intro 34 s, 2.0 big changes/min, 38% kept, -16.1 LUFS | DHgate Prada Cups final_intro (approved 2026-10-22): intro 19 s, 2.2 big changes/min, 20% kept (22 min recording, many abandoned takes), -16.0 LUFS"
+ },
+ "haul": {
+  "intro_s": [
+   10,
+   60
+  ],
+  "first_content_s": [
+   null,
+   75
+  ],
+  "first_content_ideal_s": 45,
+  "section_s": [
+   15,
+   180
+  ],
+  "intro_changes_per_min": [
+   null,
+   null
+  ],
+  "body_changes_per_min": [
+   null,
+   null
+  ],
+  "body_changes_ideal": null,
+  "lufs": [
+   -17.0,
+   -15.0
+  ],
+  "lra": [
+   null,
+   8.0
+  ],
+  "true_peak": [
+   null,
+   -1.0
+  ],
+  "kept_pct": [
+   35,
+   90
+  ],
+  "wpm": null,
+  "reference": "no approved haul final yet (first: 30kg haul DHgate, 2026-10-23); loudness from the approved review finals (-16 LUFS); a haul is one phone take with few mess-ups, so most of it is kept"
+ }
+}

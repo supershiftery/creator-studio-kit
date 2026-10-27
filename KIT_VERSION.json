@@ -1,0 +1,24 @@
+{
+ "version": 3,
+ "released": "2026-10-27",
+ "changes": [
+  "Approved edits are now the answer key for their recording: a rebuild can never quietly bring back a take you already cut (approved_cuts).",
+  "Draft self-check: every finished draft is transcribed and listened to for repeats and retakes before it's marked ready (draft_audit), and the camera that's really on screen is measured from the picture (shown_cam).",
+  "Intros: a new KV pixel-box intro template (assets/Graphics/HyperFrames/_templates/kv-pixelbox) and a bigger intro library.",
+  "Descriptions: the description writer follows the Top 5 / Top 10 format for list videos and only uses links already in the project's own files.",
+  "Player bar on every video: -10 s / +10 s and 1x / 1.5x / 2x speed that sticks.",
+  "Phone review page (Studio/ui/m.html): watch a draft and send notes from your phone while Studio runs on your PC.",
+  "Schedule a build: start a draft at a time you pick (project page: Schedule).",
+  "Everything builds on your own PC: no second machine, no other AI services. Claude only.",
+  "New video types: Haul (one long phone recording, 1080p60, beat per section, captions on intro + outro) and Short (raw vertical recordings: 1080x1920, tight trim, captions, hook headline, punch-ins).",
+  "Render queue: one GPU build at a time, a Queue page, live revision statuses, a smoother progress bar with ETA and a stuck warning.",
+  "Captions (opt-in, Settings): caption presets for Shorts and intros.",
+  "Music picker: chooses from your whole music folder by mood, no repeats across a channel's last 15 videos, vocal-scanned.",
+  "Intros: new templates (P21 glowing phone, R21 editor cut), a quality gate (intro_score / intro_check), named-site page scrolls, creator clips, product library, faster fix passes.",
+  "Review pipeline: cleaner joins (no mid-sentence starts, breath-tail joins), repeat guard, second-mic gap detection, B-roll per product, self-talk + retake cleanup.",
+  "Screen recordings: topic sections + music changes, cursor zooms on what you talk about.",
+  "Privacy: new on-screen personal-info scan + blur (pii_scan / pii_blur / pii_check).",
+  "Studio redesign (new look) and many speed-ups."
+ ],
+ "update_repo": "supershiftery/creator-studio-kit"
+}

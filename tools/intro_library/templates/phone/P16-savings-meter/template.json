@@ -1,0 +1,40 @@
+{
+  "id": "P16",
+  "name": "Money Meter",
+  "blurb": "A tall money meter stands along the right edge of every scene: MONEY SPENT fills red with every problem line and boils; after the turn it drains and refills green as MONEY SAVED, a coin pops on each reveal line; each line is a literal scene with your clips; title over the full green meter.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "glitch",
+      "t": "turn",
+      "off": -0.15,
+      "vol": 0.1,
+      "d": 0.4
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

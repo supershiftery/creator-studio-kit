@@ -1,0 +1,39 @@
+{
+  "id": "P19",
+  "name": "Stopwatch Race",
+  "blurb": "A race against the clock: a stopwatch chip in the corner of every scene runs red with MONEY LOST through the problem half, resets with a click on the turn and races green to 'FREE IN' the rest of the way; each line is a literal scene with your clips; title on a checkered finish.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.2,
+      "d": 0.3
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

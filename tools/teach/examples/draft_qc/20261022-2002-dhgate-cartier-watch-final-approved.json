@@ -1,0 +1,55 @@
+{
+ "title": "DHgate Cartier watch final (approved)",
+ "lesson": "The creator approved this final, so every flag is fine. 0:15.7 repeat: a near-static talking shot, nothing plays twice. 3:31.3 flash: inside the store-page screen recording he clicks through the product photos (#31, #32, #11): his own action, not an edit seam. 3:55-4:30 frozen: static product page while he keeps talking. Rule: changes inside a screen recording are never edit mistakes.",
+ "input": "Automatic QC flagged these moments in a rendered YouTube video (final.mp4, 290.5 s).\nThe attached image shows each flag's frame sheet, labelled F<n>.\n\nF0 [0:15.7-0:16.8] repeat: 1.1 s here repeats 0:14.10 (animation/shot plays twice?)\n   words around it: (none / no transcript)\nF1 [3:31.3-3:31.6] flash: shot only 0.3 s long between two hard cuts\n   words around it: they do have every single type of watch but sometimes the cardier watch link may die inside of the description so it's best to go to the spreadsheet you'll be brought to a page looking like this I do get a lot of\nF2 [3:55.1-3:57.7] frozen: picture frozen 2.7 s (title hold or stuck render?)\n   words around it: video because they're trying to avoid copyright if they did have exactly what you would expect they would actually get taken down off of the DH gate platform but you can see here there's a bunch of different color ways that you can pick from and if you are looking to buy more than one you can\nF3 [4:04.3-4:06.8] frozen: picture frozen 2.6 s (title hold or stuck render?)\n   words around it: can see here there's a bunch of different color ways that you can pick from and if you are looking to buy more than one you can get a bulk buying discount because the H gate is a wholesaling platform and that's why they have that there which is really nice especially for people that want lots of them in bulk\nF4 [4:15.8-4:20.1] frozen: picture frozen 4.3 s (title hold or stuck render?)\n   words around it: nice especially for people that want lots of them in bulk one thing I will say in terms of sizing if you don't know your wrist size you may need to go out and measure it you can go ahead and take a tape measure and then go ahead and wrap it around your wrist or you can make the best judgment and take out links later both options\nF5 [4:24.7-4:27.2] frozen: picture frozen 2.5 s (title hold or stuck render?)\n   words around it: you can go ahead and take a tape measure and then go ahead and wrap it around your wrist or you can make the best judgment and take out links later both options will work they do have a box option and a no box option so obviously what you saw in today's video I always pay for\nF6 [4:30.1-4:32.7] frozen: picture frozen 2.6 s (title hold or stuck render?)\n   words around it: take out links later both options will work they do have a box option and a no box option so obviously what you saw in today's video I always pay for the box and I like the presentation but if you are under the budget you can't save some money simply by removing the\n\nFor each flag decide: \"real\" (a viewer would notice a mistake: a cut mid-word or mid-sentence, a glitch, a shot that plays\ntwice by accident, a stuck/black frame, a flash of the wrong thing) or \"fine\" (intentional: title hold, quick deliberate\ncut, still product shot, normal talking). Changes INSIDE a screen recording are the creator's own actions and are fine:\nclicking through product photos, scrolling, a page loading, a static page while he talks. Only call a flash/repeat real\nwhen the frames show an edit seam (a different camera/scene for a split second, a black or garbage frame). For real ones give a fix in Studio note syntax using the video's own times:\n\"cut 1:22.0-1:23.4\" (remove), \"protect 2:03-2:10\" (keep), or a short plain instruction.\nReply with ONLY JSON: {\"flags\":[{\"n\":0,\"verdict\":\"real|fine\",\"why\":\"<10 words>\",\"fix\":\"<note or empty>\"}], \"summary\":\"<one sentence>\"}\n\nWHAT THE ATTACHED IMAGE(S) SHOW (described cell by cell by your vision assistant):\nF0: grid of near-identical talking-head frames of a man with glasses and dark hair in a black shirt, seated before a microphone with cyan-blue LED strip lighting behind him, hands gesturing mid-speech; face visible and talking: yes; no readable text, prices or dates in the frames (only a tiny illegible orange caption above the grid); image clear, frames essentially duplicates, flagged \"repeat\" at 0:15.7.\nF1: screen-recording frames of a web page with an orange-tinted product/photo panel on the left and a form/table panel on the right, some frames showing hands over a keyboard; small circular webcam overlay in the top-left corner of each frame; face visible and talking: no clear face, only the tiny webcam circle; page text too small to read, no legible prices or dates; brightness/exposure jumps between frames, flagged \"flash\" at 3:31.3.\nF2: first two rows show a white object (looks like a white sneaker/shoe) on a grey textured surface shot from above; lower rows switch to a screen recording of a product page with rows of small dark bottle-shaped items and yellow highlight bars; small circular webcam overlay top-left; face visible and talking: no, only the tiny webcam circle; page text not readable, no legible prices or dates; frames within each block nearly identical, flagged \"frozen\" at 3:55.1.\nF3: screen recording of a product page showing three dark bottle-shaped items standing in a row at the top, white page background with yellow highlighted bars below; small circular webcam overlay top-left of each frame; face visible and talking: no, only the tiny webcam circle; text not readable at thumbnail size, no legible prices or dates; frames essentially identical, flagged \"frozen\" at 4:04.3.\nF4: screen recording with a hand over a light-colored keyboard on the left and a product page on the monitor; small circular webcam overlay top-left; face visible and talking: no, only the tiny webcam circle; on-screen text not readable, no legible prices or dates; frames nearly identical, flagged \"frozen\" at 4:15.8.\nF5: same setup as F4: hand near the keyboard, product page on screen, small circular webcam overlay top-left of each frame; face visible and talking: no, only the tiny webcam circle; text not readable, no legible prices or dates; frames nearly identical, flagged \"frozen\" at 4:24.7.\nF6: same desk/screen setup: page with a form/table on the left, hand near keyboard/mouse area, small circular webcam overlay top-left; face visible and talking: no, only the tiny webcam circle; text not readable, no legible prices or dates; frames nearly identical, flagged \"frozen\" at 4:30.1.",
+ "output": {
+  "flags": [
+   {
+    "n": 0,
+    "verdict": "fine",
+    "why": "Continuous talking-head frames, no visible seam or doubled speech",
+    "fix": ""
+   },
+   {
+    "n": 1,
+    "verdict": "fine",
+    "why": "Creator clicking through product photos inside the screen recording",
+    "fix": ""
+   },
+   {
+    "n": 2,
+    "verdict": "fine",
+    "why": "Product photo then page loading; creator's own screen actions",
+    "fix": ""
+   },
+   {
+    "n": 3,
+    "verdict": "fine",
+    "why": "Static product page while he talks about bulk discounts",
+    "fix": ""
+   },
+   {
+    "n": 4,
+    "verdict": "fine",
+    "why": "Static page while he explains sizing; narration continues",
+    "fix": ""
+   },
+   {
+    "n": 5,
+    "verdict": "fine",
+    "why": "Static page during box option narration, normal talking",
+    "fix": ""
+   },
+   {
+    "n": 6,
+    "verdict": "fine",
+    "why": "Static page while he talks about box versus no box",
+    "fix": ""
+   }
+  ],
+  "summary": ""
+ },
+ "from": "draft_qc-dfa45518aab5dfefd110.json",
+ "corrected": true,
+ "added": "2026-10-22 20:02"
+}

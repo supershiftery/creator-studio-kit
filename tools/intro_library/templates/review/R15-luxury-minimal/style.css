@@ -1,0 +1,20 @@
+#bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 40% 40%, #fbf7ef, #ece4d4 80%); }
+#arch { position: absolute; left: 1080px; top: 90px; width: 640px; height: 900px; border-radius: 320px 320px 12px 12px; overflow: hidden; background: #d9cfbc;
+  box-shadow: 0 0 0 2px #b79a5b, 0 0 0 18px #fbf7ef, 0 0 0 20px #b79a5b, 0 40px 80px rgba(80,60,20,.25); opacity: 0; }
+#arch .in { position: absolute; inset: 0; }
+#arch .slot { filter: saturate(.85) contrast(1.02); }
+.rule { position: absolute; height: 2px; background: #b79a5b; width: 0; }
+#rule1 { left: 140px; top: 330px; } #rule2 { left: 140px; top: 760px; }
+#words { position: absolute; left: 140px; top: 330px; width: 820px; height: 430px; }
+.ph { position: absolute; left: 0; top: 0; width: 820px; height: 430px; display: flex; flex-direction: column; justify-content: center; gap: 16px; opacity: 0; }
+.ph .small { font: 500 34px "Inter", sans-serif; color: #5d5240; letter-spacing: 10px; text-transform: uppercase; line-height: 1.5; }
+.ph .big { font: italic 500 118px "Playfair", serif; color: #2a2116; line-height: 1; }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; opacity: 0; z-index: 45; background: #fbf7ef; }
+#title .mono { width: 150px; height: 150px; border: 2px solid #b79a5b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: italic 500 80px "Playfair", serif; color: #b79a5b; }
+#title .t1 { font: 500 130px "Playfair", serif; color: #2a2116; letter-spacing: 18px; text-transform: uppercase; white-space: nowrap; }
+#title .rule3 { width: 0; height: 2px; background: #b79a5b; }
+#title .t2 { font: 500 34px "Inter", sans-serif; color: #5d5240; letter-spacing: 16px; text-transform: uppercase; }
+.xp { left: 140px; width: 820px; }
+.xp-lab { font: 500 26px "Inter", sans-serif; color: #5d5240; letter-spacing: 10px; text-shadow: none; text-align: left; }
+.xp-bar { height: 8px; border: 0; background: #e0d6c2; border-radius: 0; }
+.xp-fill { background: #b79a5b; }

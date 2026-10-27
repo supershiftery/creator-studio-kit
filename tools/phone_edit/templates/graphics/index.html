@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[{"id": "kind", "type": "string", "label": "kind", "default": "code"}, {"id": "x", "type": "number", "label": "x", "default": 80}, {"id": "y", "type": "number", "label": "y", "default": 720}, {"id": "scale", "type": "number", "label": "scale", "default": 1}, {"id": "dur", "type": "number", "label": "dur", "default": 7}, {"id": "accent", "type": "color", "label": "accent", "default": "#06C167"}, {"id": "accent2", "type": "color", "label": "accent2", "default": "#ffffff"}, {"id": "label", "type": "string", "label": "label", "default": "UBER EATS PROMO CODE"}, {"id": "code", "type": "string", "label": "code", "default": "EXAMPLECODE"}, {"id": "sub", "type": "string", "label": "sub", "default": "$10 OFF"}, {"id": "pill", "type": "string", "label": "pill", "default": "METHOD 1"}, {"id": "title", "type": "string", "label": "title", "default": "Uber Eats Promo Code"}, {"id": "big", "type": "string", "label": "big", "default": "90% OFF"}, {"id": "cap", "type": "string", "label": "cap", "default": "for 3 months"}, {"id": "icon", "type": "string", "label": "icon", "default": "icon-ubereats.jpg"}, {"id": "name", "type": "string", "label": "name", "default": "Uber Eats"}, {"id": "store", "type": "string", "label": "store", "default": "iOS + Android"}, {"id": "r1", "type": "string", "label": "r1", "default": ""}, {"id": "r2", "type": "string", "label": "r2", "default": ""}, {"id": "r3", "type": "string", "label": "r3", "default": ""}, {"id": "n1", "type": "string", "label": "n1", "default": ""}, {"id": "n2", "type": "string", "label": "n2", "default": ""}, {"id": "n3", "type": "string", "label": "n3", "default": ""}, {"id": "i1", "type": "string", "label": "i1", "default": ""}, {"id": "i2", "type": "string", "label": "i2", "default": ""}, {"id": "i3", "type": "string", "label": "i3", "default": ""}, {"id": "ax", "type": "string", "label": "ax", "default": "left"}, {"id": "nth", "type": "string", "label": "nth", "default": ""}]'>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: transparent; }
+      #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: transparent;
+        font-family: "Segoe UI", Arial, sans-serif; }
+      .g { position: absolute; display: none; }
+
+      /* section wipe: two brand panels sweep across, then leave */
+      #wipe { inset: 0; }
+      .wp { position: absolute; top: -10%; height: 120%; width: 140%; left: -20%; }
+
+      /* method title */
+      #m-pill { display: inline-block; padding: 10px 26px; border-radius: 999px; font-weight: 900; font-size: 34px; letter-spacing: 4px; color: #06120b; }
+      #m-title { margin-top: 14px; font-weight: 900; font-size: 78px; color: #fff; line-height: 1; white-space: nowrap;
+        text-shadow: 0 6px 24px rgba(0,0,0,.6); }
+      #m-bar { height: 10px; border-radius: 6px; margin-top: 16px; width: 0; }
+
+      /* app card: real app icon + name */
+      #app { display: none; align-items: center; gap: 30px; padding: 26px 40px 26px 26px; border-radius: 36px;
+        background: rgba(10,12,18,.92); box-shadow: 0 24px 60px rgba(0,0,0,.55); }
+      #a-icon { width: 170px; height: 170px; border-radius: 40px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+      #a-icon img { width: 100%; height: 100%; display: block; }
+      #a-name { font-weight: 900; font-size: 64px; color: #fff; line-height: 1.05; white-space: nowrap; }
+      #a-tags { display: flex; gap: 12px; margin-top: 14px; }
+      .chip { padding: 8px 18px; border-radius: 999px; font-weight: 800; font-size: 26px; white-space: nowrap; }
+      #a-free { color: #06120b; }
+      #a-store { background: rgba(255,255,255,.12); color: #fff; }
+
+      /* code card */
+      #code { width: 900px; padding: 30px 36px; border-radius: 28px;
+        background: linear-gradient(160deg, rgba(18,22,30,.95), rgba(8,10,16,.95)); box-shadow: 0 24px 60px rgba(0,0,0,.55); }
+      #c-edge { position: absolute; inset: 0; border-radius: 28px; padding: 3px;
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+      #c-label { font-weight: 800; font-size: 28px; letter-spacing: 6px; }
+      #c-row { display: flex; align-items: center; gap: 22px; margin-top: 12px; }
+      #c-box { flex: 1; padding: 18px 24px; border-radius: 16px; background: rgba(255,255,255,.07); border: 2px dashed rgba(255,255,255,.3);
+        font-family: Consolas, monospace; font-weight: 700; font-size: 56px; color: #fff; white-space: nowrap; overflow: hidden; }
+      #c-caret { display: inline-block; width: 4px; height: 54px; margin-left: 4px; vertical-align: -8px; }
+      #c-copy { width: 92px; height: 92px; border-radius: 18px; display: flex; align-items: center; justify-content: center; flex: none; }
+      #c-sub { margin-top: 18px; display: flex; gap: 14px; }
+      #c-desc { background: #fff; color: #0b0d12; }
+
+      /* stat pop */
+      #stat { padding: 20px 34px; border-radius: 24px; background: rgba(8,10,16,.92); box-shadow: 0 20px 50px rgba(0,0,0,.5); }
+      #s-big { font-weight: 900; font-size: 96px; line-height: 1; white-space: nowrap; }
+      #s-cap { font-weight: 700; font-size: 34px; color: #e9edf3; margin-top: 6px; white-space: nowrap; }
+
+      /* subscribe */
+      #sub { display: none; align-items: center; gap: 22px; }
+      #sb-btn { padding: 22px 46px; border-radius: 14px; background: #ff0033; color: #fff; font-weight: 900; font-size: 44px; letter-spacing: 2px;
+        box-shadow: 0 16px 40px rgba(0,0,0,.45); }
+      #sb-bell { width: 86px; height: 86px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; }
+      #sb-cur { position: absolute; left: 250px; top: 70px; width: 54px; }
+
+      /* end card */
+      #end { width: 1000px; padding: 34px 40px; border-radius: 30px; background: rgba(8,10,16,.94); box-shadow: 0 24px 60px rgba(0,0,0,.55); }
+      #e-h { font-weight: 900; font-size: 50px; color: #fff; }
+      .e-row { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; padding: 14px 22px; border-radius: 16px; background: rgba(255,255,255,.06); }
+      .e-app { display: flex; align-items: center; gap: 16px; font-weight: 800; font-size: 34px; color: #fff; }
+      .e-app img { width: 56px; height: 56px; border-radius: 14px; }
+      .e-code { font-family: Consolas, monospace; font-weight: 700; font-size: 38px; color: #fff; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+      <div id="layer" class="clip" data-start="0" data-duration="8" data-track-index="0" style="position:absolute;inset:0">
+        <div id="wipe" class="g"><div class="wp" id="wp1"></div><div class="wp" id="wp2"></div></div>
+        <div id="method" class="g"><div id="m-pill">METHOD 1</div><div id="m-title">Title</div><div id="m-bar"></div></div>
+        <div id="app" class="g"><div id="a-icon"><img id="a-img" src="assets/icon-ubereats.jpg" /></div>
+          <div><div id="a-name">Uber Eats</div><div id="a-tags"><div id="a-free" class="chip">FREE DOWNLOAD</div><div id="a-store" class="chip">iOS + Android</div></div></div></div>
+        <div id="code" class="g"><div id="c-edge" data-layout-allow-occlusion></div>
+          <div id="c-label">PROMO CODE</div>
+          <div id="c-row"><div id="c-box"><span id="c-text"></span><span id="c-caret"></span></div>
+            <div id="c-copy"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#06120b" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></div></div>
+          <div id="c-sub"><div id="c-off" class="chip">$10 OFF</div><div id="c-desc" class="chip">ENTER AT CHECKOUT</div></div>
+        </div>
+        <div id="stat" class="g"><div id="s-big">90%</div><div id="s-cap">caption</div></div>
+        <div id="sub" class="g"><div id="sb-btn">SUBSCRIBE</div>
+          <div id="sb-bell"><svg width="48" height="48" viewBox="0 0 24 24" fill="#0b0d12"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5-6.7V3.5a2 2 0 0 0-4 0v.8A7 7 0 0 0 5 11v5l-2 2v1h18v-1z"/></svg></div>
+          <svg id="sb-cur" viewBox="0 0 24 24"><path d="M4 2l16 9-7 2-3 7z" fill="#fff" stroke="#000" stroke-width="1.2"/></svg></div>
+        <div id="end" class="g"><div id="e-h">ALL CODES ARE IN THE DESCRIPTION &#8595;</div>
+          <div class="e-row"><div class="e-app"><img id="ei1" src="" /><span id="en1"></span></div><div class="e-code" id="e1"></div></div>
+          <div class="e-row"><div class="e-app"><img id="ei2" src="" /><span id="en2"></span></div><div class="e-code" id="e2"></div></div>
+          <div class="e-row"><div class="e-app"><img id="ei3" src="" /><span id="en3"></span></div><div class="e-code" id="e3"></div></div></div>
+      </div>
+    </div>
+    <script>
+      const V = (window.__hyperframes && window.__hyperframes.getVariables) ? window.__hyperframes.getVariables() : {};
+      const kind = V.kind || "code", A = V.accent || "#06C167", A2 = V.accent2 || "#ffffff";
+      const dur = Math.min(V.dur || 7, 7.9), outT = dur - 0.45;
+      const ids = { subscribe: "sub" };
+      const el = document.getElementById(ids[kind] || kind);
+      el.style.display = (kind === "subscribe" || kind === "app") ? "flex" : "block";
+      if (kind !== "wipe") {
+        el.style.top = (V.y ?? 720) + "px";
+        if (V.ax === "right") {  // right-anchored: the phone picture-in-picture sits on the left (user's normal style)
+          el.style.left = "auto"; el.style.right = (V.x ?? 80) + "px"; el.style.transformOrigin = "100% 50%";
+        } else {
+          el.style.left = (V.x ?? 80) + "px"; el.style.transformOrigin = "0% 50%";
+        }
+      }
+      const S = V.scale || 1;
+      const tl = gsap.timeline({ paused: true });
+
+      if (kind === "wipe") {
+        document.getElementById("wp1").style.background = A;
+        document.getElementById("wp2").style.background = A2;
+        // in: panels sweep left->right and cover (0.32 s); out: keep sweeping off to the right
+        gsap.set(".wp", { skewX: -12 });
+        tl.fromTo("#wp2", { xPercent: -110 }, { xPercent: 8, duration: 0.32, ease: "power3.in" }, 0);
+        tl.fromTo("#wp1", { xPercent: -110 }, { xPercent: 0, duration: 0.32, ease: "power3.in" }, 0.06);
+        tl.to("#wp1", { xPercent: 110, duration: 0.42, ease: "power3.out" }, 0.42);
+        tl.to("#wp2", { xPercent: 110, duration: 0.42, ease: "power3.out" }, 0.48);
+      }
+      if (kind === "method") {
+        document.getElementById("m-pill").textContent = V.pill; document.getElementById("m-title").textContent = V.title;
+        document.getElementById("m-pill").style.background = A; document.getElementById("m-bar").style.background = A;
+        gsap.set("#method", { scale: S });
+        tl.fromTo("#m-pill", { x: -260, opacity: 0 }, { x: 0, opacity: 1, duration: 0.35, ease: "back.out(1.8)" }, 0.05);
+        tl.fromTo("#m-title", { y: 50, opacity: 0, clipPath: "inset(0 100% 0 0)" }, { y: 0, opacity: 1, clipPath: "inset(0 0% 0 0)", duration: 0.5, ease: "power3.out" }, 0.22);
+        tl.fromTo("#m-bar", { width: 0 }, { width: 420, duration: 0.55, ease: "power3.out" }, 0.4);
+        tl.to("#method", { x: -80, opacity: 0, duration: 0.4, ease: "power2.in" }, outT);
+      }
+      if (kind === "app") {
+        document.getElementById("a-img").src = "assets/" + V.icon;
+        document.getElementById("a-name").textContent = V.name;
+        document.getElementById("a-store").textContent = V.store;
+        document.getElementById("a-free").style.background = A;
+        tl.fromTo("#app", { scale: S * 0.6, opacity: 0, y: 40 }, { scale: S, opacity: 1, y: 0, duration: 0.45, ease: "back.out(1.7)" }, 0.05);
+        tl.fromTo("#a-icon", { rotation: -25, scale: 0.3 }, { rotation: 0, scale: 1, duration: 0.55, ease: "back.out(2.4)" }, 0.12);
+        tl.fromTo("#a-name", { x: 40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.35, ease: "power3.out" }, 0.3);
+        tl.fromTo("#a-tags .chip", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, stagger: 0.1, ease: "back.out(2)" }, 0.5);
+        tl.to("#a-icon", { y: -8, duration: 0.6, yoyo: true, repeat: 3, ease: "sine.inOut" }, 1.0);
+        tl.to("#app", { y: 50, opacity: 0, duration: 0.4, ease: "power2.in" }, outT);
+      }
+      if (kind === "code") {
+        const label = document.getElementById("c-label"); label.textContent = V.label; label.style.color = A;
+        document.getElementById("c-edge").style.background = `linear-gradient(130deg, ${A}, rgba(255,255,255,.15) 60%, ${A})`;
+        document.getElementById("c-copy").style.background = A; document.getElementById("c-caret").style.background = A;
+        const off = document.getElementById("c-off"); off.textContent = V.sub; off.style.background = A; off.style.color = "#06120b";
+        const txt = document.getElementById("c-text"), code = V.code || "";
+        tl.fromTo("#code", { y: 80, opacity: 0, scale: S * 0.92 }, { y: 0, opacity: 1, scale: S, duration: 0.45, ease: "back.out(1.6)" }, 0.05);
+        const o = { n: 0 };
+        tl.to(o, { n: code.length, duration: Math.min(1.4, 0.06 * code.length + 0.2), ease: "none",
+          onUpdate: () => { txt.textContent = code.slice(0, Math.round(o.n)); } }, 0.45);
+        tl.fromTo("#c-caret", { opacity: 1 }, { opacity: 0, duration: 0.25, repeat: 13, yoyo: true, ease: "steps(1)" }, 0.45);
+        tl.fromTo("#c-copy", { scale: 0.4, rotation: -20, opacity: 0 }, { scale: 1, rotation: 0, opacity: 1, duration: 0.4, ease: "back.out(2.5)" }, 1.7);
+        tl.to("#c-copy", { scale: 0.86, duration: 0.08, yoyo: true, repeat: 1 }, 2.3);
+        tl.fromTo("#c-sub .chip", { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, stagger: 0.12, ease: "back.out(2)" }, 1.9);
+        // no "link in description" on a code card: the code is right there (user, Shein 2026-10-21). The chip counts the codes
+        // ("CODE 3 OF 13") when there is a run of them, else says where it goes; only the END card points to the description
+        if (V.nth) document.getElementById("c-desc").textContent = V.nth;
+        tl.to("#code", { y: 60, opacity: 0, duration: 0.4, ease: "power2.in" }, outT);
+      }
+      if (kind === "stat") {
+        const big = document.getElementById("s-big"); big.textContent = V.big; big.style.color = A;
+        document.getElementById("s-cap").textContent = V.cap;
+        tl.fromTo("#stat", { scale: S * 0.3, opacity: 0, rotation: -6 }, { scale: S, opacity: 1, rotation: 0, duration: 0.42, ease: "back.out(2.2)" }, 0.05);
+        tl.fromTo("#s-cap", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 }, 0.35);
+        tl.to("#stat", { y: -40, opacity: 0, duration: 0.35, ease: "power2.in" }, outT);
+      }
+      if (kind === "subscribe") {
+        gsap.set("#sub", { scale: S });
+        tl.fromTo("#sub", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "back.out(2)" }, 0.05);
+        tl.fromTo("#sb-cur", { x: 220, y: 140, opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: 0.6, ease: "power2.out" }, 0.5);
+        tl.to("#sb-btn", { scale: 0.9, duration: 0.08, yoyo: true, repeat: 1 }, 1.15);
+        tl.to("#sb-btn", { backgroundColor: "#3a3d44", duration: 0.05 }, 1.25);
+        tl.call(() => { document.getElementById("sb-btn").textContent = "SUBSCRIBED"; }, null, 1.25);
+        tl.call(() => { document.getElementById("sb-btn").textContent = "SUBSCRIBE"; }, null, 1.2);
+        tl.fromTo("#sb-bell", { rotation: 0 }, { rotation: 18, duration: 0.09, yoyo: true, repeat: 7, ease: "sine.inOut" }, 1.6);
+        tl.to("#sub", { y: 60, opacity: 0, duration: 0.4, ease: "power2.in" }, outT);
+      }
+      if (kind === "end") {
+        [1, 2, 3].forEach((n) => {
+          const row = document.getElementById("e" + n).parentElement;
+          if (!V["r" + n]) { row.style.display = "none"; return; }
+          document.getElementById("e" + n).textContent = V["r" + n];
+          document.getElementById("en" + n).textContent = V["n" + n] || "";
+          document.getElementById("ei" + n).src = "assets/" + (V["i" + n] || "");
+        });
+        tl.fromTo("#end", { y: 80, opacity: 0, scale: S }, { y: 0, opacity: 1, scale: S, duration: 0.45, ease: "back.out(1.6)" }, 0.05);
+        tl.fromTo(".e-row", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.35, stagger: 0.15, ease: "power3.out" }, 0.4);
+        tl.to("#end", { opacity: 0, duration: 0.4 }, outT);
+      }
+      tl.set({}, {}, 8);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

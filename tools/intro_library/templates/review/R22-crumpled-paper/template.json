@@ -1,0 +1,29 @@
+{
+ "id": "R22",
+ "name": "Crumpled Paper",
+ "blurb": "R21's full-frame engine (footage full frame, glowing phrase captions, flash on the turn) on a dark crumpled-paper backdrop for the text-only beats instead of smoke; the deals / codes / apps look from {{PHONE_CHANNEL}} (channel study 2026-10-26).",
+ "ref": "{{PHONE_CHANNEL}} intros (Cash App glitch, DoorDash 2025)",
+ "status": "test",
+ "footage": {
+  "roles": [
+   "hook",
+   "problem",
+   "turn",
+   "reveal"
+  ],
+  "every": 1,
+  "max": 16,
+  "maxlen": 9.0,
+  "start_after": 0.0
+ },
+ "hold": 1.9,
+ "sfx": [
+  {
+   "sfx": "click",
+   "t": "turn",
+   "vol": 0.16,
+   "d": 0.3
+  }
+ ],
+ "editor": true
+}

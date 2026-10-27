@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Studio Review">
+<link rel="icon" href="studio.png">
+<link rel="apple-touch-icon" href="studio.png">
+<title>Studio Review</title>
+<!-- Phone review (2026-10-24, user: "review these videos from phone, then send in my comments ... very similar to the studio").
+     Reached from anywhere through Tailscale (tailscale serve -> 127.0.0.1:8765). Telegram links open m.html#<project id>.
+     v2 same day (user: "I can't add a revision ... a review section, talk into it ... take that text, add it to the revisions
+     and start rebuilding, and say that it's rebuilding"): no fixed bottom bar (the iOS keyboard hid it), one box under the
+     video, one "Send & rebuild" button = POST project/phone-send (waits as auto_send while the project is still busy). -->
+<style>
+:root { --bg:#0f1115; --card:#181b22; --line:#262a33; --fg:#e8eaf0; --mut:#8b92a3; --acc:#ff5a36; --ok:#2fbf71; --warn:#f2b233; --bad:#ef4f4f; }
+* { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.4 -apple-system, system-ui, Segoe UI, Roboto, sans-serif; }
+body { padding:env(safe-area-inset-top) 0 calc(env(safe-area-inset-bottom) + 40px); }
+header { position:sticky; top:0; z-index:5; background:rgba(15,17,21,.94); backdrop-filter:blur(8px); display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); }
+header h1 { font-size:17px; margin:0; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+button { font:inherit; color:var(--fg); background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 14px; min-height:44px; }
+button:active { transform:scale(.97); }
+button.pri { background:var(--acc); border-color:var(--acc); color:#fff; font-weight:600; }
+button.ok { background:var(--ok); border-color:var(--ok); color:#fff; font-weight:600; }
+button:disabled { opacity:.45; }
+.wrap { padding:12px 16px; }
+.mut { color:var(--mut); } .tiny { font-size:12px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px; margin-bottom:12px; }
+.proj { display:flex; gap:12px; align-items:center; }
+.proj img { width:112px; height:63px; object-fit:cover; border-radius:8px; background:#000; flex:none; }
+.proj b { display:block; }
+.pill { display:inline-block; font-size:12px; padding:2px 8px; border-radius:99px; background:#262a33; margin-top:4px; }
+.pill.review { background:rgba(255,90,54,.18); color:#ff8a6e; } .pill.busy { background:rgba(242,178,51,.16); color:var(--warn); } .pill.done { background:rgba(47,191,113,.16); color:var(--ok); }
+h2 { font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--mut); margin:14px 0 8px; }
+video { width:100%; display:block; background:#000; aspect-ratio:16/9; }
+.vbar { display:flex; gap:8px; padding:10px 16px 0; overflow-x:auto; }
+.vbar button { flex:none; padding:8px 12px; min-height:40px; }
+.seg { display:flex; margin-left:auto; border:1px solid var(--line); border-radius:12px; overflow:hidden; flex:none; }
+.seg button { border:0; border-radius:0; min-width:42px; padding:8px 6px; background:var(--card); }
+.vbar { gap:6px; } .vbar > button { padding:8px 10px; }
+.seg button.on { background:var(--acc); color:#fff; font-weight:600; }
+textarea { width:100%; font:inherit; font-size:16px; color:var(--fg); background:#11141a; border:1px solid var(--line); border-radius:12px; padding:11px 12px; min-height:110px; resize:vertical; }
+.at { font-size:13px; color:var(--mut); margin-bottom:8px; } .at b { color:var(--acc); }
+.lnk { min-height:0; padding:2px 8px; font-size:12px; margin-left:6px; border-radius:8px; }
+.rvrow { display:flex; gap:8px; margin-top:10px; } .rvrow .big { flex:1; font-size:17px; min-height:52px; }
+.talk { flex:none; min-height:52px; } .talk.rec { background:var(--bad); border-color:var(--bad); animation:pulse 1s infinite; }
+@keyframes pulse { 50% { opacity:.65; } }
+.err { color:var(--bad); font-size:13px; margin-top:6px; } .err:empty { display:none; }
+.ban { padding:10px 16px; display:flex; flex-direction:column; gap:2px; font-size:14px; } .ban span { font-size:12px; opacity:.85; }
+.ban.busy { background:rgba(242,178,51,.14); color:var(--warn); } .ban.ok { background:rgba(47,191,113,.12); color:var(--ok); }
+.note { display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-top:1px solid var(--line); }
+.note:first-child { border-top:0; }
+.note .t { flex:none; font-variant-numeric:tabular-nums; color:var(--acc); font-weight:600; min-width:44px; }
+.note .x { margin-left:auto; flex:none; min-height:32px; padding:2px 10px; }
+.note .s { font-size:12px; }
+.s.applied { color:var(--ok); } .s.failed { color:var(--bad); } .s.pending, .s.claude { color:var(--mut); }
+.sendrow { display:flex; gap:8px; margin-top:10px; } .sendrow button { flex:1; }
+.toast { position:fixed; left:50%; top:calc(env(safe-area-inset-top) + 64px); transform:translateX(-50%); z-index:9; background:#262a33; padding:10px 16px; border-radius:12px; max-width:90vw; box-shadow:0 6px 20px rgba(0,0,0,.4); }
+.toast.bad { background:var(--bad); } .toast.ok { background:var(--ok); }
+details summary { cursor:pointer; color:var(--mut); padding:6px 0; }
+.qbar { height:6px; border-radius:3px; background:#262a33; overflow:hidden; margin-top:8px; } .qbar i { display:block; height:100%; background:var(--acc); }
+.qrow { display:flex; justify-content:space-between; gap:10px; align-items:baseline; } .qrow b { flex:1; }
+.qsum { display:flex; gap:10px; align-items:center; } .qsum b { flex:1; }
+.st.failed { color:var(--bad); } .st.done { color:var(--ok); } .st.cancelled { color:var(--mut); }
+.empty { text-align:center; color:var(--mut); padding:30px 10px; }
+/* desktop (2026-10-25, user: "the studio link you sent me on telegram is not optimized for desktop viewing"): big video
+   on the left that stays in view, revisions beside it, lists as a centred grid; phones are unchanged */
+@media (min-width: 900px) {
+  body { padding-bottom:24px; }
+  header { padding:12px 28px; }
+  header h1 { font-size:18px; }
+  button { min-height:36px; padding:7px 14px; cursor:pointer; }
+  button:hover { border-color:#3a404d; }
+  button.pri:hover { filter:brightness(1.08); }
+  .wrap { max-width:1180px; margin:0 auto; padding:18px 28px; }
+  #lw, #qw { display:grid; grid-template-columns:repeat(auto-fill, minmax(380px, 1fr)); gap:12px; align-content:start; }
+  #lw > h2, #qw > h2, #lw > .empty, #qw > .empty, #lw > .qsum { grid-column:1 / -1; }
+  #lw .card, #qw .card { margin-bottom:0; }
+  .proj { cursor:pointer; } .proj:hover { border-color:#3a404d; }
+  .proj img { width:160px; height:90px; }
+  .split { display:grid; grid-template-columns:minmax(0, 1fr) 420px; gap:24px; max-width:1680px; margin:0 auto; padding:18px 28px; align-items:start; }
+  .pcol { position:sticky; top:76px; }
+  .pcol video { border-radius:12px; max-height:calc(100vh - 170px); }
+  .pcol .vbar { padding:10px 0 0; overflow:visible; }
+  .split .scol { max-width:none; margin:0; padding:0; }
+  .split .scol h2 { margin-top:0; }
+  .rvrow .big { font-size:15px; min-height:44px; }
+  .talk { min-height:44px; }
+  textarea { font-size:15px; min-height:120px; }
+  #banner .ban { padding:10px 28px; }
+}
+@media (min-width: 900px) and (max-width: 1200px) { .split { grid-template-columns:minmax(0, 1fr) 360px; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmtT2 = t => { t = Math.max(0, +t || 0); const m = Math.floor(t / 60), s = (t % 60).toFixed(1); return `${m}:${s.padStart(4, "0")}`; };
+const fmtT = t => { t = Math.max(0, Math.floor(+t || 0)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`; };
+const media = f => "/media?path=" + encodeURIComponent(f);
+const thumb = (f, t) => `/thumb?path=${encodeURIComponent(f)}&w=320${t != null ? "&t=" + t : ""}`;
+async function api(path, body) {
+  const r = await fetch("/api/" + path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || j.error) throw new Error(j.error || r.statusText);
+  return j;
+}
+function toast(msg, kind) {
+  const d = document.createElement("div"); d.className = "toast " + (kind || ""); d.textContent = msg; document.body.appendChild(d);
+  setTimeout(() => d.remove(), 3500);
+}
+const M = { p: null, out: null, t0: null, t1: null, rec: null, poll: null, rate: 1 };
+try { M.rate = +localStorage.getItem("rate") || 1; } catch (e) {}
+
+// ------------------------------------------------------------------ list: everything waiting on a review first
+async function list() {
+  clearInterval(M.poll); M.p = null;
+  document.title = "Studio Review";
+  $("#app").innerHTML = `<header><h1>🎬 Studio Review</h1><button id="qb">Queue</button><button id="rf">↻</button></header><div class="wrap" id="lw"><div class="empty">loading…</div></div>`;
+  $("#rf").onclick = list;
+  $("#qb").onclick = () => { location.hash = "queue"; };
+  let st;
+  try { st = await api("state"); } catch (e) { $("#lw").innerHTML = `<div class="empty">Can't reach {{STUDIO_NAME}}: ${esc(e.message)}<br>Is the PC on, Studio open and Tailscale on?</div>`; return; }
+  M.role = st.role || "owner";   // "assistant" = the VA (2026-10-25): watch, notes, Send & rebuild, Approve; no test-done
+  const ps =(st.projects || []).filter(p => !["shipped", "published", "idea"].includes(p.stage));
+  const rank = p => p.stage === "review" && !p.activity ? 0 : p.activity ? 1 : 2;
+  ps.sort((a, b) => rank(a) - rank(b) || String(b.updated).localeCompare(String(a.updated)));
+  const row = p => {
+    const draft = (p.outputs || []).slice(-1)[0];
+    const pill = p.activity ? `<span class="pill busy">${esc(p.activity.label)}</span>` : `<span class="pill ${p.stage === "review" ? "review" : p.stage === "final" ? "done" : ""}">${esc(st.stage_labels[p.stage] || p.stage)}</span>`;
+    return `<div class="card proj" data-p="${p.id}">${draft ? `<img loading="lazy" src="${thumb(draft.file, 20)}">` : `<img>`}<div><b>${esc(p.title)}</b><span class="mut tiny">${esc(p.channel || p.type)}</span><br>${pill}</div></div>`;
+  };
+  const rev = ps.filter(p => rank(p) === 0), rest = ps.filter(p => rank(p) !== 0);
+  const js = (st.jobs || []).filter(j => j.status === "running" || j.status === "queued");
+  const now = js.find(j => (j.queue || {}).state === "rendering");
+  const qcard = js.length ? `<div class="card qsum" id="qs"><b>${now ? "🔄 " + esc(now.title) + ` · ${Math.round(now.progress.pct)}%` : "⏳ " + js.length + " job(s) in progress"}</b><span class="mut tiny">${js.length} in queue ›</span></div>` : "";
+  const ups = await upItems();
+  const upRow = x => `<div class="card proj" data-u="${x.id}">${x.thumb ? `<img loading="lazy" src="${media(x.thumb)}">` : `<img>`}<div><b>${esc(x.title)}</b><span class="mut tiny">${esc(x.channel || "")}</span><br>${x.stage === "publishing" ? `<span class="pill busy">publishing…</span>` : (x.title_by ? `<span class="pill">title sent · waiting for approval</span>` : `<span class="pill review">${M.role === "assistant" ? "type the title" : "title + publish"}</span>`)}${crPill(x)}</div></div>`;
+  $("#lw").innerHTML = qcard + (ups.length ? `<h2>${M.role === "assistant" ? "Ready for a title" : "Ready to title + publish"}</h2>${ups.map(upRow).join("")}` : "") +
+    (rev.length ? `<h2>Ready to review</h2>${rev.map(row).join("")}` : ups.length ? "" : `<div class="empty">Nothing waiting on you right now 🎉</div>`) +
+    (rest.length ? `<h2>Everything else</h2>${rest.map(row).join("")}` : "");
+  document.querySelectorAll("[data-p]").forEach(d => d.onclick = () => { location.hash = d.dataset.p; });
+  document.querySelectorAll("[data-u]").forEach(d => d.onclick = () => { location.hash = "up-" + d.dataset.u; });
+  $("#qs") && ($("#qs").onclick = () => { location.hash = "queue"; });
+}
+
+// ------------------------------------------------------------------ title + publish (user 2026-10-27: "I want her to do the title plus
+// publishing on her own"): the private YouTube draft Studio uploaded, its description (already written), her title, Publish
+const CR_OPEN = ["claimed", "fixing", "needs_look"];
+const crPill = x => { const s = (x.copyright || {}).state;
+  return s === "clean" ? ` <span class="pill done">no copyright claims</span>` : CR_OPEN.includes(s) ? ` <span class="pill review">copyright claim</span>` : s ? ` <span class="pill busy">copyright: checking</span>` : ""; };
+async function upItems() {
+  try { return ((await api("uploads")).items || []).filter(x => x.stage === "needs_title" || x.stage === "publishing"); } catch (e) { return []; }
+}
+async function publishView(id) {
+  clearInterval(M.poll); M.p = null;
+  $("#app").innerHTML = `<header><button id="bk">‹</button><h1>Title + publish</h1><button id="rf">↻</button></header><div class="wrap" id="uw"><div class="empty">loading…</div></div>`;
+  $("#bk").onclick = () => { location.hash = ""; };
+  $("#rf").onclick = () => publishView(id);
+  let x;
+  try { x = ((await api("uploads")).items || []).find(i => i.id === id); } catch (e) { $("#uw").innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
+  if (!x) { $("#uw").innerHTML = `<div class="empty">Not in the uploads list.</div>`; return; }
+  if (!M.role) { try { M.role = (await api("state")).role || "owner"; } catch (e) { M.role = "owner"; } }
+  const ASST = M.role === "assistant";
+  document.title = x.title;
+  const cr = x.copyright || {}, open = CR_OPEN.includes(cr.state);
+  const done = x.stage === "published" || x.published_at;
+  $("#uw").innerHTML = `
+    ${x.final ? `<video controls playsinline preload="metadata" src="${media(x.final)}"></video>` : ""}
+    <div class="card" style="margin-top:12px"><b>${esc(x.title)}</b> <span class="mut tiny">· ${esc(x.channel || "")}</span>${crPill(x)}
+      <div class="mut tiny" style="margin-top:4px">${done ? "Published ✓" : x.stage === "publishing" ? "Publishing…" : "On YouTube as a DRAFT. Nobody can see it until it's published."}</div></div>
+    ${open ? `<div class="card" style="border-color:var(--bad)"><b>⚠ Copyright claim</b><div class="mut tiny">Don't publish this one. the reviewer decides what happens with it.</div></div>` : ""}
+    ${x.stage === "replacing" ? `<div class="card"><b>⟳ A new version is on its way</b><div class="mut tiny">Don't publish yet: you'll get a new link when it's ready.</div></div>` : ""}
+    ${x.stage === "needs_title" && !done ? `<div class="sendrow"><a href="https://studio.youtube.com/video/${esc(x.video_id)}/edit" target="_blank" style="flex:1"><button class="ok" style="width:100%">Open the draft in YouTube Studio</button></a></div>
+      <div class="mut tiny" style="margin-top:4px">Title + publish it in YouTube Studio. Studio never publishes.</div>
+      ${x.thumb_on_youtube ? "" : `<div class="tiny" style="margin-top:4px;color:var(--warn)">⚠ No thumbnail yet: drop the PNG/JPG in its Google Drive folder and it's added by itself</div>`}` : ""}
+    <h2>Description${x.description_links != null ? ` · ${x.description_links} link${x.description_links === 1 ? "" : "s"}` : ""}</h2>
+    <div class="card" style="white-space:pre-wrap;font-size:13px">${x.description_text ? esc(x.description_text) : `<span class="mut">${x.description ? "(written, open the Studio to see it)" : "No description yet: tell the reviewer before publishing."}</span>`}</div>
+    ${(x.tags || []).length ? `<h2>Tags</h2><div class="mut tiny">${esc((x.tags || []).join(", "))}</div>` : ""}`;
+  if (x.stage === "publishing") M.poll = setTimeout(() => location.hash === "#up-" + id && publishView(id), 8000);
+}
+
+// ------------------------------------------------------------------ queue (user 2026-10-25: "a feature for the phone link where I can
+// see the queue ... I can't really see queued revisions or what's going on"): what renders now, what waits, revisions, recent results
+const mins = s => s >= 3600 ? `${Math.floor(s / 3600)} h ${Math.round(s % 3600 / 60)} min` : s >= 60 ? `${Math.round(s / 60)} min` : `${Math.max(1, Math.round(s))} s`;
+const ago = t => t ? mins(Date.now() / 1000 - t) + " ago" : "";
+async function queue() {
+  clearInterval(M.poll); M.p = null;
+  document.title = "Queue";
+  $("#app").innerHTML = `<header><button id="bk">‹</button><h1>Queue</h1><button id="rf">↻</button></header><div class="wrap" id="qw"><div class="empty">loading…</div></div>`;
+  $("#bk").onclick = () => { location.hash = ""; };
+  $("#rf").onclick = drawQueue;
+  await drawQueue();
+  M.poll = setInterval(() => { if (!document.hidden && location.hash === "#queue") drawQueue(); }, 5000);
+}
+async function drawQueue() {
+  // jobs = the fast feed (0.2 s) every tick; the project list (3-4 s, ~450 KB) only every 30 s for the revisions box
+  let jobs;
+  try { jobs = (await api("jobs")).jobs || []; } catch (e) { $("#qw").innerHTML = `<div class="empty">Can't reach {{STUDIO_NAME}}: ${esc(e.message)}<br>Is the PC on, Studio open and Tailscale on?</div>`; return; }
+  if (!M.qp || Date.now() - M.qpAt > 30000) {
+    M.qpAt = Date.now();
+    api("state").then(st => { M.qp = {}; (st.projects || []).forEach(p => M.qp[p.id] = p); if (location.hash === "#queue") drawQueue(); }).catch(() => {});
+  }
+  const P = M.qp || {};
+  const live = jobs.filter(j => j.status === "running" || j.status === "queued");
+  const rendering = live.filter(j => (j.queue || {}).state === "rendering");
+  const waiting = live.filter(j => (j.queue || {}).state === "waiting").sort((a, b) => (a.queue.pos || 0) - (b.queue.pos || 0));
+  const light = live.filter(j => !rendering.includes(j) && !waiting.includes(j));
+  const stepOf = j => { const r = (j.steps || []).find(s => s.status === "running"); return (j.progress || {}).step || (r ? r.label : j.current || ""); };
+  const card = (j, body) => `<div class="card" data-p="${j.project_id || ""}"><div class="qrow"><b>${esc(j.title)}</b><span class="mut tiny">${j.minutes ? j.minutes + " min video" : ""}</span></div>${body}</div>`;
+  let h = "";
+  h += `<h2>Rendering now</h2>` + (rendering.length ? rendering.map(j => { const pr = j.progress || {};
+      return card(j, `<div class="mut tiny">${esc(stepOf(j))}${pr.eta_s ? ` · ~${mins(pr.eta_s)} left` : ""}${pr.speed ? ` · ${pr.speed}x` : ""}</div><div class="qbar"><i style="width:${Math.min(100, pr.pct || 0)}%"></i></div>`); }).join("")
+    : `<div class="card mut">Nothing rendering. The GPU is free.</div>`);
+  if (light.length) h += `<h2>Working (AI / prep, no GPU yet)</h2>` + light.map(j => card(j, `<div class="mut tiny">${esc(stepOf(j))}</div>`)).join("");
+  h += `<h2>Waiting in line · ${waiting.length}</h2>` + (waiting.length ? waiting.map(j => card(j, `<div class="mut tiny">#${j.queue.pos} in line${j.queue.wait_s ? ` · starts in ~${mins(j.queue.wait_s)}` : ""}</div>`)).join("") : `<div class="card mut">Nobody waiting.</div>`);
+  const rv = Object.values(P).filter(p => p.auto_send || (p.activity && /revis|AI|apply/i.test(p.activity.label || "")));
+  if (rv.length) h += `<h2>Revisions in progress</h2>` + rv.map(p => `<div class="card" data-p="${p.id}"><b>${esc(p.title)}</b><div class="mut tiny">${esc(p.auto_send ? "⏳ Your notes go in when the current build finishes" : p.activity.label)}</div></div>`).join("");
+  const recent = jobs.filter(j => ["done", "failed", "cancelled"].includes(j.status)).sort((a, b) => (b.ended || 0) - (a.ended || 0)).slice(0, 6);
+  if (recent.length) h += `<h2>Recently finished</h2>` + recent.map(j => card(j, `<div class="tiny"><span class="st ${j.status}">${j.status === "done" ? "✓ done" : j.status === "failed" ? "✕ failed" : "cancelled"}</span> <span class="mut">${ago(j.ended)}${j.status === "failed" && j.error ? " · " + esc(j.error) : ""}</span></div>`)).join("");
+  $("#qw").innerHTML = h;
+  document.querySelectorAll("#qw [data-p]").forEach(d => d.dataset.p && (d.onclick = () => { location.hash = d.dataset.p; }));
+}
+
+// ------------------------------------------------------------------ one project: watch, then Revisions right under the video
+async function open(id) {
+  clearInterval(M.poll);
+  try { M.p = await api("project?id=" + id); } catch (e) { toast(e.message, "bad"); location.hash = ""; return; }
+  const p = M.p, outs = p.outputs || [];
+  M.out = M.out && outs.some(o => o.file === M.out) ? M.out : (outs.slice(-1)[0] || {}).file;
+  M.t0 = M.t1 = null;
+  document.title = p.title;
+  $("#app").innerHTML = `<header><button id="bk">‹</button><h1>${esc(p.title)}</h1></header>
+    <div id="banner"></div>
+    <div class="split"><div class="pcol">
+    ${M.out ? `<video id="v" controls playsinline preload="metadata" src="${media(M.out)}"></video>` : `<div class="empty">No draft built yet</div>`}
+    <div class="vbar">
+      <button id="b5">↺5</button><button id="f5">5↻</button>
+      ${outs.length > 1 ? `<button id="sw">${esc(outName(M.out).toLowerCase())} ▾</button>` : ""}
+      <span class="seg">${[1, 1.5, 2].map(r => `<button data-rate="${r}" class="${(M.rate || 1) === r ? "on" : ""}">${r}×</button>`).join("")}</span>
+    </div></div>
+    <div class="wrap scol">
+      <h2>Revisions</h2>
+      <div class="card">
+        <div class="at" id="at"></div>
+        <textarea id="tx" placeholder="What should change? Type it, or tap the keyboard's 🎤 to dictate."></textarea>
+        <div class="rvrow"><button class="talk" id="mic">🎙 Talk</button><button class="big" id="add">＋ Add note</button></div>
+        <div class="rvrow"><button class="pri big" id="go">Send &amp; rebuild</button></div>
+        <div class="err" id="err"></div>
+      </div>
+      <div id="nl"></div>
+    </div></div>`;
+  $("#bk").onclick = () => { location.hash = ""; };
+  const v = $("#v");
+  if (v) {
+    $("#b5").onclick = () => { v.currentTime = Math.max(0, v.currentTime - 5); };
+    $("#f5").onclick = () => { v.currentTime += 5; };
+    // speed sticks across videos and reloads; iOS resets playbackRate on load/fullscreen, so it is re-applied on play
+    const setRate = r => { M.rate = r; v.playbackRate = v.defaultPlaybackRate = r; try { localStorage.setItem("rate", r); } catch (e) {} document.querySelectorAll("[data-rate]").forEach(b => b.classList.toggle("on", +b.dataset.rate === r)); };
+    document.querySelectorAll("[data-rate]").forEach(b => b.onclick = () => setRate(+b.dataset.rate));
+    v.onplay = v.onloadedmetadata = () => { if (v.playbackRate !== (M.rate || 1)) v.playbackRate = M.rate || 1; };
+    setRate(M.rate || 1);
+    // pausing marks the moment the note is about (until he starts writing)
+    v.onpause = () => { if (!$("#tx").value.trim() && !(M.rec && M.rec.state === "recording")) { M.t0 = v.currentTime; M.t1 = null; showAt(); } };
+  }
+  $("#sw") && ($("#sw").onclick = () => { const i = outs.findIndex(o => o.file === M.out); M.out = outs[(i + 1) % outs.length].file; open(id); });
+  $("#tx").onfocus = () => { if (v && M.t0 == null && v.currentTime > 0) { M.t0 = v.currentTime; showAt(); } if (v) v.pause(); };
+  $("#go").onclick = send;
+  $("#add").onclick = addOnly;
+  $("#tx").oninput = goLabel;
+  wireMic(v);
+  showAt();
+  drawNotes();
+  M.poll = setInterval(refresh, 8000);
+}
+const outName = f => { const o = (M.p.outputs || []).find(x => x.file === f); return o ? o.kind.toUpperCase() : "video"; };
+function showAt() {
+  const a = $("#at"); if (!a) return;
+  a.innerHTML = M.t0 == null ? "Pause the video where something's off, then type or talk. (No time = a note about the whole video.)"
+    : `Note at <b>${fmtT(M.t0)}${M.t1 != null && M.t1 > M.t0 + 1 ? "–" + fmtT(M.t1) : ""}</b><button class="lnk" id="clr">no time</button>`;
+  $("#clr") && ($("#clr").onclick = () => { M.t0 = M.t1 = null; showAt(); });
+}
+
+function noteLine() {
+  const said = $("#tx").value.trim();
+  if (!said) return "";
+  const a = M.t0, z = a == null ? null : Math.max(M.t1 ?? a + 3, a + 1);
+  // same rule as the desktop Talk button: a short exact command goes in as-is, anything else is stamped where he was
+  const exact = /^(cut|protect|keep)\b/i.test(said) && /\d+:\d{2}/.test(said) && said.split(/\s+/).length <= 8;
+  return exact || a == null ? said : `note ${fmtT2(a)}-${fmtT2(z)}: ${said}`;
+}
+
+// several revisions (user 2026-10-24: "I need the ability to add multiple revisions"): ＋ Add note saves one to
+// "Not sent yet" and the video plays on; Send & rebuild sends them all (plus whatever is still in the box) as one batch
+async function addOnly() {
+  const line = noteLine(), err = $("#err"), v = $("#v");
+  err.textContent = "";
+  if (!line) { err.textContent = "Type or say what should change first."; return; }
+  const b = $("#add"); b.disabled = true;
+  try {
+    M.p = await api("project/notes?id=" + M.p.id, { text: line });
+    $("#tx").value = ""; $("#tx").blur(); M.t0 = M.t1 = null; showAt(); drawNotes();
+    toast("Note added. Keep watching, then Send & rebuild", "ok");
+    if (v) v.play().catch(() => {});
+  } catch (e) { err.textContent = "Couldn't add: " + e.message; }
+  b.disabled = false;
+}
+
+async function send() {
+  const t = $("#tx"), err = $("#err"), line = noteLine();
+  err.textContent = "";
+  const nx = (M.p.batches || []).find(b => b.n === "next");
+  if (!line && !(nx && nx.notes.length)) { err.textContent = "Type or say what should change first."; return; }
+  const go = $("#go"); go.disabled = true; go.textContent = "Sending…";
+  try {
+    const r = await api("project/phone-send?id=" + M.p.id, { text: line });
+    M.p = r.project; t.value = ""; M.t0 = M.t1 = null; showAt();
+    toast(r.queued ? "Saved. It goes in as soon as the current rebuild finishes" : "Sent. Rebuilding now", "ok");
+    drawNotes();
+  } catch (e) { err.textContent = "Couldn't send: " + e.message; }
+  go.disabled = false; goLabel();
+}
+function goLabel() {
+  const go = $("#go"); if (!go) return;
+  const nx = (M.p.batches || []).find(b => b.n === "next"), n = (nx ? nx.notes.length : 0) + ($("#tx").value.trim() ? 1 : 0);
+  go.textContent = n > 1 ? `Send all ${n} & rebuild` : "Send & rebuild";
+}
+
+function wireMic(v) {
+  const b = $("#mic");
+  b.onclick = async () => {
+    if (M.rec && M.rec.state === "recording") { if (v && !v.paused) M.t1 = v.currentTime; M.rec.stop(); return; }
+    if (!navigator.mediaDevices || !window.MediaRecorder) { $("#err").textContent = "This browser can't record here: use the keyboard's 🎤 instead."; return; }
+    let stream;
+    try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch (e) { $("#err").textContent = "Microphone blocked: allow it for this site in Safari settings, or use the keyboard's 🎤."; return; }
+    if (M.t0 == null && v) { M.t0 = v.currentTime; showAt(); }
+    const chunks = [], rec = new MediaRecorder(stream); M.rec = rec;
+    rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    rec.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      b.classList.remove("rec"); b.textContent = "… writing";
+      try {
+        const r = await fetch("/api/transcribe?mode=note", { method: "POST", body: new Blob(chunks, { type: rec.mimeType || "audio/mp4" }) }).then(x => x.json());
+        const said = (r.text || "").trim();
+        if (!said) $("#err").textContent = "Didn't catch that, try again.";
+        else { const t = $("#tx"); t.value = (t.value.trim() ? t.value.trim() + " " : "") + said; showAt(); }
+      } catch (e) { $("#err").textContent = e.message; }
+      b.textContent = "🎙 Talk";
+    };
+    rec.start();
+    b.classList.add("rec"); b.textContent = "■ Stop";
+    $("#err").textContent = "";
+  };
+}
+
+function banner(p) {
+  const act = p.activity, nx = (p.batches || []).find(b => b.n === "next");
+  const wait = p.auto_send ? `<span>Your new notes go in as soon as this finishes.</span>` : "";
+  if (act) return `<div class="ban busy"><b>${esc(act.state === "rendering" ? "🔄 Rebuilding · " + act.label.replace(/^Rendering\s*/, "") : "🔄 " + act.label)}</b>${act.detail || act.eta_s ? `<span>${esc(act.detail || "")}${act.eta_s ? ` · ~${Math.ceil(act.eta_s / 60)} min left` : ""}</span>` : ""}${wait}</div>`;
+  const work = (p.batches || []).find(b => b.status === "working");
+  if (work) return `<div class="ban busy"><b>🤖 AI is applying batch ${work.n}, then rebuilds</b><span>You get a Telegram when the new version is ready.</span>${wait}</div>`;
+  if (p.auto_send) return `<div class="ban busy"><b>⏳ Sending your notes in a moment</b></div>`;
+  if (p.stage === "review") return `<div class="ban ok"><b>✅ Ready to review</b>${nx && nx.notes.length ? `<span>${nx.notes.length} note(s) not sent yet</span>` : ""}</div>`;
+  return "";
+}
+
+function drawNotes() {
+  const p = M.p, notes = p.notes || [], batches = p.batches || [];
+  $("#banner").innerHTML = banner(p);
+  const nx = batches.find(b => b.n === "next");
+  const row = (i, del) => {
+    const n = notes[i], m = /^note (\d+:[\d.]+)/.exec(n.text || "");
+    const st = n.status || (n.done ? "applied" : "pending");
+    return `<div class="note"><span class="t">${m ? m[1].replace(/\.\d$/, "") : "•"}</span><div>${esc((n.text || "").replace(/^note [\d:.]+-[\d:.]+:\s*/, ""))}${n.how ? `<div class="mut tiny">${esc(n.how)}</div>` : ""}<div class="s ${st}">${esc(st === "claude" ? "AI working" : st)}</div></div>${del ? `<button class="x" data-del="${i}">✕</button>` : ""}</div>`;
+  };
+  let h = "";
+  if (nx && nx.notes.length) h += `<h2>Not sent yet · ${nx.notes.length}</h2><div class="card">${nx.notes.map(i => row(i, !p.auto_send)).join("")}<div class="mut tiny" style="margin-top:6px">${p.auto_send ? "Waiting for the current rebuild, then these go in." : "Add as many as you like; “Send &amp; rebuild” sends them all as one batch."}</div></div>`;
+  for (const b of batches.filter(b => b.n !== "next")) {
+    h += `<details ${b.status !== "done" ? "open" : ""}><summary>Batch ${b.n} · ${b.notes.length} note${b.notes.length === 1 ? "" : "s"} · ${esc(b.status === "done" ? "done" : b.status === "working" ? "AI working" : b.open + " open")}${b.draft ? ` · ${esc(b.draft.label)}` : ""}</summary><div class="card">${b.notes.map(i => row(i, false)).join("")}</div></details>`;
+  }
+  // two ways to finish (user 2026-10-25): a real video goes on to the final render + Drive; a TEST video is only approved and
+  // studied into memory (POST project/test-done, the desktop right-click "Done: test video, study it": no render, Drive or TickTick)
+  if (p.checklist && !p.checklist.approved && p.stage === "review" && !p.activity) h += `<div class="sendrow"><button class="ok" id="appr">✓ Approve: upload</button></div>` + (M.role === "assistant" ? "" : `<div class="sendrow"><button id="tdone">🧪 Done: test video, study it</button></div><div class="mut tiny" style="margin-top:4px">Test = approved and saved to memory as a reference. No final render, no Drive, no TickTick.</div>`);
+  if (p.settings && p.settings.test_video && p.checklist && p.checklist.approved) h += `<div class="card mut tiny" style="margin-top:10px">🧪 Done as a test video: approved and studied into memory. Not sent to Drive or TickTick.</div>`;
+  $("#nl").innerHTML = h;
+  goLabel();
+  document.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => { try { M.p = await api("project/notes?id=" + p.id, { remove: +b.dataset.del }); drawNotes(); } catch (e) { toast(e.message, "bad"); } });
+  $("#tdone") && ($("#tdone").onclick = async () => {
+    if (!confirm(`Mark “${p.title}” done as a TEST video?
+
+It gets approved and Claude studies it into memory as a reference edit. Nothing is rendered again and nothing goes to Drive or TickTick.`)) return;
+    try {
+      const r = await api("project/test-done?id=" + p.id, {});
+      M.p = r.project || M.p;
+      toast(r.studying ? "Done ✓ Claude is studying it; you'll get a Telegram when it's saved" : "Done ✓ but Claude is busy on this project: say “study this approved video” in Ask Claude later", "ok");
+      drawNotes();
+    } catch (e) { toast(e.message, "bad"); }
+  });
+  $("#appr") && ($("#appr").onclick = async () => {
+    if (!confirm("Approve this for upload? It goes on to the final render and Drive.")) return;
+    try { M.p = await api("project/update?id=" + p.id, { checklist: { approved: true } }); toast("Approved", "ok"); drawNotes(); } catch (e) { toast(e.message, "bad"); }
+  });
+}
+
+async function refresh() {
+  if (!M.p || document.hidden) return;
+  try {
+    const p = await api("project?id=" + M.p.id);
+    const sig = x => (x.outputs || []).map(o => o.file).join() + (x.builds || []).length;
+    const changed = sig(p) !== sig(M.p);
+    M.p = p; drawNotes();
+    if (changed && !p.activity) toast("New version ready: tap ‹ and reopen to watch it");
+  } catch (e) { /* PC asleep or Studio closed: try again next tick */ }
+}
+
+// a Telegram "Ready to title + publish" link is m.html#<project id>: that project's publish page while its draft waits for a title
+const route = async () => { const id = location.hash.slice(1);
+  if (id === "queue") return queue();
+  if (id.startsWith("up-")) return publishView(id.slice(3));
+  if (id && (await upItems()).some(x => x.id === id && x.stage === "needs_title")) return publishView(id);
+  id ? open(id) : list(); };
+window.onhashchange = route;
+route();
+</script>
+</body>
+</html>

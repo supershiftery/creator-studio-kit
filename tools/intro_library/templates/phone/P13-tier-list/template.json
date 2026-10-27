@@ -1,0 +1,39 @@
+{
+  "id": "P13",
+  "name": "Tier Ranking",
+  "blurb": "A tier-list stripe runs down the left edge (S A B C F): the marker sits on F through the problem half - paying full price, fees - then jumps up a tier on every reveal line and lands on S; each line is its own literal scene with your clips; title above a gold S-tier flash.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.2,
+      "d": 0.3
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

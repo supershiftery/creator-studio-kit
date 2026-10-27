@@ -1,0 +1,202 @@
+{
+ "_note": "Apps the user covers. aliases = how Whisper writes the name. search = App Store search term for the icon. accent = brand color. kind = what the intro's cart/receipt show (food | shop; unknown apps are guessed from the VO). intro_items / intro_fees = that app's own cart lines.",
+ "uber eats": {
+  "name": "Uber Eats",
+  "aliases": [
+   "uber eats",
+   "ubereats"
+  ],
+  "search": "uber eats",
+  "accent": "#06C167",
+  "store": "iOS + Android"
+ },
+ "uber one": {
+  "name": "Uber One",
+  "aliases": [
+   "uber one",
+   "uber 1"
+  ],
+  "search": "uber eats",
+  "accent": "#06C167",
+  "store": "Free trial",
+  "no_card": true
+ },
+ "attapoll": {
+  "name": "Attapoll",
+  "aliases": [
+   "attapoll",
+   "atapole",
+   "adapole",
+   "atapol",
+   "out of pole",
+   "adderpole",
+   "adipole",
+   "adepole",
+   "add a pole",
+   "attapol"
+  ],
+  "search": "attapoll",
+  "accent": "#ff3b47",
+  "store": "Surveys + games"
+ },
+ "eureka": {
+  "name": "Eureka",
+  "aliases": [
+   "eureka"
+  ],
+  "search": "eureka surveys",
+  "accent": "#22d68a",
+  "store": "Surveys"
+ },
+ "doordash": {
+  "name": "DoorDash",
+  "aliases": [
+   "doordash",
+   "door dash"
+  ],
+  "search": "doordash food delivery",
+  "accent": "#ff3008",
+  "store": "iOS + Android"
+ },
+ "dashpass": {
+  "name": "DashPass",
+  "aliases": [
+   "dashpass",
+   "dash pass"
+  ],
+  "search": "doordash food delivery",
+  "accent": "#ff3008",
+  "store": "Free trial",
+  "no_card": true
+ },
+ "grubhub": {
+  "name": "Grubhub",
+  "aliases": [
+   "grubhub",
+   "grub hub"
+  ],
+  "search": "grubhub food delivery",
+  "accent": "#ff8000",
+  "store": "iOS + Android"
+ },
+ "instacart": {
+  "name": "Instacart",
+  "aliases": [
+   "instacart"
+  ],
+  "search": "instacart",
+  "accent": "#43b02a",
+  "store": "iOS + Android"
+ },
+ "shein": {
+  "name": "SHEIN",
+  "aliases": [
+   "shein",
+   "she in",
+   "sheen"
+  ],
+  "search": "shein",
+  "accent": "#ff5a7a",
+  "store": "iOS + Android",
+  "kind": "shop",
+  "intro_methods": [
+   "PROMO CODES",
+   "STACKED COUPONS",
+   "FREE GIFTS"
+  ]
+ },
+ "temu": {
+  "name": "Temu",
+  "aliases": [
+   "temu"
+  ],
+  "search": "temu",
+  "accent": "#fb7701",
+  "store": "iOS + Android"
+ },
+ "chime": {
+  "name": "Chime",
+  "aliases": [
+   "chime"
+  ],
+  "search": "chime mobile banking",
+  "accent": "#1ec677",
+  "store": "iOS + Android"
+ },
+ "cash app": {
+  "name": "Cash App",
+  "aliases": [
+   "cash app",
+   "cashapp"
+  ],
+  "search": "cash app",
+  "accent": "#00d632",
+  "store": "iOS + Android"
+ },
+ "paypal": {
+  "name": "PayPal",
+  "aliases": [
+   "paypal",
+   "pay pal"
+  ],
+  "search": "paypal",
+  "accent": "#0070e0",
+  "store": "iOS + Android",
+  "no_card": true
+ },
+ "amex": {
+  "name": "Amex",
+  "aliases": [
+   "amex",
+   "american express"
+  ],
+  "search": "american express",
+  "accent": "#3fa9ff",
+  "store": "Card perk",
+  "no_card": true
+ },
+ "dhgate": {
+  "name": "DHgate",
+  "aliases": [
+   "dhgate",
+   "dh gate",
+   "dhk",
+   "d h gate",
+   "dhg",
+   "dee h gate"
+  ],
+  "search": "dhgate",
+  "accent": "#ffa000",
+  "store": "iOS + Android",
+  "kind": "shop",
+  "intro_items": [
+   [
+    "Designer-Style Sneakers",
+    38.0
+   ],
+   [
+    "Crossbody Bag",
+    24.5
+   ],
+   [
+    "Smart Watch",
+    19.99
+   ]
+  ],
+  "intro_fees": [
+   [
+    "Shipping",
+    8.99
+   ],
+   [
+    "Taxes",
+    5.86
+   ]
+  ],
+  "intro_methods": [
+   "PROMO CODES",
+   "NEW USER COUPONS",
+   "STORE DISCOUNTS"
+  ]
+ }
+}

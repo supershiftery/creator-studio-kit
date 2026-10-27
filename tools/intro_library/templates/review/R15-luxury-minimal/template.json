@@ -1,0 +1,21 @@
+{
+ "id": "R15",
+ "name": "Luxury Minimal",
+ "blurb": "The quiet one: ivory background, thin gold rules and an elegant serif; B-roll sits in a tall arched frame that slowly breathes, the VO appears a phrase at a time in small spaced caps with the key word in italic serif; no shakes, only slow fades and a gold line drawing across on the turn; a refined monogram-style title.",
+ "status": "off",
+ "footage": {
+  "roles": [
+   "hook",
+   "problem",
+   "turn",
+   "reveal",
+   "watch"
+  ],
+  "every": 1,
+  "max": 16,
+  "maxlen": 5.0
+ },
+ "hold": 2.2,
+ "sfx": [],
+ "off_why": "off with R12 (s25 ultra 2026-10-23): the B-roll sits in a tall narrow arch, the user never wants a narrow intro"
+}

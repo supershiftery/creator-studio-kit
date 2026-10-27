@@ -1,0 +1,37 @@
+[
+ {
+  "key": "clean",
+  "label": "Clean subtitles \u00b7 Montserrat Bold",
+  "font": "Poppins",
+  "wanted": "Montserrat",
+  "png": "captions/clean.png"
+ },
+ {
+  "key": "bold",
+  "label": "Bold pop (Hormozi) \u00b7 Montserrat Black",
+  "font": "Poppins Black",
+  "wanted": "Montserrat Black",
+  "png": "captions/bold.png"
+ },
+ {
+  "key": "beast",
+  "label": "MrBeast style \u00b7 Komika Axis",
+  "font": "Anton",
+  "wanted": "Komika Axis",
+  "png": "captions/beast.png"
+ },
+ {
+  "key": "boldfont",
+  "label": "The Bold Font \u00b7 tall caps",
+  "font": "Anton",
+  "wanted": "The Bold Font",
+  "png": "captions/boldfont.png"
+ },
+ {
+  "key": "youtube",
+  "label": "YouTube CC box \u00b7 Roboto",
+  "font": "Roboto Medium",
+  "wanted": "Roboto Medium",
+  "png": "captions/youtube.png"
+ }
+]

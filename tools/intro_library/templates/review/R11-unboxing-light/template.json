@@ -1,0 +1,9 @@
+{
+  "id": "R11",
+  "name": "Unboxing Light",
+  "blurb": "Pitch-black studio with a closed mystery box under a top light; problem lines play as dimmed B-roll on the box's lid panels; on the turn the lid blasts off, golden god-rays and dust burst out and the reveal B-roll rises out of the box in warm colour; captions centred gold-on-white; the title glows in the light beam.",
+  "status": "ready",
+  "footage": {"roles": ["hook", "problem", "turn", "reveal", "watch"], "every": 1, "max": 16, "maxlen": 5.0},
+  "hold": 2.0,
+  "sfx": [{"sfx": "click", "t": "turn", "vol": 0.15, "d": 0.3}]
+}

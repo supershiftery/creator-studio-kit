@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* KV keyword box for gaming bodies (approved KV spec, _templates/kv-pixelbox) */
+      @font-face { font-family: "MCF"; src: url("assets/Minecraftia-Regular.ttf") format("truetype"); }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: transparent; }
+      #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; }
+      #kw { position: absolute; left: 960px; top: 850px; display: flex; gap: 2px; font-family: "MCF"; font-size: 96px; line-height: 1; white-space: nowrap; opacity: 0; }
+      #kw span { display: inline-block; color: #f8f8f8; filter: url(#kvbox); padding: 0 22px; }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position:absolute"><filter id="kvbox" x="-30%" y="-60%" width="160%" height="230%" color-interpolation-filters="sRGB">
+      <feMorphology in="SourceAlpha" operator="dilate" radius="42" result="big" /><feMorphology in="big" operator="erode" radius="29" result="d1" />
+      <feMorphology in="big" operator="erode" radius="23" result="d2" /><feMorphology in="big" operator="erode" radius="16" result="d3" />
+      <feOffset in="d3" dx="3" dy="16" result="sh" /><feFlood flood-color="#232327" /><feComposite in2="sh" operator="in" result="shc" />
+      <feFlood flood-color="#f8b000" /><feComposite in2="d3" operator="in" result="o" /><feFlood flood-color="#f81010" /><feComposite in2="d2" operator="in" result="r" />
+      <feFlood flood-color="#2a2530" /><feComposite in2="d1" operator="in" result="f" />
+      <feMerge><feMergeNode in="shc" /><feMergeNode in="o" /><feMergeNode in="r" /><feMergeNode in="f" /><feMergeNode in="SourceGraphic" /></feMerge></filter></svg>
+    <div id="root" data-composition-id="main" data-fps="60" data-start="0" data-duration="1.3" data-width="1920" data-height="1080">
+      <div id="box" class="clip" data-start="0" data-duration="1.3" data-track-index="1" style="position:absolute;inset:0">
+        <div id="kw"><span>Survival</span></div>
+      </div>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      gsap.set("#kw", { xPercent: -50, yPercent: -50 });
+      tl.fromTo("#kw", { scale: 1.9, rotation: -10, opacity: 0 }, { scale: 1, rotation: -3, opacity: 1, duration: 0.2, ease: "back.out(2.2)" }, 0);
+      tl.to("#kw", { rotation: -1, scale: 1.03, duration: 0.85, ease: "sine.inOut" }, 0.2);
+      tl.to("#kw", { scale: 0.6, opacity: 0, duration: 0.15, ease: "power2.in" }, 1.13);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

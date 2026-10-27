@@ -1,0 +1,14 @@
+:root { --g-acc:#ffd700;--g-acc2:#ff8c00;--g-panel:rgba(20,10,40,.85);--g-edge:#ffd700;--g-wipe:#1a1030; }
+#bg{position:absolute;inset:-300px;background:linear-gradient(120deg,#3a1f6b,#1f5a8a,#2a8a5a,#8a6a1f,#8a1f5a,#3a1f6b);background-size:400% 400%}
+#frame .bd{position:absolute;inset:26px;border:18px solid #d4af37;border-radius:40px;box-shadow:inset 0 0 0 6px #fff2b0,0 0 40px rgba(255,215,0,.4)}
+#frame .gem{position:absolute;width:56px;height:56px;transform:rotate(45deg);background:linear-gradient(135deg,#9df5ff,#3fd0ff);border:5px solid #fff}
+#frame .ct{position:absolute;left:0;right:0;bottom:70px;display:flex;justify-content:center}
+#frame .foil{position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.35) 50%,transparent 65%);opacity:0}
+
+.xp { left: 560px; width: 800px; }
+.xp-lab { font-family: "MC", monospace; font-weight: 400; color: #80ff20; text-shadow: 3px 3px 0 #000; font-size: 34px; }
+.xp-bar { height: 26px; border: 4px solid #000; border-radius: 0; background: #2b2b2b; }
+.xp-fill { background: linear-gradient(180deg, #b8ff4a, #64c814); }
+.dir .scene { z-index: 10; }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; opacity: 0; z-index: 46; }
+#frame { position: absolute; inset: 0; z-index: 50; pointer-events: none; }

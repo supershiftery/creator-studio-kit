@@ -1,0 +1,10 @@
+{
+  "id": "G09",
+  "name": "Boss Fight",
+  "blurb": "Nether-dark arena with rising embers: the problem is the boss - a pixel boss bar names it and the problem lines power it up; blackout, DROP, then every reveal line is a hit: damage numbers, the bar chunks down, gameplay windows flash in; the XP bar fills on 'watch to the end'; BOSS DEFEATED into the 3D pixel title.",
+  "status": "ready",
+  "footage": {"roles": ["turn", "reveal", "go"], "max": 7, "maxlen": 6},
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": []
+}

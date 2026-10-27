@@ -1,0 +1,39 @@
+{
+  "id": "P06",
+  "name": "Balance Drain",
+  "blurb": "A banking app's dark-teal world: a persistent balance card top-left drains with a red charge on every problem line and refills with green refunds after the turn, while each line plays its own literal scene with your clips; title on a PAYMENT APPROVED card.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

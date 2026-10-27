@@ -1,0 +1,33 @@
+@font-face{font-family:"Poppins";src:url("assets/fonts/Poppins-Medium.ttf") format("truetype");font-weight:500;font-style:normal;}
+@font-face{font-family:"Poppins";src:url("assets/fonts/Poppins-Bold.ttf") format("truetype");font-weight:700;font-style:normal;}
+@font-face{font-family:"Poppins";src:url("assets/fonts/Poppins-ExtraBold.ttf") format("truetype");font-weight:800;font-style:normal;}
+@font-face{font-family:"Poppins";src:url("assets/fonts/Poppins-Black.ttf") format("truetype");font-weight:900;font-style:normal;}
+@font-face{font-family:"Poppins";src:url("assets/fonts/Poppins-BoldItalic.ttf") format("truetype");font-weight:700;font-style:italic;}
+@font-face{font-family:"Poppins";src:url("assets/fonts/Poppins-ExtraBoldItalic.ttf") format("truetype");font-weight:800;font-style:italic;}
+@font-face{font-family:"Bebas";src:url("assets/fonts/BebasNeue-Regular.ttf") format("truetype");font-weight:400;font-style:normal;}
+@font-face{font-family:"Anton";src:url("assets/fonts/Anton-Regular.ttf") format("truetype");font-weight:400;font-style:normal;}
+@font-face{font-family:"ArchivoBlack";src:url("assets/fonts/ArchivoBlack-Regular.ttf") format("truetype");font-weight:400;font-style:normal;}
+@font-face{font-family:"SpaceMono";src:url("assets/fonts/SpaceMono-Bold.ttf") format("truetype");font-weight:700;font-style:normal;}
+@font-face{font-family:"PressStart";src:url("assets/fonts/PressStart2P-Regular.ttf") format("truetype");font-weight:400;font-style:normal;}
+@font-face{font-family:"Marker";src:url("assets/fonts/PermanentMarker-Regular.ttf") format("truetype");font-weight:400;font-style:normal;}
+@font-face{font-family:"Typewriter";src:url("assets/fonts/SpecialElite-Regular.ttf") format("truetype");font-weight:400;font-style:normal;}
+@font-face{font-family:"VT323";src:url("assets/fonts/VT323-Regular.ttf") format("truetype");font-weight:400;font-style:normal;}
+@font-face{font-family:"Silkscreen";src:url("assets/fonts/Silkscreen-Regular.ttf") format("truetype");font-weight:400;font-style:normal;}
+@font-face{font-family:"Silkscreen";src:url("assets/fonts/Silkscreen-Bold.ttf") format("truetype");font-weight:700;font-style:normal;}
+@font-face{font-family:"Caveat";src:url("assets/fonts/Caveat.ttf") format("truetype");font-weight:100 900;font-style:normal;}
+@font-face{font-family:"Monoton";src:url("assets/fonts/Monoton-Regular.ttf") format("truetype");font-weight:400;font-style:normal;}
+@font-face{font-family:"Bungee";src:url("assets/fonts/Bungee-Regular.ttf") format("truetype");font-weight:400;font-style:normal;}
+@font-face{font-family:"RubikMono";src:url("assets/fonts/RubikMonoOne-Regular.ttf") format("truetype");font-weight:400;font-style:normal;}
+@font-face{font-family:"Playfair";src:url("assets/fonts/PlayfairDisplay.ttf") format("truetype");font-weight:400 900;font-style:normal;}
+@font-face{font-family:"Playfair";src:url("assets/fonts/PlayfairDisplay-Italic.ttf") format("truetype");font-weight:400 900;font-style:italic;}
+@font-face{font-family:"Oswald";src:url("assets/fonts/Oswald.ttf") format("truetype");font-weight:200 700;font-style:normal;}
+@font-face{font-family:"Inter";src:url("assets/fonts/Inter.ttf") format("truetype");font-weight:100 900;font-style:normal;}
+@font-face{font-family:"Unbounded";src:url("assets/fonts/Unbounded.ttf") format("truetype");font-weight:200 900;font-style:normal;}
+@font-face{font-family:"DMSerif";src:url("assets/fonts/DMSerifDisplay-Regular.ttf") format("truetype");font-weight:400;font-style:normal;}
+@font-face{font-family:"Bowlby";src:url("assets/fonts/BowlbyOneSC-Regular.ttf") format("truetype");font-weight:400;font-style:normal;}
+@font-face{font-family:"Pixelify";src:url("assets/fonts/PixelifySans.ttf") format("truetype");font-weight:400 700;font-style:normal;}
+@font-face{font-family:"RockSalt";src:url("assets/fonts/RockSalt-Regular.ttf") format("truetype");font-weight:400;font-style:normal;}
+@font-face{font-family:"Syne";src:url("assets/fonts/Syne.ttf") format("truetype");font-weight:400 800;font-style:normal;}
+@font-face{font-family:"BarlowC";src:url("assets/fonts/BarlowCondensed-ExtraBold.ttf") format("truetype");font-weight:800;font-style:normal;}
+@font-face{font-family:"BarlowC";src:url("assets/fonts/BarlowCondensed-BlackItalic.ttf") format("truetype");font-weight:900;font-style:italic;}
+@font-face{font-family:"MC";src:url("assets/fonts/MCCaption.ttf") format("truetype");font-weight:400;font-style:normal;}

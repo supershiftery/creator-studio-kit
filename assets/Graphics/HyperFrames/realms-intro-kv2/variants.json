@@ -1,0 +1,342 @@
+[
+ {
+  "entry": "side",
+  "trans": "dirtwall",
+  "layout": "scatter",
+  "list": "carousel",
+  "dirt": "zoom",
+  "mascot": "slide",
+  "xp": "blocks",
+  "title": "left",
+  "frames": [
+   "card",
+   "full",
+   "split"
+  ],
+  "id": 1,
+  "slug": "side-dirtwall-scatter-carousel-card+full+split"
+ },
+ {
+  "entry": "side",
+  "trans": "drop",
+  "layout": "left",
+  "list": "row",
+  "dirt": "drift",
+  "mascot": "peek",
+  "xp": "mcxp",
+  "title": "left",
+  "frames": [
+   "full",
+   "split",
+   "tv"
+  ],
+  "id": 2,
+  "slug": "side-drop-left-row-full+split+tv"
+ },
+ {
+  "entry": "slam",
+  "trans": "dirtwall",
+  "layout": "stack",
+  "list": "row",
+  "dirt": "drift",
+  "mascot": "slide",
+  "xp": "kvbar",
+  "title": "big5",
+  "frames": [
+   "card",
+   "circle",
+   "split"
+  ],
+  "id": 3,
+  "slug": "slam-dirtwall-stack-row-card+circle+split"
+ },
+ {
+  "entry": "slam",
+  "trans": "dirtwall",
+  "layout": "stack",
+  "list": "carousel",
+  "dirt": "drift",
+  "mascot": "pop",
+  "xp": "mcxp",
+  "title": "stack",
+  "frames": [
+   "card",
+   "circle",
+   "full"
+  ],
+  "id": 4,
+  "slug": "slam-dirtwall-stack-carousel-card+circle+full"
+ },
+ {
+  "entry": "slam",
+  "trans": "whip",
+  "layout": "scatter",
+  "list": "carousel",
+  "dirt": "pan",
+  "mascot": "pop",
+  "xp": "kvbar",
+  "title": "big5",
+  "frames": [
+   "full",
+   "split",
+   "tv"
+  ],
+  "id": 5,
+  "slug": "slam-whip-scatter-carousel-full+split+tv"
+ },
+ {
+  "entry": "slam",
+  "trans": "drop",
+  "layout": "stair",
+  "list": "row",
+  "dirt": "pan",
+  "mascot": "slide",
+  "xp": "kvbar",
+  "title": "stack",
+  "frames": [
+   "card",
+   "circle",
+   "full"
+  ],
+  "id": 6,
+  "slug": "slam-drop-stair-row-card+circle+full"
+ },
+ {
+  "entry": "side",
+  "trans": "cut",
+  "layout": "left",
+  "list": "strips",
+  "dirt": "zoom",
+  "mascot": "pop",
+  "xp": "blocks",
+  "title": "stack",
+  "frames": [
+   "circle",
+   "split",
+   "tv"
+  ],
+  "id": 7,
+  "slug": "side-cut-left-strips-circle+split+tv"
+ },
+ {
+  "entry": "slam",
+  "trans": "cut",
+  "layout": "stack",
+  "list": "row",
+  "dirt": "zoom",
+  "mascot": "slide",
+  "xp": "mcxp",
+  "title": "left",
+  "frames": [
+   "card",
+   "split",
+   "tv"
+  ],
+  "id": 8,
+  "slug": "slam-cut-stack-row-card+split+tv"
+ },
+ {
+  "entry": "side",
+  "trans": "whip",
+  "layout": "stack",
+  "list": "row",
+  "dirt": "zoom",
+  "mascot": "peek",
+  "xp": "blocks",
+  "title": "stack",
+  "frames": [
+   "card",
+   "split",
+   "tv"
+  ],
+  "id": 9,
+  "slug": "side-whip-stack-row-card+split+tv"
+ },
+ {
+  "entry": "rise",
+  "trans": "cut",
+  "layout": "left",
+  "list": "strips",
+  "dirt": "pan",
+  "mascot": "peek",
+  "xp": "kvbar",
+  "title": "left",
+  "frames": [
+   "circle",
+   "full",
+   "split"
+  ],
+  "id": 10,
+  "slug": "rise-cut-left-strips-circle+full+split"
+ },
+ {
+  "entry": "slam",
+  "trans": "dirtwall",
+  "layout": "left",
+  "list": "full",
+  "dirt": "zoom",
+  "mascot": "peek",
+  "xp": "blocks",
+  "title": "big5",
+  "frames": [
+   "circle",
+   "full",
+   "split"
+  ],
+  "id": 11,
+  "slug": "slam-dirtwall-left-full-circle+full+split"
+ },
+ {
+  "entry": "rise",
+  "trans": "cut",
+  "layout": "stair",
+  "list": "carousel",
+  "dirt": "pan",
+  "mascot": "pop",
+  "xp": "blocks",
+  "title": "stack",
+  "frames": [
+   "card",
+   "full",
+   "split"
+  ],
+  "id": 12,
+  "slug": "rise-cut-stair-carousel-card+full+split"
+ },
+ {
+  "entry": "side",
+  "trans": "zoom",
+  "layout": "stack",
+  "list": "row",
+  "dirt": "zoom",
+  "mascot": "pop",
+  "xp": "mcxp",
+  "title": "big5",
+  "frames": [
+   "card",
+   "full",
+   "split"
+  ],
+  "id": 13,
+  "slug": "side-zoom-stack-row-card+full+split"
+ },
+ {
+  "entry": "side",
+  "trans": "zoom",
+  "layout": "scatter",
+  "list": "fan",
+  "dirt": "zoom",
+  "mascot": "peek",
+  "xp": "kvbar",
+  "title": "stack",
+  "frames": [
+   "circle",
+   "full",
+   "tv"
+  ],
+  "id": 14,
+  "slug": "side-zoom-scatter-fan-circle+full+tv"
+ },
+ {
+  "entry": "side",
+  "trans": "whip",
+  "layout": "stack",
+  "list": "strips",
+  "dirt": "drift",
+  "mascot": "pop",
+  "xp": "kvbar",
+  "title": "big5",
+  "frames": [
+   "card",
+   "full",
+   "tv"
+  ],
+  "id": 15,
+  "slug": "side-whip-stack-strips-card+full+tv"
+ },
+ {
+  "entry": "rise",
+  "trans": "whip",
+  "layout": "stack",
+  "list": "row",
+  "dirt": "drift",
+  "mascot": "peek",
+  "xp": "kvbar",
+  "title": "left",
+  "frames": [
+   "circle",
+   "split",
+   "tv"
+  ],
+  "id": 16,
+  "slug": "rise-whip-stack-row-circle+split+tv"
+ },
+ {
+  "entry": "side",
+  "trans": "cut",
+  "layout": "stair",
+  "list": "full",
+  "dirt": "pan",
+  "mascot": "slide",
+  "xp": "kvbar",
+  "title": "left",
+  "frames": [
+   "card",
+   "split",
+   "tv"
+  ],
+  "id": 17,
+  "slug": "side-cut-stair-full-card+split+tv"
+ },
+ {
+  "entry": "slam",
+  "trans": "whip",
+  "layout": "stair",
+  "list": "strips",
+  "dirt": "drift",
+  "mascot": "peek",
+  "xp": "blocks",
+  "title": "left",
+  "frames": [
+   "full",
+   "split",
+   "tv"
+  ],
+  "id": 18,
+  "slug": "slam-whip-stair-strips-full+split+tv"
+ },
+ {
+  "entry": "rise",
+  "trans": "dirtwall",
+  "layout": "stack",
+  "list": "full",
+  "dirt": "pan",
+  "mascot": "pop",
+  "xp": "kvbar",
+  "title": "stack",
+  "frames": [
+   "card",
+   "split",
+   "tv"
+  ],
+  "id": 19,
+  "slug": "rise-dirtwall-stack-full-card+split+tv"
+ },
+ {
+  "entry": "slam",
+  "trans": "whip",
+  "layout": "scatter",
+  "list": "row",
+  "dirt": "tilt",
+  "mascot": "slide",
+  "xp": "blocks",
+  "title": "stack",
+  "frames": [
+   "circle",
+   "full",
+   "split"
+  ],
+  "id": 20,
+  "slug": "slam-whip-scatter-row-circle+full+split"
+ }
+]

@@ -1,0 +1,10 @@
+{
+  "id": "R06",
+  "name": "Floating Panels",
+  "blurb": "Deep purple void with 3D glass panels of B-roll drifting at different depths in parallax; each line pushes a new panel to the front while the old ones fall back blurred; the turn flies the camera through the stack; captions land bold with neon-green brand words; the panels line up into a wall behind the title.",
+  "ref": "{{REVIEW_CHANNEL}} North Face intro (tilted footage panels)",
+  "status": "ready",
+  "footage": {"roles": ["hook", "problem", "turn", "reveal", "watch"], "every": 1, "max": 16, "maxlen": 4.5},
+  "hold": 2.0,
+  "sfx": [{"sfx": "click", "t": "turn", "vol": 0.15, "d": 0.3}]
+}

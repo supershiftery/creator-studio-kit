@@ -1,0 +1,10 @@
+{
+  "id": "G01",
+  "name": "Server Scanner",
+  "blurb": "The approved Top 10 Servers look, generalised: dark tech grid with scanlines, each problem line pops a pixel keyword tag with its pixel icon; blackout, DROP, a radar sweep finds blips '#N ???' one per reveal line with a counter; gameplay clips play in a HUD window; XP fill on 'watch to the end'; 3D pixel title slam.",
+  "status": "ready",
+  "footage": {"roles": ["turn", "reveal", "go"], "max": 7, "maxlen": 6},
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": [{"sfx": "ping", "t": "turn", "off": 0.9, "vol": 0.12, "d": 0.5}]
+}

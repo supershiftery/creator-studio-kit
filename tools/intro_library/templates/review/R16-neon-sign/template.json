@@ -1,0 +1,9 @@
+{
+  "id": "R16",
+  "name": "Neon Sign Wall",
+  "blurb": "Night-time brick wall: each line's key word buzzes on as a neon tube sign (flicker, glow bleeding onto the bricks), problem words in red neon; B-roll shows on a glowing billboard screen above; on the turn every sign shorts out, then the reveal words come on in the brand colour; the title is the big neon sign of the shop.",
+  "status": "ready",
+  "footage": {"roles": ["hook", "problem", "turn", "reveal", "watch"], "every": 1, "max": 16, "maxlen": 5.0},
+  "hold": 2.1,
+  "sfx": [{"sfx": "glitch", "t": "turn", "off": -0.2, "vol": 0.12, "d": 0.4}]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "G07",
+  "name": "Trading Card Pack",
+  "blurb": "The whole frame is a holographic trading card: a shifting rainbow foil field behind every scene, a gold card border with rarity gems in the corners and a CARD n/N counter; each new line 'pulls' a card with a foil sweep; title as the ultra-rare card name.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "turn",
+      "reveal",
+      "go"
+    ],
+    "max": 7,
+    "maxlen": 6
+  },
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": []
+}

@@ -1,0 +1,18 @@
+{
+  "id": "G16",
+  "name": "Blueprint",
+  "blurb": "An architect's blueprint: cyan grid paper behind every scene, white dimension lines and measurement callouts drawn on the key words, a title block in the corner (SHEET n OF N, the line's key word as the drawing name); white pixel-wipe cuts; the title is drawn as the final plan.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "turn",
+      "reveal",
+      "go"
+    ],
+    "max": 7,
+    "maxlen": 6
+  },
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": []
+}

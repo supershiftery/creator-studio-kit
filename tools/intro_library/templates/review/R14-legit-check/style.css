@@ -1,0 +1,30 @@
+:root { --hud: #36e0ff; }
+#bg { position: absolute; inset: 0; background: #050b12; }
+#bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(54,224,255,.06) 1px, transparent 1px) 0 0 / 100% 40px, linear-gradient(90deg, rgba(54,224,255,.06) 1px, transparent 1px) 0 0 / 40px 100%; }
+#view { position: absolute; left: 70px; top: 90px; width: 1160px; height: 900px; border: 2px solid rgba(54,224,255,.35); }
+#view .in { position: absolute; inset: 14px; overflow: hidden; background: #000; }
+#view .scanl { position: absolute; left: 14px; right: 14px; top: 14px; height: 6px; background: var(--hud); box-shadow: 0 0 30px 10px rgba(54,224,255,.45); z-index: 3; }
+#view .c { position: absolute; width: 70px; height: 70px; border: 8px solid var(--hud); z-index: 4; }
+#view .tl { left: -6px; top: -6px; border-right: 0; border-bottom: 0; } #view .tr { right: -6px; top: -6px; border-left: 0; border-bottom: 0; }
+#view .bl { left: -6px; bottom: -6px; border-right: 0; border-top: 0; } #view .br { right: -6px; bottom: -6px; border-left: 0; border-top: 0; }
+#view .read { position: absolute; left: 30px; bottom: 30px; font: 700 34px "SpaceMono", monospace; color: var(--hud); background: rgba(0,0,0,.6); padding: 6px 16px; z-index: 5; }
+#panel { position: absolute; left: 1290px; top: 90px; width: 560px; height: 900px; border: 2px solid rgba(54,224,255,.35); padding: 30px; background: rgba(5,20,30,.7); }
+#panel .hd { font: 700 44px "SpaceMono", monospace; color: var(--hud); letter-spacing: 4px; border-bottom: 2px solid rgba(54,224,255,.35); padding-bottom: 14px; }
+#panel .list { margin-top: 20px; display: flex; flex-direction: column; gap: 16px; }
+.chk { display: flex; align-items: center; gap: 18px; font: 700 36px "SpaceMono", monospace; color: #dff8ff; text-transform: uppercase; opacity: 0; white-space: nowrap; overflow: hidden; }
+.chk b { width: 46px; height: 46px; flex: none; border: 3px solid var(--hud); display: flex; align-items: center; justify-content: center; font: 900 34px "Inter", sans-serif; color: var(--hud); }
+.meter { position: absolute; left: 60px; bottom: 50px; width: 440px; height: 240px; }
+.meter .arc { position: absolute; inset: 0 0 -220px 0; border-radius: 50%; border: 18px solid transparent; border-top-color: #ff4d4d; border-right-color: #36ff8f; transform: rotate(-45deg); }
+.meter .needle { position: absolute; left: 216px; top: 30px; width: 8px; height: 200px; background: #fff; transform-origin: 50% 100%; border-radius: 4px; }
+.meter span { position: absolute; bottom: -10px; font: 700 26px "SpaceMono", monospace; color: #9fb7c4; }
+.meter .lf { left: 0; } .meter .rt { right: 0; }
+.meter .q { position: absolute; left: 0; right: 0; top: 110px; text-align: center; font: 900 90px "Inter", sans-serif; color: #fff; opacity: .8; }
+.kin.hud { font: 800 96px "Poppins", sans-serif; color: #fff; text-shadow: 0 0 22px rgba(0,0,0,.9); }
+.kin.hud .k { color: var(--hud); }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; opacity: 0; z-index: 45; background: #050b12; }
+#title .v { font: 700 40px "SpaceMono", monospace; color: var(--hud); letter-spacing: 20px; }
+#title .t1 { font: 700 150px "SpaceMono", monospace; color: #fff; text-transform: uppercase; white-space: nowrap; letter-spacing: -6px; }
+#title .t2 { font: 700 60px "SpaceMono", monospace; color: #050b12; background: var(--hud); padding: 6px 30px; text-transform: uppercase; }
+.xp-lab { font-family: "SpaceMono", monospace; color: var(--hud); }
+.xp-bar { border-radius: 0; border-color: var(--hud); }
+.xp-fill { background: var(--hud); }

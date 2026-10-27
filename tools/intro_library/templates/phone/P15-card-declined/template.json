@@ -1,0 +1,47 @@
+{
+  "id": "P15",
+  "name": "Card Terminal",
+  "blurb": "A card-terminal readout sits in the corner of every scene: it shows the climbing total and DECLINED in red through the problem half, beeps APPROVED $0.00 in green after the turn; every line is its own literal scene with your clips; title on the terminal's green screen.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "error",
+      "t": "turn",
+      "off": -1.2,
+      "vol": 0.1,
+      "d": 0.4
+    },
+    {
+      "sfx": "ping",
+      "t": "turn",
+      "off": 0.7,
+      "vol": 0.14,
+      "d": 0.6
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

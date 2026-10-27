@@ -1,0 +1,18 @@
+{
+  "id": "G14",
+  "name": "Breaking News",
+  "blurb": "A pixel news broadcast: every scene is the on-air picture with a BREAKING / EXCLUSIVE bug, a channel logo corner and a lower-third headline that changes on each line (the line's key words in caps) over a scrolling ticker; flash cuts; the title is the headline of the night.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "turn",
+      "reveal",
+      "go"
+    ],
+    "max": 7,
+    "maxlen": 6
+  },
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": []
+}

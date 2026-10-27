@@ -1,0 +1,46 @@
+{
+  "id": "P14",
+  "name": "Gift Wrap",
+  "blurb": "Wrapping-paper world: a soft patterned gift-paper background and a satin ribbon crossing the frame behind every scene, a gift tag in the corner that reads each line's key word; after the turn the ribbon pulls away and confetti drops; every line is a literal scene with your clips; title on the gift card.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.2,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "turn",
+      "off": 0.6,
+      "vol": 0.12,
+      "d": 0.6
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

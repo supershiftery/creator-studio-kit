@@ -1,0 +1,18 @@
+{
+  "id": "G20",
+  "name": "Corrupted Save",
+  "blurb": "A corrupted save file: TV-static noise and RGB tearing behind every scene; through the problem half error windows stack up (FUN NOT FOUND, SERVER LIST CORRUPTED...) with the line's key word; on the turn a REPAIRING progress bar fills, the errors close and the colour comes back; glitch cuts; the title boots up clean.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "turn",
+      "reveal",
+      "go"
+    ],
+    "max": 7,
+    "maxlen": 6
+  },
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": []
+}

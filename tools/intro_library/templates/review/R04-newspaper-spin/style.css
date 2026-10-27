@@ -1,0 +1,45 @@
+#bg { position: absolute; inset: 0; background: radial-gradient(ellipse at center, #2c2c2c, #050505 75%); }
+#papers, #full { position: absolute; inset: 0; }
+.np { position: absolute; left: 260px; top: 90px; width: 1400px; height: 900px; background: #ecebe4; box-shadow: 0 30px 80px rgba(0,0,0,.7); padding: 34px 44px; overflow: hidden;
+  filter: sepia(.25) contrast(1.05); opacity: 0; }
+.np .mast { font: 400 120px "DMSerif", serif; color: #111; text-align: center; border-bottom: 6px double #111; line-height: 1.05; letter-spacing: 2px; }
+.np .strap { display: flex; justify-content: space-between; font: 700 22px "Oswald", sans-serif; color: #333; letter-spacing: 3px; border-bottom: 2px solid #111; padding: 6px 0; }
+.np .head { font: 700 92px "Oswald", sans-serif; color: #111; text-transform: uppercase; line-height: 1; margin: 22px 0 18px; white-space: nowrap; overflow: hidden; }
+.np .body { display: flex; gap: 30px; height: 520px; }
+.np .col { flex: 1; display: flex; flex-direction: column; gap: 13px; }
+.np .ln { height: 12px; background: #9d9b92; border-radius: 2px; }
+.np .pic { width: 640px; height: 400px; flex: none; position: relative; overflow: hidden; background: transparent; }
+/* no clip live = printed text columns, never a dark empty box (prada glasses 2026-10-25, "a lot of black screens") */
+.np .pic .pcol { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 13px; }
+.np .pic .slot { position: absolute; inset: 0; }
+.np .pic .slot { filter: sepia(.15) contrast(1.12) saturate(1.05); }   /* colour print: footage is never black-and-white */
+.np .pic::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle, rgba(0,0,0,.35) 1.3px, transparent 1.6px) 0 0 / 7px 7px; mix-blend-mode: multiply; }
+.hl { position: absolute; padding: 6px 26px; background: #ffe500; font: 700 64px "Oswald", sans-serif; color: #111; text-transform: uppercase; white-space: nowrap; box-shadow: 0 8px 20px rgba(0,0,0,.35); }
+.kin.cap { font: 600 128px "Oswald", sans-serif; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 30px rgba(0,0,0,.8); }
+.kin.cap .k.brand, .kin.cap .k.money, .kin.cap .k.pos { color: #ffe500; }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; opacity: 0; z-index: 45; background: radial-gradient(ellipse at center, #241307, #000 70%); }
+#title .t0, #title .t1 { font: 700 150px "Oswald", sans-serif; color: #fff4c2; text-transform: uppercase; letter-spacing: 4px; white-space: nowrap;
+  text-shadow: 0 0 10px #ffd36b, 0 0 30px #ff9a1f, 0 0 60px #ff5a00, 0 0 110px #ff3d00; }
+#title .t0 { font-size: 90px; }
+.xp-fill { background: linear-gradient(90deg, #ff9a1f, #ffe500); }
+.np .head { position: relative; height: 100px; }
+.np .hdl { position: absolute; left: 0; top: 0; white-space: nowrap; }
+/* product page card (rick owens 2026-10-22): a store listing with his clip as the product photo */
+.pp { position: absolute; left: 230px; top: 120px; width: 1460px; height: 840px; background: #fff; border-radius: 22px; overflow: hidden; z-index: 60;
+  box-shadow: 0 40px 100px rgba(0,0,0,.75); font-family: "Inter", sans-serif; }
+.pp .bar { height: 54px; background: #ececec; display: flex; align-items: center; gap: 10px; padding: 0 22px; }
+.pp .bar i { width: 15px; height: 15px; border-radius: 50%; background: #ff5f57; }
+.pp .bar i:nth-child(2) { background: #febc2e; } .pp .bar i:nth-child(3) { background: #28c840; }
+.pp .bar span { margin-left: 18px; background: #fff; border-radius: 9px; padding: 6px 22px; font: 500 22px "Inter", sans-serif; color: #555; }
+.pp .pbody { display: flex; gap: 40px; padding: 34px; height: 786px; box-sizing: border-box; }
+.pp .shot { width: 760px; height: 700px; flex: none; position: relative; overflow: hidden; border-radius: 14px; background: #222; }
+.pp .info { flex: 1; display: flex; flex-direction: column; gap: 22px; padding-top: 10px; }
+.pp .pt { font: 800 52px "Oswald", sans-serif; color: #111; line-height: 1.05; }
+.pp .stars { font-size: 40px; color: #ffb400; letter-spacing: 4px; } .pp .stars b { font: 700 30px "Inter", sans-serif; color: #444; margin-left: 12px; letter-spacing: 0; }
+.pp .pr { font: 800 96px "Oswald", sans-serif; color: #e8340c; transform-origin: 0 50%; }
+.pp .sold { font: 600 24px "Inter", sans-serif; color: #2a8a3e; letter-spacing: 2px; }
+.pp .btn { margin-top: auto; margin-bottom: 30px; background: #ff6a00; color: #fff; font: 800 44px "Oswald", sans-serif; text-align: center; padding: 26px; border-radius: 14px; }
+.pp .cur { position: absolute; width: 64px; height: 64px; right: 270px; bottom: 70px; z-index: 61; filter: drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
+/* EXCLUSIVE rubber stamp on the opening front page (prada glasses 2026-10-25: "no graphics on it ... a blank newspaper") */
+.np .stamp { position: absolute; right: 120px; top: 330px; padding: 10px 34px; border: 9px solid #c8141c; color: #c8141c; font: 700 96px "Oswald", sans-serif;
+  letter-spacing: 6px; border-radius: 10px; mix-blend-mode: multiply; z-index: 5; }

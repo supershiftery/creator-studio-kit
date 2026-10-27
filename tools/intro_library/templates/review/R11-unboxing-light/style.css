@@ -1,0 +1,24 @@
+#bg { position: absolute; inset: 0; background: #030303; }
+#beam { position: absolute; left: 560px; top: -100px; width: 800px; height: 1300px; background: linear-gradient(180deg, rgba(255,240,200,.22), rgba(255,240,200,0) 85%);
+  clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%); filter: blur(8px); }
+/* the problem half plays its footage as big and 16:9 as the reveal does (remote test prada 2026-10-26, 0:03: the opening
+   "really picks up in the second half": a 1600x560 strip cropped every desk shot to a band of hands) */
+#cold { position: absolute; left: 310px; top: 80px; width: 1300px; height: 731px; border-radius: 22px; overflow: hidden; opacity: 0;
+  box-shadow: 0 0 60px rgba(255,220,160,.18), 0 0 0 2px rgba(255,230,180,.35); }
+#cold .in { position: absolute; inset: 0; }
+#cold .slot { filter: brightness(.92) contrast(1.05) saturate(1.05); }   /* "cold" stays colour (user: no grey footage) */
+#rays { position: absolute; left: 960px; top: 720px; width: 0; height: 0; opacity: 0; }
+#rays div { position: absolute; left: -1600px; top: -1600px; width: 3200px; height: 3200px; border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255,210,110,.32) 0 5deg, transparent 5deg 15deg); -webkit-mask-image: radial-gradient(circle, #000 10%, transparent 60%); }
+#box { position: absolute; left: 610px; top: 690px; width: 700px; height: 360px; }
+#box .front { position: absolute; left: 0; top: 70px; width: 700px; height: 300px; background: linear-gradient(180deg, #232323, #0c0c0c); border: 3px solid #3a3a3a; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; font: 900 180px "Poppins", sans-serif; color: rgba(255,210,110,.85); text-shadow: 0 0 40px rgba(255,190,80,.6); }
+#box .lid { position: absolute; left: -20px; top: 0; width: 740px; height: 90px; background: linear-gradient(180deg, #333, #151515); border: 3px solid #444; border-radius: 10px; z-index: 2; }
+#rise { position: absolute; left: 310px; top: 80px; width: 1300px; height: 731px; border-radius: 22px; overflow: hidden; opacity: 0; box-shadow: 0 0 80px rgba(255,200,100,.45), 0 0 0 3px rgba(255,220,150,.8); }
+#rise .in { position: absolute; inset: 0; }
+.kin.glow { font: 800 108px "Poppins", sans-serif; color: #fff; text-shadow: 0 0 30px rgba(0,0,0,.9), 0 0 6px rgba(0,0,0,.9); }
+.kin.glow .k { color: #ffd36b; text-shadow: 0 0 30px rgba(255,170,40,.7), 0 0 6px rgba(0,0,0,.9); }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; opacity: 0; z-index: 45; }
+#title .t1 { font: 900 150px "Poppins", sans-serif; color: #fff7e0; text-transform: uppercase; white-space: nowrap; text-shadow: 0 0 40px rgba(255,190,80,.9), 0 0 120px rgba(255,160,40,.6); }
+#title .t2 { font: 700 44px "Poppins", sans-serif; color: #ffd36b; letter-spacing: 12px; text-transform: uppercase; }
+.xp-fill { background: linear-gradient(90deg, #ffb340, #fff1c2); }

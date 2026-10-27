@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* "Submit your realm" call-to-action for the outro of realm videos (user request 2026-10-20): the real
+         {{LISTING_SITE}} register page in a browser window, the URL types in, the cursor clicks Register.
+         Transparent overlay, 6 s, sits on the right so the top-left face cam stays clear. */
+      @font-face { font-family: "CapFont"; src: url("assets/caption.ttf") format("truetype"); font-weight: 900; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: transparent; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      canvas { image-rendering: pixelated; display: block; }
+      #win { position: absolute; left: 700px; top: 250px; width: 1120px; height: 690px; border-radius: 14px; overflow: hidden;
+        background: #0d0a16; box-shadow: 0 0 0 4px #b48cff, 0 30px 80px rgba(0,0,0,.7), 0 0 60px rgba(180,140,255,.35); }
+      #bar { position: absolute; left: 0; top: 0; right: 0; height: 52px; background: #1b1626; display: flex; align-items: center; padding: 0 18px; gap: 10px; }
+      .dot { width: 14px; height: 14px; border-radius: 50%; }
+      #url { margin-left: 18px; flex: 1; height: 32px; border-radius: 16px; background: #0f0c18; display: flex; align-items: center; padding: 0 16px;
+        font-family: "CapFont"; font-size: 20px; color: #e8dcff; letter-spacing: 1px; }
+      #url i { color: #7ee08a; font-style: normal; margin-right: 10px; }
+      #type { display: inline-block; overflow: hidden; white-space: nowrap; width: 0; vertical-align: bottom; }
+      #page { position: absolute; left: 0; top: 52px; width: 1120px; height: 638px; overflow: hidden; }
+      #page img { position: absolute; left: -304px; top: -499px; width: 1728px; }
+      #btnglow { position: absolute; left: 0; top: 0; width: 120px; height: 52px; border-radius: 6px; box-shadow: 0 0 0 4px #ffc93a, 0 0 40px 10px rgba(255,201,58,.6); opacity: 0; }
+      #cursor { position: absolute; left: 1500px; top: 1000px; }
+      #title { position: absolute; left: 700px; top: 92px; width: 1120px; display: flex; justify-content: center; align-items: center; gap: 22px; opacity: 0; }
+      #free { position: absolute; left: 1690px; top: 200px; transform: rotate(10deg); opacity: 0; z-index: 5; }
+      #chips { position: absolute; left: 700px; top: 962px; width: 1120px; display: flex; justify-content: center; gap: 22px; }
+      .chip { font-family: "CapFont"; font-size: 28px; letter-spacing: 2px; color: #12081f; background: #b48cff; padding: 10px 22px; border: 4px solid #2a1550; opacity: 0; }
+      .chip.gold { background: #ffc93a; border-color: #4a3200; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="6" data-width="1920" data-height="1080">
+      <div id="ui" class="clip" data-start="0" data-duration="6" data-track-index="1" style="position:absolute;inset:0">
+        <div id="title"></div>
+        <div id="free"></div>
+        <div id="win">
+          <div id="bar"><div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+            <div id="url"><i>🔒</i><span id="type">{{LISTING_SITE}}/register</span></div></div>
+          <div id="page"><img src="assets/register.png" alt="" /><div id="btnglow"></div></div>
+        </div>
+        <div id="chips"><div class="chip">GET LISTED</div><div class="chip gold">GET VOTES</div><div class="chip">VOTE REWARDS</div></div>
+        <div id="cursor"></div>
+      </div>
+      <audio id="a1" src="assets/whoosh-short.mp3" data-start="0.0" data-duration="0.57" data-track-index="10" data-volume="0.2"></audio>
+      <audio id="a2" src="assets/key-press.mp3" data-start="0.55" data-duration="0.4" data-track-index="11" data-volume="0.16"></audio>
+      <audio id="a3" src="assets/click.mp3" data-start="2.35" data-duration="0.36" data-track-index="12" data-volume="0.28"></audio>
+      <audio id="a4" src="assets/ping.mp3" data-start="2.9" data-duration="0.9" data-track-index="13" data-volume="0.14"></audio>
+    </div>
+    <script>
+      // 5x7 Minecraft-style pixel font
+      const G = {
+        A:"01110100011000111111100011000110001",B:"11110100011000111110100011000111110",C:"01110100011000010000100001000101110",
+        D:"11110100011000110001100011000111110",E:"11111100001000011110100001000011111",F:"11111100001000011110100001000010000",
+        G:"01111100001000010011100011000101111",H:"10001100011000111111100011000110001",I:"11111001000010000100001000010011111",
+        J:"00111000010000100001100011000101110",K:"10001100101010011000101001001010001",L:"10000100001000010000100001000011111",
+        M:"10001110111010110101100011000110001",N:"10001110011010110011100011000110001",O:"01110100011000110001100011000101110",
+        P:"11110100011000111110100001000010000",Q:"01110100011000110001101011001001101",R:"11110100011000111110101001001010001",
+        S:"01111100001000001110000010000111110",T:"11111001000010000100001000010000100",U:"10001100011000110001100011000101110",
+        V:"10001100011000110001100010101000100",W:"10001100011000110101101011101110001",X:"10001100010101000100010101000110001",
+        Y:"10001100010101000100001000010000100",Z:"11111000010001000100010001000011111",
+        "0":"01110100011001110101110011000101110","1":"00100011000010000100001000010011111","2":"01110100010000100110010001000011111",
+        "3":"01110100010000100110000011000101110","4":"00010001100101010010111110001000010","5":"11111100001111000001000011000101110",
+        "6":"00110010001000011110100011000101110","7":"11111000010001000100010000100001000","8":"01110100011000101110100011000101110",
+        "9":"01110100011000101111000010001001100","+":"00000001000010011111001000010000000","!":"00100001000010000100001000000000100",
+        "?":"01110100010000100110001000000000100","'":"00100001000100000000000000000000000",".":"00000000000000000000000000000000100",
+        "-":"00000000000000011111000000000000000",":":"00000001000000000000000000010000000","/":"00001000100001000100010000100010000",
+        "#":"01010111110101001010111110101000000",",":"00000000000000000000001000010001000"
+      };
+      function glyphCells(text) {
+        const chars = text.toUpperCase().split(""), widths = chars.map((c) => (c === " " ? 3 : 5));
+        const cols = widths.reduce((s, w) => s + w + 1, -1), cells = [];
+        let cx = 0;
+        chars.forEach((c, i) => {
+          const g = G[c];
+          if (g) for (let r = 0; r < 7; r++) for (let k = 0; k < 5; k++) if (g[r * 5 + k] === "1") cells.push([cx + k, r]);
+          cx += widths[i] + 1;
+        });
+        return { cells, cols };
+      }
+      // flat pixel text with outline + drop shadow
+      function pix(text, ps, fill, o = {}) {
+        const out = o.outline ?? Math.round(ps * 0.45), sh = o.shadow ?? ps, shc = o.shadowColor || "rgba(0,0,0,.45)";
+        const { cells, cols } = glyphCells(text);
+        const cv = document.createElement("canvas");
+        cv.width = cols * ps + out * 2 + sh; cv.height = 7 * ps + out * 2 + sh;
+        const ctx = cv.getContext("2d"), at = (x, y) => [out + x * ps, out + y * ps];
+        ctx.fillStyle = shc; cells.forEach(([x, y]) => { const [px, py] = at(x, y); ctx.fillRect(px + sh - out, py + sh - out, ps + out * 2, ps + out * 2); });
+        ctx.fillStyle = o.outlineColor || "#000"; if (out) cells.forEach(([x, y]) => { const [px, py] = at(x, y); ctx.fillRect(px - out, py - out, ps + out * 2, ps + out * 2); });
+        cells.forEach(([x, y]) => { const [px, py] = at(x, y); ctx.fillStyle = Array.isArray(fill) ? (y < 4 ? fill[0] : fill[1]) : fill; ctx.fillRect(px, py, ps, ps); });
+        return cv;
+      }
+      const CUR = ["K.......","KK......","KWK.....","KWWK....","KWWWK...","KWWWWK..","KWWKKK..","KK.WK...","....K..."];
+      function cursorIcon(ps) {
+        const cv = document.createElement("canvas"); cv.width = 8 * ps; cv.height = 9 * ps; const c = cv.getContext("2d");
+        CUR.forEach((row, y) => row.split("").forEach((ch, x) => { if (ch !== ".") { c.fillStyle = ch === "K" ? "#111" : "#fff"; c.fillRect(x * ps, y * ps, ps, ps); } }));
+        return cv;
+      }
+      const $ = (id) => document.getElementById(id);
+      $("title").appendChild(pix("SUBMIT YOUR REALM", 10, ["#ffffff", "#d9c8ff"], { shadow: 9 }));
+      $("free").appendChild(pix("FREE!", 9, ["#fff3a6", "#ffb300"], { shadow: 7, outlineColor: "#2b1c00" }));
+      $("cursor").appendChild(cursorIcon(6));
+      // the register page's Register button (screenshot x 652-745, y 1171-1206), shown at 0.9 scale, offset -304/-499
+      const S = 0.9, OX = -304, OY = -499, b = { x: 652 * S + OX, y: 1171 * S + OY, w: 93 * S, h: 35 * S };
+      Object.assign($("btnglow").style, { left: b.x + "px", top: b.y + "px", width: b.w + "px", height: b.h + "px" });
+      const TIP = { x: 700 + b.x + b.w / 2, y: 250 + 52 + b.y + b.h / 2 };   // screen point of the button centre
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#win", { x: 900, rotation: 4, opacity: 0 }, { x: 0, rotation: 0, opacity: 1, duration: 0.45, ease: "power3.out" }, 0.05);
+      tl.fromTo("#title", { y: -40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: "back.out(2)" }, 0.25);
+      tl.fromTo("#free", { scale: 2.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(2.4)" }, 0.55);
+      tl.fromTo("#type", { width: 0 }, { width: 330, duration: 0.8, ease: "steps(23)" }, 0.55);
+      tl.fromTo("#cursor", { x: 0, y: 0 }, { x: TIP.x - 1500, y: TIP.y - 1000, duration: 0.9, ease: "power2.inOut" }, 1.35);
+      tl.to("#cursor", { scale: 0.85, duration: 0.06, yoyo: true, repeat: 1 }, 2.3);
+      tl.fromTo("#btnglow", { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(2)" }, 2.35);
+      document.querySelectorAll(".chip").forEach((c, i) => tl.fromTo(c, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.25, ease: "back.out(2)" }, 2.7 + i * 0.15));
+      tl.to("#win", { y: -6, duration: 1.6, ease: "sine.inOut", yoyo: true, repeat: 1 }, 2.2);
+      tl.to(["#win", "#title", "#free", "#chips", "#cursor"], { opacity: 0, y: "+=30", duration: 0.3, ease: "power2.in" }, 6 - 0.35);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "uber-graphics",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "npx --yes hyperframes@0.8.181 check",
+    "render": "npx --yes hyperframes@0.8.181 render"
+  }
+}

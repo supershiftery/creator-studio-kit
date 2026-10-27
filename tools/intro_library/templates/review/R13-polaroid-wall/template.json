@@ -1,0 +1,28 @@
+{
+ "id": "R13",
+ "name": "Polaroid Corkboard",
+ "blurb": "A warm corkboard: each line pins a polaroid of the B-roll (problem shots faded, reveal shots bright) with a handwritten caption of the key word; red string links the pins; on the turn a camera flash and the board fills fast; the title is written on a big index card pinned in the middle.",
+ "status": "ready",
+ "footage": {
+  "roles": [
+   "hook",
+   "problem",
+   "turn",
+   "reveal",
+   "watch"
+  ],
+  "every": 1,
+  "max": 16,
+  "maxlen": 5.0,
+  "extend_last": true
+ },
+ "hold": 2.0,
+ "sfx": [
+  {
+   "sfx": "click",
+   "t": "turn",
+   "vol": 0.18,
+   "d": 0.3
+  }
+ ]
+}

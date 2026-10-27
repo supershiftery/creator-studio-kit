@@ -1,0 +1,39 @@
+{
+  "id": "P20",
+  "name": "Before / After",
+  "blurb": "Before and after: the whole problem half wears a grey, rainy BEFORE grade with a BEFORE label, and on the turn a white divider sweeps across the frame turning everything into the bright app-colour AFTER world; each line is a literal scene with your clips inside; title on the AFTER side.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.2,
+      "d": 0.3
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

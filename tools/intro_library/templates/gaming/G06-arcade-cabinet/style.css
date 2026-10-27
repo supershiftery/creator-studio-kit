@@ -1,0 +1,13 @@
+:root { --g-acc:#ffe14a;--g-acc2:#ff7b00;--g-panel:rgba(0,0,0,.85);--g-edge:#ff2fb0;--g-wipe:#000; }
+#bg{position:absolute;inset:0;background:#000}
+#frame .bez{position:absolute;inset:0;border:70px solid #18181c;border-radius:90px;box-shadow:inset 0 0 120px rgba(0,0,0,.9),inset 0 0 0 6px #333}
+#frame .glare{position:absolute;left:80px;top:80px;width:1760px;height:920px;border-radius:60px;background:linear-gradient(135deg,rgba(255,255,255,.10),transparent 30%)}
+#frame .sc{position:absolute;left:100px;top:96px;display:flex;gap:120px}
+
+.xp { left: 560px; width: 800px; }
+.xp-lab { font-family: "MC", monospace; font-weight: 400; color: #80ff20; text-shadow: 3px 3px 0 #000; font-size: 34px; }
+.xp-bar { height: 26px; border: 4px solid #000; border-radius: 0; background: #2b2b2b; }
+.xp-fill { background: linear-gradient(180deg, #b8ff4a, #64c814); }
+.dir .scene { z-index: 10; }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; opacity: 0; z-index: 46; }
+#frame { position: absolute; inset: 0; z-index: 50; pointer-events: none; }

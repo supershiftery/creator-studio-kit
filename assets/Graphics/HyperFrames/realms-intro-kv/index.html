@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* Top 5 Realms intro, KV Digital "Pixel Box" style (template _templates/kv-pixelbox, approved 2026-10-24).
+         Same VO + Pursuit ~ Cornered music as realms-intro-oct; realm clips cut from the raw recording by cut_clips.py (no codes on screen) */
+      @font-face { font-family: "MCF"; src: url("assets/kit/Minecraftia-Regular.ttf") format("truetype"); }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #2f221d; }
+      .layer { position: absolute; inset: 0; overflow: hidden; }
+      .full { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      .dirt { position: absolute; left: -40px; top: -40px; width: 2000px; height: 1160px; background: url("assets/kit/dirt2.png"); background-size: 1920px 1152px; image-rendering: pixelated; }
+      .ghost { position: absolute; left: 960px; top: 560px; height: 980px; transform: translate(-50%, -50%); opacity: .09; filter: grayscale(1) brightness(.4) blur(3px); }
+      .vig { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.5) 100%); }
+      .tan { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, #b08840 0%, #a88038 55%, #8a6628 100%); }
+      .kv { position: absolute; display: flex; gap: 2px; font-family: "MCF"; font-size: 130px; line-height: 1; white-space: nowrap; opacity: 0; }
+      .kv.m { font-size: 100px; }
+      .kv.s { font-size: 84px; }
+      .kv.xs { font-size: 70px; }
+      .kv.xl { font-size: 170px; }
+      .kv span { display: inline-block; color: #f8f8f8; filter: url(#kvbox); padding: 0 22px; }
+      .kv span.g { color: #88a800; }
+      .kv.ws span { opacity: 0; }
+      .masc { position: absolute; height: 860px; opacity: 0; }
+      .stk { position: absolute; width: 700px; height: 394px; object-fit: cover; border: 10px solid #f8f8f8; box-shadow: 10px 16px 0 rgba(20,20,24,.75); opacity: 0; }
+      .win { position: absolute; overflow: hidden; border: 10px solid #f8f8f8; box-shadow: 12px 18px 0 rgba(20,20,24,.75); }
+      .win video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      .soft { filter: blur(12px) brightness(1.02) saturate(1.05); transform: scale(1.06); }
+      .cut { opacity: 0; }
+      .dark { position: absolute; inset: 0; background: #000; opacity: 0; }
+      .flash { position: absolute; inset: 0; background: #fff; opacity: 0; }
+      /* XP bar for "watch to the very end", boxed with the same kvbox outline */
+      #xpwrap { position: absolute; left: 960px; top: 640px; width: 1180px; height: 64px; opacity: 0; }
+      #xpbar { position: absolute; inset: 0; background: #2a2530; filter: url(#kvbox); }
+      #xpfill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: #88a800; transform-origin: 0 50%; transform: scaleX(0); }
+      #xpticks { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 62px, rgba(20,20,24,.55) 62px 66px); }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position:absolute">
+      <filter id="kvbox" x="-30%" y="-60%" width="160%" height="230%" color-interpolation-filters="sRGB">
+        <feMorphology in="SourceAlpha" operator="dilate" radius="42" result="big" />
+        <feMorphology in="big" operator="erode" radius="29" result="d1" />
+        <feMorphology in="big" operator="erode" radius="23" result="d2" />
+        <feMorphology in="big" operator="erode" radius="16" result="d3" />
+        <feOffset in="d3" dx="3" dy="16" result="sh" />
+        <feFlood flood-color="#232327" /><feComposite in2="sh" operator="in" result="shc" />
+        <feFlood flood-color="#f8b000" /><feComposite in2="d3" operator="in" result="o" />
+        <feFlood flood-color="#f81010" /><feComposite in2="d2" operator="in" result="r" />
+        <feFlood flood-color="#2a2530" /><feComposite in2="d1" operator="in" result="f" />
+        <feMerge><feMergeNode in="shc" /><feMergeNode in="o" /><feMergeNode in="r" /><feMergeNode in="f" /><feMergeNode in="SourceGraphic" /></feMerge>
+      </filter>
+    </svg>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="27.2" data-width="1920" data-height="1080">
+      <div id="cam" class="layer">
+
+        <!-- S1 (0 - 3.04): Minecraft realms are still going? -->
+        <div id="s1" class="clip layer" data-start="0" data-duration="3.04" data-track-index="1">
+          <div class="dirt" id="dirt1"></div><div class="vig"></div>
+          <img class="masc" id="m-think" src="assets/kit/pose4.png" style="left:1260px;top:200px;height:820px" />
+          <div class="kv m" id="w-mc" style="left:700px;top:330px"><span>Minecraft</span></div>
+          <div class="kv xl" id="w-realms" style="left:700px;top:560px"><span class="g">Realms</span></div>
+          <div class="win cut" id="keyart" style="left:310px;top:300px;width:1300px;height:731px"><video id="v-key" class="clip" src="assets/gameplay/keyart-anarchy.mp4" muted playsinline data-start="1.3" data-duration="1.74" data-media-start="0" data-track-index="3"></video></div>
+          <div class="kv ws" id="w-going" style="left:960px;top:170px"><span>Still</span><span class="g">Going?</span></div>
+        </div>
+
+        <!-- S2 (3.04 - 6.0): apparently, people are hosting secret game modes -->
+        <div id="s2" class="clip layer" data-start="3.04" data-duration="2.96" data-track-index="1">
+          <div class="dirt"></div><div class="vig"></div>
+          <img class="stk" id="k0" src="assets/stills/s-anarchy.jpg" style="left:90px;top:70px" />
+          <img class="stk" id="k1" src="assets/stills/s-spectrixious.jpg" style="left:1130px;top:60px" />
+          <img class="stk" id="k2" src="assets/stills/s-rennmon.jpg" style="left:150px;top:600px" />
+          <img class="stk" id="k3" src="assets/stills/s-lunar.jpg" style="left:1080px;top:610px" />
+          <div class="dark" id="dark2"></div>
+          <div class="kv m" id="w-appar" style="left:960px;top:540px"><span>Apparently...</span></div>
+          <div class="kv xl" id="w-secret" style="left:960px;top:430px"><span class="g">Secret</span></div>
+          <div class="kv" id="w-gm" style="left:960px;top:690px"><span>Game</span><span>Modes</span></div>
+        </div>
+
+        <!-- S3 (6.0 - 9.52): such as Sky Gen, Kit PvP and even prisons = cards in a row, each playing a realm from the video -->
+        <div id="s3" class="clip layer" data-start="6.0" data-duration="3.52" data-track-index="1">
+          <div class="tan"></div><img class="ghost" src="assets/kit/pose1.png" /><div class="vig"></div>
+          <div class="kv m" id="w-such" style="left:960px;top:140px"><span>Game</span><span>Modes</span><span>Like:</span></div>
+          <div class="win cut" id="card0" style="left:180px;top:270px;width:480px;height:566px"><video id="gm0" class="clip" src="assets/gameplay/card-skygen.mp4" muted playsinline data-start="6.22" data-duration="3.30" data-media-start="0" data-track-index="3"></video></div>
+          <div class="kv xs" id="i0" style="left:420px;top:950px"><span>Sky Gen</span></div>
+          <div class="win cut" id="card1" style="left:720px;top:270px;width:480px;height:566px"><video id="gm1" class="clip" src="assets/gameplay/card-kitpvp.mp4" muted playsinline data-start="7.26" data-duration="2.26" data-media-start="0" data-track-index="4"></video></div>
+          <div class="kv xs" id="i1" style="left:960px;top:950px"><span>Kit PvP</span></div>
+          <div class="win cut" id="card2" style="left:1260px;top:270px;width:480px;height:566px"><video id="gm2" class="clip" src="assets/gameplay/card-prisons.mp4" muted playsinline data-start="8.78" data-duration="0.74" data-media-start="0" data-track-index="5"></video></div>
+          <div class="kv xs" id="i2" style="left:1500px;top:950px"><span class="g">Prisons!</span></div>
+        </div>
+
+        <!-- S4 (9.52 - 11.44): on these limited servers -->
+        <video id="gp-lim" class="clip full soft" src="assets/gameplay/bg-limited.mp4" muted playsinline data-start="9.52" data-duration="1.92" data-media-start="0" data-track-index="3"></video>
+        <div id="s4" class="clip layer" data-start="9.52" data-duration="1.92" data-track-index="1">
+          <div class="kv s" id="w-onthese" style="left:760px;top:330px"><span>On</span><span>These</span></div>
+          <div class="kv xl" id="w-limited" style="left:760px;top:560px"><span class="g">Limited</span></div>
+          <div class="kv m" id="w-servers" style="left:760px;top:800px"><span>Servers</span></div>
+          <img class="masc" id="m-sad" src="assets/kit/pose3.png" style="left:1380px;top:300px;height:760px" />
+        </div>
+
+        <!-- S5 (11.44 - 13.44): they can only hold up to ten players = the realm's own player list -->
+        <div id="s5" class="clip layer" data-start="11.44" data-duration="2.0" data-track-index="1">
+          <div class="dirt"></div><div class="vig"></div>
+          <div class="win" id="plist" style="left:1170px;top:150px;width:560px;height:752px;opacity:0"><video id="v-pl" class="clip" src="assets/gameplay/players-tc.mp4" muted playsinline data-start="11.44" data-duration="2.0" data-media-start="0" data-track-index="4"></video></div>
+          <div class="kv m ws" id="w-only" style="left:600px;top:250px"><span>Only</span><span>Up</span><span>To</span></div>
+          <div class="kv xl" id="w-ten" style="left:600px;top:520px"><span class="g">10</span></div>
+          <div class="kv" id="w-players" style="left:600px;top:800px"><span>Players!</span></div>
+        </div>
+
+        <!-- S6 (13.44 - 18.16): I was really curious what's really going on with these Minecraft Bedrock Edition realms -->
+        <div id="s6" class="clip layer" data-start="13.44" data-duration="4.72" data-track-index="1">
+          <div class="dirt"></div><div class="vig"></div>
+          <img class="stk" id="c0" src="assets/stills/s-dragonforge.jpg" style="left:60px;top:50px" />
+          <img class="stk" id="c1" src="assets/stills/s-thunder.jpg" style="left:1160px;top:40px" />
+          <img class="stk" id="c2" src="assets/stills/s-anarchy.jpg" style="left:610px;top:330px" />
+          <img class="stk" id="c3" src="assets/stills/s-spectrixious.jpg" style="left:90px;top:630px" />
+          <img class="stk" id="c4" src="assets/stills/s-lunar.jpg" style="left:1130px;top:640px" />
+          <img class="stk" id="c5" src="assets/stills/s-rennmon.jpg" style="left:640px;top:20px" />
+          <div class="dark" id="dark6"></div>
+          <div class="kv m" id="w-really" style="left:960px;top:330px"><span>Really</span></div>
+          <div class="kv xl" id="w-curious" style="left:960px;top:570px"><span class="g">Curious</span></div>
+          <img class="masc" id="m-think2" src="assets/kit/pose4.png" style="left:1440px;top:330px;height:720px" />
+          <div class="kv m ws" id="w-whats" style="left:960px;top:360px"><span>What's</span><span>Really</span></div>
+          <div class="kv xl ws" id="w-goingon" style="left:960px;top:600px"><span>Going</span><span class="g">On?</span></div>
+          <div class="kv m" id="w-mc2" style="left:960px;top:260px"><span>Minecraft</span></div>
+          <div class="kv m ws" id="w-bedrock" style="left:960px;top:440px"><span>Bedrock</span><span>Edition</span></div>
+          <div class="kv xl" id="w-realms2" style="left:960px;top:690px"><span class="g">Realms</span></div>
+          <div class="dark" id="black6"></div>
+        </div>
+
+        <!-- S7 (18.16 - 19.12): the drop, in today's video -->
+        <div id="s7" class="clip layer" data-start="18.16" data-duration="0.96" data-track-index="1">
+          <div class="dirt"></div><div class="vig"></div>
+          <img class="masc" id="m-up" src="assets/kit/pose2.png" style="left:960px;top:290px;height:800px" />
+          <div class="kv ws" id="w-today" style="left:960px;top:170px"><span>In</span><span>Today's</span><span class="g">Video</span></div>
+        </div>
+
+        <!-- S8 (19.12 - 21.04): we're gonna be investigating just that -->
+        <video id="gp-inv" class="clip full soft" src="assets/gameplay/bg-invest.mp4" muted playsinline data-start="19.12" data-duration="1.92" data-media-start="0" data-track-index="3"></video>
+        <div id="s8" class="clip layer" data-start="19.12" data-duration="1.92" data-track-index="1">
+          <div class="kv s" id="w-gonna" style="left:960px;top:300px"><span>We're</span><span>Gonna</span><span>Be</span></div>
+          <div class="kv xl" id="w-invest" style="left:960px;top:540px"><span class="g">Investigating</span></div>
+          <div class="kv m" id="w-just" style="left:960px;top:790px"><span>Just</span><span>That!</span></div>
+        </div>
+
+        <!-- S9 (21.04 - 22.64): watch the video to the very end = XP bar fill + ding (signature) -->
+        <div id="s9" class="clip layer" data-start="21.04" data-duration="1.6" data-track-index="1">
+          <div class="dirt"></div><div class="vig"></div>
+          <div class="kv m" id="w-watch" style="left:960px;top:250px"><span>Watch</span></div>
+          <div class="kv ws" id="w-end" style="left:960px;top:440px"><span>To</span><span>The</span><span>Very</span><span class="g">End</span></div>
+          <div id="xpwrap"><div id="xpbar"></div><div id="xpfill"></div><div id="xpticks"></div></div>
+        </div>
+
+        <!-- S10 (22.64 - 25.8): trust me, some of these game modes are really gonna shock you = hard-cut realm montage -->
+        <video id="mt0" class="clip full" src="assets/gameplay/m0-rennmon.mp4" muted playsinline data-start="22.64" data-duration="0.64" data-media-start="0" data-track-index="3"></video>
+        <video id="mt1" class="clip full" src="assets/gameplay/m1-lunar.mp4" muted playsinline data-start="23.28" data-duration="0.72" data-media-start="0" data-track-index="4"></video>
+        <video id="mt2" class="clip full" src="assets/gameplay/m2-thunder.mp4" muted playsinline data-start="24.0" data-duration="0.32" data-media-start="0" data-track-index="3"></video>
+        <video id="mt3" class="clip full" src="assets/gameplay/m3-spectrixious.mp4" muted playsinline data-start="24.32" data-duration="0.48" data-media-start="0" data-track-index="4"></video>
+        <video id="mt4" class="clip full" src="assets/gameplay/m4-anarchy.mp4" muted playsinline data-start="24.8" data-duration="0.24" data-media-start="0" data-track-index="3"></video>
+        <video id="mt5" class="clip full" src="assets/gameplay/m5-dragonforge.mp4" muted playsinline data-start="25.04" data-duration="0.76" data-media-start="0" data-track-index="4"></video>
+        <div id="s10" class="clip layer" data-start="22.64" data-duration="3.16" data-track-index="1">
+          <div class="kv m" id="w-trust" style="left:960px;top:190px"><span>Trust</span><span class="g">Me</span></div>
+          <div class="kv m" id="w-modes" style="left:960px;top:880px"><span>Some</span><span>Game</span><span>Modes...</span></div>
+          <div class="kv xl" id="w-shock" style="left:960px;top:540px"><span>Shock</span><span class="g">You!</span></div>
+        </div>
+
+        <!-- S11 (25.8 - 27.2): title slam; no Studio sting (user 2026-10-24), the talking intro follows -->
+        <div id="s11" class="clip layer" data-start="25.8" data-duration="1.4" data-track-index="1">
+          <div class="dirt"></div><div class="vig"></div>
+          <img class="masc" id="m-smug" src="assets/kit/pose1.png" style="left:1320px;top:200px;height:820px" />
+          <div class="kv xl" id="w-top5" style="left:740px;top:420px"><span>Top</span><span class="g">5</span></div>
+          <div class="kv xl" id="w-realms3" style="left:740px;top:680px"><span>Realms!</span></div>
+        </div>
+      </div>
+
+      <!-- FX: one white flash on the drop + one on the title, nothing else (no cartoon FX, 2026-10-24) -->
+      <div id="fl1" class="clip layer" data-start="18.16" data-duration="0.3" data-track-index="8"><div class="flash" id="fl1-el"></div></div>
+      <div id="fl2" class="clip layer" data-start="25.8" data-duration="0.3" data-track-index="8"><div class="flash" id="fl2-el"></div></div>
+
+      <!-- audio: VO + Pursuit ~ Cornered (lowpassed bed for the problem half, the riff from the drop), same levels as realms-intro-oct v7 minus the 808 -->
+      <audio id="vo" src="assets/vo-norm.wav" data-start="0" data-duration="25.93" data-track-index="10" data-volume="1"></audio>
+      <audio id="music-pre" src="assets/music-pre.mp3" data-start="0" data-duration="17.9" data-track-index="11" data-volume="1"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0},{"t":0.5,"v":0.12},{"t":17.84,"v":0.12},{"t":17.9,"v":0}]}]}'></audio>
+      <audio id="music" src="assets/music-main.mp3" data-start="18.16" data-duration="9.04" data-track-index="9" data-volume="1"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.2},{"t":0.76,"v":0.172},{"t":1.26,"v":0.07},{"t":4.36,"v":0.07},{"t":4.5,"v":0.16},{"t":5.0,"v":0.09},{"t":7.5,"v":0.09},{"t":7.66,"v":0.28},{"t":8.7,"v":0.26},{"t":9.04,"v":0}]}]}'></audio>
+      <!-- SFX (KV v6 rules): one soft pitchless swoosh per key beat / listed item, KV whip on scene entries, passby on hero words, shutter per sticker; nothing stacked -->
+      <audio id="sx0" src="assets/kit/sfx/k_pop1.wav" data-start="0.05" data-duration="0.46" data-track-index="12" data-volume="0.07"></audio>
+      <audio id="sx1" src="assets/kit/sfx/k_passby.wav" data-start="0.64" data-duration="1.2" data-track-index="13" data-volume="0.09"></audio>
+      <audio id="sx2" src="assets/kit/sfx/k_whip.wav" data-start="1.3" data-duration="0.9" data-track-index="14" data-volume="0.11"></audio>
+      <audio id="sx3" src="assets/kit/sfx/k_pop2.wav" data-start="2.0" data-duration="0.43" data-track-index="15" data-volume="0.07"></audio>
+      <audio id="sx4" src="assets/kit/sfx/k_pop1.wav" data-start="3.08" data-duration="0.46" data-track-index="16" data-volume="0.07"></audio>
+      <audio id="sx5" src="assets/kit/sfx/k_shutter.wav" data-start="3.3" data-duration="0.35" data-track-index="17" data-volume="0.6"></audio>
+      <audio id="sx6" src="assets/kit/sfx/k_shutter.wav" data-start="3.62" data-duration="0.35" data-track-index="18" data-volume="0.6"></audio>
+      <audio id="sx7" src="assets/kit/sfx/k_shutter.wav" data-start="3.94" data-duration="0.35" data-track-index="19" data-volume="0.6"></audio>
+      <audio id="sx8" src="assets/kit/sfx/k_passby.wav" data-start="4.88" data-duration="1.2" data-track-index="20" data-volume="0.09"></audio>
+      <audio id="sx9" src="assets/kit/sfx/k_whip.wav" data-start="6.0" data-duration="0.9" data-track-index="12" data-volume="0.11"></audio>
+      <audio id="sx10" src="assets/kit/sfx/k_pop2.wav" data-start="6.32" data-duration="0.43" data-track-index="13" data-volume="0.07"></audio>
+      <audio id="sx11" src="assets/kit/sfx/k_pop1.wav" data-start="7.36" data-duration="0.46" data-track-index="14" data-volume="0.07"></audio>
+      <audio id="sx12" src="assets/kit/sfx/k_pop2.wav" data-start="8.88" data-duration="0.43" data-track-index="15" data-volume="0.07"></audio>
+      <audio id="sx13" src="assets/kit/sfx/k_whip.wav" data-start="9.52" data-duration="0.9" data-track-index="16" data-volume="0.11"></audio>
+      <audio id="sx14" src="assets/kit/sfx/k_passby.wav" data-start="10.0" data-duration="1.2" data-track-index="17" data-volume="0.09"></audio>
+      <audio id="sx15" src="assets/kit/sfx/k_whip.wav" data-start="11.44" data-duration="0.9" data-track-index="18" data-volume="0.11"></audio>
+      <audio id="sx16" src="assets/kit/sfx/k_pop1.wav" data-start="11.92" data-duration="0.46" data-track-index="19" data-volume="0.07"></audio>
+      <audio id="sx17" src="assets/kit/sfx/k_passby.wav" data-start="12.64" data-duration="1.2" data-track-index="20" data-volume="0.09"></audio>
+      <audio id="sx18" src="assets/kit/sfx/k_shutter.wav" data-start="13.44" data-duration="0.35" data-track-index="12" data-volume="0.6"></audio>
+      <audio id="sx19" src="assets/kit/sfx/k_shutter.wav" data-start="13.68" data-duration="0.35" data-track-index="13" data-volume="0.6"></audio>
+      <audio id="sx20" src="assets/kit/sfx/k_passby.wav" data-start="14.08" data-duration="1.2" data-track-index="14" data-volume="0.09"></audio>
+      <audio id="sx21" src="assets/kit/sfx/k_pop2.wav" data-start="14.64" data-duration="0.43" data-track-index="15" data-volume="0.07"></audio>
+      <audio id="sx22" src="assets/kit/sfx/k_pop1.wav" data-start="15.2" data-duration="0.46" data-track-index="16" data-volume="0.07"></audio>
+      <audio id="sx23" src="assets/kit/sfx/k_pop2.wav" data-start="15.92" data-duration="0.43" data-track-index="17" data-volume="0.07"></audio>
+      <audio id="sx24" src="assets/kit/sfx/k_pop1.wav" data-start="16.48" data-duration="0.46" data-track-index="18" data-volume="0.07"></audio>
+      <audio id="sx25" src="assets/kit/sfx/k_passby.wav" data-start="17.5" data-duration="1.2" data-track-index="19" data-volume="0.09"></audio>
+      <audio id="sx26" src="assets/kit/sfx/k_pop2.wav" data-start="18.4" data-duration="0.43" data-track-index="20" data-volume="0.07"></audio>
+      <audio id="sx27" src="assets/kit/sfx/k_whip.wav" data-start="19.12" data-duration="0.9" data-track-index="12" data-volume="0.11"></audio>
+      <audio id="sx28" src="assets/kit/sfx/k_passby.wav" data-start="19.68" data-duration="1.2" data-track-index="13" data-volume="0.09"></audio>
+      <audio id="sx29" src="assets/kit/sfx/k_pop1.wav" data-start="20.32" data-duration="0.46" data-track-index="14" data-volume="0.07"></audio>
+      <audio id="sx30" src="assets/kit/sfx/watch-to-the-end-xp-fill.wav" data-start="21.12" data-duration="1.2" data-track-index="15" data-volume="0.26"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.26},{"t":1.05,"v":0.26},{"t":1.2,"v":0}]}]}'></audio>
+      <audio id="sx31" src="assets/kit/sfx/watch-to-the-end-xp-full.wav" data-start="22.32" data-duration="0.58" data-track-index="16" data-volume="0.28"></audio>
+      <audio id="sx32" src="assets/kit/sfx/k_whip.wav" data-start="22.64" data-duration="0.9" data-track-index="17" data-volume="0.11"></audio>
+      <audio id="sx33" src="assets/kit/sfx/k_pop2.wav" data-start="23.28" data-duration="0.43" data-track-index="18" data-volume="0.07"></audio>
+      <audio id="sx34" src="assets/kit/sfx/k_pop1.wav" data-start="24.0" data-duration="0.46" data-track-index="19" data-volume="0.07"></audio>
+      <audio id="sx35" src="assets/kit/sfx/k_passby.wav" data-start="25.0" data-duration="1.2" data-track-index="20" data-volume="0.09"></audio>
+      <audio id="sx36" src="assets/kit/sfx/k_whip.wav" data-start="25.8" data-duration="0.9" data-track-index="12" data-volume="0.11"></audio>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      gsap.set(".kv", { xPercent: -50, yPercent: -50 });
+      gsap.set("#xpwrap", { xPercent: -50, yPercent: -50 });
+      // KV entry: comes in big + tilted, lands with a small overshoot, keeps a slight tilt
+      const slam = (sel, t, rot = 0, from = 1.9, dur = 0.2) =>
+        tl.fromTo(sel, { scale: from, rotation: rot * 3 + (rot >= 0 ? 6 : -6), opacity: 0 }, { scale: 1, rotation: rot, opacity: 1, duration: dur, ease: "back.out(2.2)" }, t);
+      // one box per spoken word: the line is shown, each word box slams on its own word time
+      const words = (sel, times, rot = 0) => {
+        tl.set(sel, { opacity: 1, rotation: rot }, times[0]);
+        times.forEach((t, i) => tl.fromTo(`${sel} span:nth-child(${i + 1})`, { scale: 1.9, rotation: (i % 2 ? 7 : -7), opacity: 0 }, { scale: 1, rotation: 0, opacity: 1, duration: 0.18, ease: "back.out(2.2)" }, t));
+      };
+      const off = (sel, t, dur = 0.1) => tl.to(sel, { opacity: 0, duration: dur, ease: "power1.in" }, t);
+      const punch = (t, s = 1.05, dur = 0.5) => tl.fromTo("#cam", { scale: s }, { scale: 1, duration: dur, ease: "power3.out" }, t);
+      const shake = (t, amp = 10, n = 5) => {
+        for (let i = 0; i < n; i++) tl.to("#cam", { x: (i % 2 ? -1 : 1) * amp * (1 - i / n), y: ((i % 3) - 1) * amp * 0.6 * (1 - i / n), duration: 0.035, ease: "none" }, t + i * 0.035);
+        tl.to("#cam", { x: 0, y: 0, duration: 0.05 }, t + n * 0.035);
+      };
+      const drift = (sel, t, dur, a, b) => tl.fromTo(sel, a, Object.assign({ duration: dur, ease: "none" }, b), t);
+      const stickers = (ids, t0, gap, rots) => ids.forEach((s, i) =>
+        tl.fromTo(s, { scale: 1.9, rotation: rots[i] * 3, opacity: 0 }, { scale: 1, rotation: rots[i], opacity: 1, duration: 0.18, ease: "back.out(2)" }, t0 + i * gap));
+
+      // S1: Minecraft / Realms (thinking mascot), then a realm key-art card + Still Going?
+      drift("#dirt1", 0, 3.04, { x: 0, y: 0 }, { x: -30, y: -20 });
+      tl.fromTo("#m-think", { x: 500, opacity: 0, rotation: 8 }, { x: 0, opacity: 1, rotation: 0, duration: 0.32, ease: "back.out(1.6)" }, 0.0);
+      tl.to("#m-think", { rotation: -3, duration: 0.4, ease: "sine.inOut", yoyo: true, repeat: 1 }, 0.4);
+      slam("#w-mc", 0.05, -2); slam("#w-realms", 0.64, -3, 2.4); shake(0.68);
+      off(["#w-mc", "#w-realms"], 1.24);
+      tl.to("#m-think", { x: 700, opacity: 0, duration: 0.25, ease: "power2.in" }, 1.2);
+      tl.fromTo("#keyart", { scale: 0.4, rotation: -14, opacity: 0 }, { scale: 1, rotation: -4, opacity: 1, duration: 0.3, ease: "back.out(1.8)" }, 1.3);
+      tl.to("#keyart", { scale: 1.07, rotation: -2, duration: 1.44, ease: "none" }, 1.6);
+      words("#w-going", [1.44, 2.0], -2); punch(2.0);
+
+      // S2: Apparently... / sticker collage of the realms / lights dim / SECRET game modes
+      slam("#w-appar", 3.08, -2); off("#w-appar", 4.56);
+      stickers(["#k0", "#k1", "#k2", "#k3"], 3.3, 0.22, [-9, 7, 6, -8]);
+      tl.to("#dark2", { opacity: 0.62, duration: 0.3, ease: "power2.in" }, 4.62);
+      slam("#w-secret", 4.88, 3, 2.4); shake(4.92);
+      tl.to("#w-secret", { scale: 1.04, rotation: 2, duration: 0.9, ease: "sine.inOut" }, 5.1);
+      slam("#w-gm", 5.28, -2);
+
+      // S3: header, then each card + label slams in on its word and keeps playing
+      slam("#w-such", 6.04, -2);
+      [[6.32, 0], [7.36, 1], [8.88, 2]].forEach(([t, i]) => {
+        const r = [-4, 3, -3][i];
+        tl.fromTo("#card" + i, { opacity: 0, scale: 1.7, rotation: r * 4, y: -40 }, { opacity: 1, scale: 1, rotation: r, y: 0, duration: 0.2, ease: "back.out(2)" }, t - 0.08);
+        slam("#i" + i, t, r < 0 ? -2 : 2, 2.0);
+        punch(t, 1.03, 0.3);
+      });
+      shake(8.92);
+      tl.to(["#card0", "#card1"], { y: -8, duration: 0.6, ease: "sine.inOut", yoyo: true, repeat: 1, stagger: 0.12 }, 7.9);
+
+      // S4: blurred realm + On These / LIMITED / Servers, sad mascot
+      drift("#gp-lim", 9.52, 1.92, { scale: 1.06 }, { scale: 1.14 });
+      slam("#w-onthese", 9.56, -2); slam("#w-limited", 10.0, -4, 2.5, 0.22); shake(10.04, 12, 6);
+      slam("#w-servers", 10.64, 2);
+      tl.fromTo("#m-sad", { x: 400, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: "back.out(1.6)" }, 10.2);
+      tl.to("#m-sad", { rotation: -4, duration: 0.4, ease: "sine.inOut", yoyo: true, repeat: 1 }, 10.6);
+
+      // S5: the realm's real player list (Players in TC (10)) + Only Up To / 10 / Players!
+      tl.fromTo("#plist", { x: 700, rotation: 10, opacity: 0 }, { x: 0, rotation: 3, opacity: 1, duration: 0.3, ease: "power3.out" }, 11.44);
+      tl.fromTo("#v-pl", { scale: 1.0 }, { scale: 1.18, transformOrigin: "50% 8%", duration: 1.7, ease: "power1.inOut" }, 11.74);
+      words("#w-only", [11.92, 12.32, 12.48], -2);
+      slam("#w-ten", 12.64, -4, 2.8, 0.22); shake(12.68, 13, 6);
+      tl.to("#w-ten", { scale: 1.06, rotation: -2, duration: 0.7, ease: "sine.inOut" }, 12.86);
+      slam("#w-players", 12.96, 2);
+
+      // S6: collage of the realms, Really CURIOUS / What's Really Going On? / Minecraft Bedrock Edition REALMS, then lights out before the drop
+      stickers(["#c0", "#c1", "#c2", "#c3", "#c4", "#c5"], 13.44, 0.12, [-8, 6, -3, 7, -6, 4]);
+      tl.to("#dark6", { opacity: 0.55, duration: 0.3, ease: "power2.in" }, 13.9);
+      slam("#w-really", 13.84, -2); slam("#w-curious", 14.08, 3, 2.4); shake(14.12);
+      tl.fromTo("#m-think2", { x: 400, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: "back.out(1.6)" }, 14.2);
+      off(["#w-really", "#w-curious", "#m-think2"], 14.56, 0.08);
+      words("#w-whats", [14.64, 14.96], -2);
+      words("#w-goingon", [15.2, 15.44], 2); shake(15.48, 9, 5);
+      off(["#w-whats", "#w-goingon"], 15.84, 0.08);
+      tl.to(["#c0", "#c1", "#c2", "#c3", "#c4", "#c5"], { scale: 1.06, duration: 2.0, ease: "none" }, 15.9);
+      slam("#w-mc2", 15.92, -2);
+      words("#w-bedrock", [16.48, 17.12], 2);
+      slam("#w-realms2", 17.52, -3, 2.4); shake(17.56);
+      tl.to("#black6", { opacity: 1, duration: 0.16, ease: "power2.in" }, 17.88);
+
+      // S7: drop on "In today's video": flash, excited mascot jumps up, one box per word
+      tl.fromTo("#fl1-el", { opacity: 0.85 }, { opacity: 0, duration: 0.28 }, 18.16);
+      tl.fromTo("#m-up", { xPercent: -50, y: 300, scale: 0.7, opacity: 0 }, { xPercent: -50, y: 0, scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.8)" }, 18.2);
+      tl.to("#m-up", { y: -24, duration: 0.2, ease: "sine.out", yoyo: true, repeat: 1 }, 18.55);
+      words("#w-today", [18.16, 18.4, 18.8], -2); shake(18.84);
+
+      // S8: blurred Rennmon + We're Gonna Be / INVESTIGATING / Just That!
+      drift("#gp-inv", 19.12, 1.92, { scale: 1.06 }, { scale: 1.16 });
+      slam("#w-gonna", 19.14, -2); slam("#w-invest", 19.68, -3, 2.3, 0.22); shake(19.72, 12, 6);
+      tl.to("#w-invest", { scale: 1.03, rotation: -1, duration: 0.8, ease: "sine.inOut" }, 19.9);
+      slam("#w-just", 20.32, 2);
+
+      // S9: Watch / To The Very End + XP bar filling with the XP sound, ding when full
+      slam("#w-watch", 21.04, -2);
+      words("#w-end", [21.84, 22.0, 22.16, 22.32], 2);
+      tl.fromTo("#xpwrap", { scale: 1.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.16, ease: "back.out(2)" }, 21.08);
+      tl.fromTo("#xpfill", { scaleX: 0 }, { scaleX: 1, duration: 1.2, ease: "none" }, 21.12);
+      tl.fromTo("#xpwrap", { scale: 1.12 }, { scale: 1, duration: 0.3, ease: "back.out(2)" }, 22.32); shake(22.34, 8, 4);
+
+      // S10: hard-cut montage of the realms with push-ins: Trust Me / Some Game Modes... / SHOCK YOU!
+      [["#mt0", 22.64, 0.64], ["#mt1", 23.28, 0.72], ["#mt2", 24.0, 0.32], ["#mt3", 24.32, 0.48], ["#mt4", 24.8, 0.24], ["#mt5", 25.04, 0.76]].forEach(([s, t, d]) =>
+        tl.fromTo(s, { scale: 1.16 }, { scale: 1.0, duration: d, ease: "power1.out" }, t));
+      slam("#w-trust", 22.96, -2); off("#w-trust", 23.56);
+      slam("#w-modes", 23.6, 2); off("#w-modes", 24.76);
+      tl.to("#mt5", { filter: "blur(10px)", duration: 0.2 }, 25.04);
+      slam("#w-shock", 25.04, -5, 2.6, 0.24); shake(25.08, 13, 6);
+      tl.to("#w-shock", { rotation: -3, scale: 1.04, duration: 0.6, ease: "sine.inOut" }, 25.3);
+
+      // S11: Top 5 Realms! (no sting); the Studio join slides the talking intro in over the tail
+      tl.fromTo("#fl2-el", { opacity: 1 }, { opacity: 0, duration: 0.3 }, 25.8);
+      tl.fromTo("#m-smug", { x: 500, opacity: 0, rotation: 8 }, { x: 0, opacity: 1, rotation: 0, duration: 0.28, ease: "back.out(1.6)" }, 25.82);
+      slam("#w-top5", 25.84, -3, 2.6, 0.22); slam("#w-realms3", 26.06, 2, 2.4, 0.22); shake(26.1, 12, 6);
+      tl.to(["#w-top5", "#w-realms3"], { scale: 1.05, duration: 0.9, ease: "sine.inOut" }, 26.3);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+    </script>
+    </div>
+  </body>
+</html>

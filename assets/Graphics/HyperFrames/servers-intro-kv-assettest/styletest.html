@@ -1,0 +1,34 @@
+<!doctype html>
+<html><head><meta charset="UTF-8" />
+<style>
+  @font-face { font-family: "MCF"; src: url("assets/kit/Minecraftia-Regular.ttf"); }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  .dirt { position: absolute; inset: 0; background: url("assets/kit/dirt2.png"); background-size: 1920px 1152px; image-rendering: pixelated; }
+  .vig { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.55) 100%); }
+  .ghost { position: absolute; left: 50%; top: 52%; height: 900px; transform: translate(-50%, -50%); opacity: .1; filter: grayscale(1) brightness(.35) blur(3px); }
+  .kv { position: absolute; display: flex; gap: 2px; font-family: "MCF"; line-height: 1; transform: translate(-50%, -50%); white-space: nowrap; }
+  .kv span { display: inline-block; color: #f8f8f8; filter: url(#kvbox); padding: 0 6px; }
+  .kv span.g { color: #88a800; }
+  .tan { position: absolute; inset: 0; background: #a88038; }
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <filter id="kvbox" x="-30%" y="-60%" width="160%" height="230%" color-interpolation-filters="sRGB">
+    <feMorphology in="SourceAlpha" operator="dilate" radius="42" result="big" />
+    <feMorphology in="big" operator="erode" radius="29" result="d1" />
+    <feMorphology in="big" operator="erode" radius="23" result="d2" />
+    <feMorphology in="big" operator="erode" radius="16" result="d3" />
+    <feOffset in="d3" dx="3" dy="16" result="sh" />
+    <feFlood flood-color="#232327" /><feComposite in2="sh" operator="in" result="shc" />
+    <feFlood flood-color="#f8b000" /><feComposite in2="d3" operator="in" result="o" />
+    <feFlood flood-color="#f81010" /><feComposite in2="d2" operator="in" result="r" />
+    <feFlood flood-color="#2a2530" /><feComposite in2="d1" operator="in" result="f" />
+    <feMerge><feMergeNode in="shc" /><feMergeNode in="o" /><feMergeNode in="r" /><feMergeNode in="f" /><feMergeNode in="SourceGraphic" /></feMerge>
+  </filter>
+</svg>
+<div class="dirt"></div><img class="ghost" src="assets/kit/pose1.png" /><div class="vig"></div>
+<div class="kv" style="left:960px;top:260px;font-size:120px"><span>Overlooked</span></div>
+<div class="kv" style="left:960px;top:520px;font-size:120px"><span>Exclusive</span><span class="g">Servers!</span></div>
+<div class="kv" style="left:960px;top:780px;font-size:84px"><span>Server</span><span>Game</span><span>Modes:</span></div>
+<div class="kv" style="left:960px;top:960px;font-size:84px"><span>&#8226; Prisons</span></div>
+</body></html>

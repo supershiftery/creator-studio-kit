@@ -1,0 +1,45 @@
+{
+  "id": "P03",
+  "name": "Night Notifications",
+  "blurb": "Night-mode brand world with drifting bokeh: every VO line gets its own literal designed-UI scene from the phone bank (cart, receipt slam, gatekept codes, TOP SECRET folder, $0.00 strike, group chat, order after order); a persistent app icon top-right whose red badge climbs on each problem line and flips to a green check after the turn; real-icon title, bright wipe out.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "notify",
+      "t": 0.1,
+      "vol": 0.14,
+      "d": 0.6
+    },
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.2,
+      "d": 0.3
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

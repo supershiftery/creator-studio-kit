@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* KV Digital "Pixel Box" style, matched to his frames (STUDY.md "v4 spec"):
+         Minecraftia, white text + ONE lime keyword (#88a800), stepped pixel box = charcoal #2a2530 / red #f81010 / orange #f8b000 + slab shadow */
+      @font-face { font-family: "MCF"; src: url("assets/kit/Minecraftia-Regular.ttf") format("truetype"); }
+      @font-face { font-family: "PopM"; src: url("assets/kit/Poppins-Medium.ttf") format("truetype"); }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #2f221d; }
+      .layer { position: absolute; inset: 0; overflow: hidden; }
+      .full { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      .dirt { position: absolute; left: -40px; top: -40px; width: 2000px; height: 1160px; background: url("assets/kit/dirt2.png"); background-size: 1920px 1152px; image-rendering: pixelated; }
+      .ghost { position: absolute; left: 960px; top: 560px; height: 980px; transform: translate(-50%, -50%); opacity: .09; filter: grayscale(1) brightness(.4) blur(3px); }
+      .vig { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.5) 100%); }
+      .tan { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, #b08840 0%, #a88038 55%, #8a6628 100%); }
+      .kv { position: absolute; display: flex; gap: 2px; font-family: "MCF"; font-size: 130px; line-height: 1; white-space: nowrap; opacity: 0; }
+      .kv.m { font-size: 100px; }
+      .kv.s { font-size: 84px; }
+      .kv.xs { font-size: 70px; }
+      .kv.xl { font-size: 170px; }
+      .kv span { display: inline-block; color: #f8f8f8; filter: url(#kvbox); padding: 0 22px; }
+      .kv span.g { color: #88a800; }
+      .masc { position: absolute; height: 860px; opacity: 0; }
+      .logo { position: absolute; left: 960px; top: 540px; opacity: 0; filter: brightness(0) invert(1) drop-shadow(0 10px 0 rgba(0,0,0,.35)); }
+      .stk { position: absolute; width: 700px; height: 394px; object-fit: cover; border: 10px solid #f8f8f8; box-shadow: 10px 16px 0 rgba(20,20,24,.75); opacity: 0; }
+      .win { position: absolute; overflow: hidden; border: 10px solid #f8f8f8; box-shadow: 12px 18px 0 rgba(20,20,24,.75); }
+      .win video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      .soft { filter: blur(12px) brightness(1.02) saturate(1.05); transform: scale(1.06); }
+      .cut { opacity: 0; }
+      #dark { position: absolute; inset: 0; background: #000; opacity: 0; }
+      .flash { position: absolute; inset: 0; background: #fff; opacity: 0; }
+      #divider { position: absolute; left: 954px; top: 0; width: 12px; height: 1080px; background: #f8f8f8; }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position:absolute">
+      <filter id="kvbox" x="-30%" y="-60%" width="160%" height="230%" color-interpolation-filters="sRGB">
+        <feMorphology in="SourceAlpha" operator="dilate" radius="42" result="big" />
+        <feMorphology in="big" operator="erode" radius="29" result="d1" />
+        <feMorphology in="big" operator="erode" radius="23" result="d2" />
+        <feMorphology in="big" operator="erode" radius="16" result="d3" />
+        <feOffset in="d3" dx="3" dy="16" result="sh" />
+        <feFlood flood-color="#232327" /><feComposite in2="sh" operator="in" result="shc" />
+        <feFlood flood-color="#f8b000" /><feComposite in2="d3" operator="in" result="o" />
+        <feFlood flood-color="#f81010" /><feComposite in2="d2" operator="in" result="r" />
+        <feFlood flood-color="#2a2530" /><feComposite in2="d1" operator="in" result="f" />
+        <feMerge><feMergeNode in="shc" /><feMergeNode in="o" /><feMergeNode in="r" /><feMergeNode in="f" /><feMergeNode in="SourceGraphic" /></feMerge>
+      </filter>
+    </svg>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="31.6" data-width="1920" data-height="1080">
+      <div id="cam" class="layer">
+
+        <!-- asset-mix test 2026-10-25: "many different servers" = a real wall of Bedrock server video thumbnails, soft under the
+             KV words (KV spec: bright blurred footage under captions); the dirt comes back at 1.6 s for the key art -->
+        <video id="wallv" class="clip full" src="assets/gameplay/server-wall.mp4" muted playsinline data-start="0" data-duration="1.9" data-media-start="0" data-track-index="3" style="filter: blur(6px) brightness(1.02) saturate(1.05)"></video>
+        <!-- S1 dirt canvas (0 - 5.04): many different servers / Minecraft Bedrock Edition / unfortunately -->
+        <div id="s1" class="clip layer" data-start="0" data-duration="5.04" data-track-index="1">
+          <div class="dirt" id="dirt1"></div><div class="vig"></div>
+          <img id="keyart" class="stk" src="assets/kit/keyart.jpg" style="left:310px;top:330px;width:1300px;height:731px" />
+          <img class="masc" id="m1" src="assets/kit/pose1.png" style="left:1280px;top:150px" />
+          <div class="kv m" id="w-many" style="left:640px;top:250px"><span>Many</span></div>
+          <div class="kv m" id="w-diff" style="left:640px;top:420px"><span>Different</span></div>
+          <div class="kv xl" id="w-serv" style="left:640px;top:640px"><span class="g">Servers!</span></div>
+          <div class="kv" id="w-mc" style="left:960px;top:175px"><span class="g">Minecraft</span></div>
+          <div class="kv m" id="w-be" style="left:960px;top:325px"><span>Bedrock</span><span>Edition</span></div>
+          <img class="masc" id="m3" src="assets/kit/pose3.png" style="left:960px;top:110px;height:780px" />
+          <div class="kv" id="w-unf" style="left:960px;top:900px"><span>Unfortunately...</span></div>
+        </div>
+
+        <!-- S4 sticker collage (5.04 - 7.28): a lot of them don't even get the light of day -->
+        <div id="s4" class="clip layer" data-start="5.04" data-duration="2.24" data-track-index="1">
+          <div class="dirt"></div><div class="vig"></div>
+          <img class="stk" id="k0" src="assets/kit/still0.jpg" style="left:90px;top:70px" />
+          <img class="stk" id="k1" src="assets/kit/still1.jpg" style="left:1130px;top:60px" />
+          <img class="stk" id="k2" src="assets/kit/still2.jpg" style="left:150px;top:600px" />
+          <img class="stk" id="k3" src="assets/kit/still3.jpg" style="left:1080px;top:610px" />
+          <img class="stk" id="k4" src="assets/kit/still4.jpg" style="left:610px;top:340px" />
+          <div id="dark"></div>
+          <div class="kv m" id="w-dont" style="left:960px;top:360px"><span>Don't</span><span>Even</span><span>Get</span></div>
+          <div class="kv" id="w-light" style="left:960px;top:590px"><span>The</span><span>Light</span><span>Of</span><span class="g">Day</span></div>
+        </div>
+
+        <!-- S5 featured montage (7.28 - 10.8): because the featured servers honestly reign supreme -->
+        <div id="s5" class="clip layer" data-start="7.28" data-duration="3.52" data-track-index="1">
+          <img class="full cut" id="f0" src="assets/kit/hive.jpg" style="transform-origin:28% 50%" />
+          <img class="full cut" id="f1" src="assets/kit/cubecraft.jpg" />
+          <img class="full cut" id="f2" src="assets/kit/lifeboat.jpg" />
+          <img class="full cut" id="f3" src="assets/kit/mineville.jpg" />
+          <img class="full cut" id="f4" src="assets/kit/galaxite.jpg" />
+          <div class="kv" id="w-feat" style="left:960px;top:880px"><span class="g">Featured</span><span>Servers</span></div>
+          <div class="kv xl" id="w-reign" style="left:960px;top:560px"><span>Reign</span><span class="g">Supreme!</span></div>
+        </div>
+
+        <!-- S6 console (10.8 - 13.44): most of the time on console edition -->
+        <div id="s6" class="clip layer" data-start="10.8" data-duration="2.64" data-track-index="1">
+          <img class="full" id="cons" src="assets/kit/consoles.jpg" />
+          <div class="kv" id="w-most" style="left:960px;top:540px"><span>Most</span><span>Of</span><span>The</span><span>Time...</span></div>
+          <div class="layer cut" id="logos"><div class="dirt"></div><div class="vig"></div>
+            <div class="logo" id="lg0" style="display:flex;align-items:center;gap:44px;white-space:nowrap"><img src="assets/kit/xboxicon.svg" style="width:300px;height:300px" /><span style="font-family:PopM;font-size:230px;letter-spacing:-4px;color:#000">XBOX ONE</span></div>
+            <img class="logo" id="lg1" src="assets/kit/playstation.svg" style="width:520px" />
+            <img class="logo" id="lg2" src="assets/kit/switch.svg" style="width:460px" />
+          </div>
+        </div>
+
+        <!-- S7 can't add servers (13.44 - 15.12) -->
+        <div id="s7" class="clip layer" data-start="13.44" data-duration="1.68" data-track-index="1">
+          <img class="full" id="addsrv" src="assets/kit/addserver.jpg" />
+          <img id="redx" src="assets/kit/redx.svg" style="position:absolute;left:710px;top:150px;width:500px;height:500px;opacity:0;filter:drop-shadow(10px 12px 0 rgba(0,0,0,.45))" />
+          <div class="kv m" id="w-cant" style="left:960px;top:860px"><span>Can't</span><span>Even</span><span class="g">Add</span><span class="g">Servers!</span></div>
+          <img class="full cut" id="angry" src="assets/kit/angry.jpg" />
+        </div>
+
+        <!-- S8 drop (15.12 - 16.16): but in today's video -->
+        <div id="s8" class="clip layer" data-start="15.12" data-duration="1.04" data-track-index="1">
+          <div class="dirt"></div><div class="vig"></div>
+          <img class="masc" id="m2" src="assets/kit/pose2.png" style="left:960px;top:260px;height:820px" />
+          <div class="kv" id="w-today" style="left:960px;top:170px"><span>In</span><span>Today's</span><span class="g">Video</span></div>
+        </div>
+
+        <!-- S9 reveal (16.16 - 19.44): revealing lesser known servers, are they any good -->
+        <video id="gp-under1" class="clip full soft" src="assets/gameplay/underrated-riversmp.mp4" muted playsinline data-start="16.16" data-duration="3.28" data-media-start="0" data-track-index="3"></video>
+        <div id="s9" class="clip layer" data-start="16.16" data-duration="3.28" data-track-index="1">
+          <div class="kv m" id="w-rev" style="left:820px;top:200px"><span>Revealing</span></div>
+          <div class="kv" id="w-less" style="left:820px;top:400px"><span>Lesser</span><span>Known</span></div>
+          <div class="kv xl" id="w-srv2" style="left:820px;top:640px"><span class="g">Servers!</span></div>
+          <div class="kv s" id="w-good" style="left:820px;top:880px"><span>Are</span><span>They</span><span>Any</span><span>Good?</span></div>
+          <img class="masc" id="m4" src="assets/kit/pose4.png" style="left:1330px;top:330px;height:720px" />
+        </div>
+
+        <!-- S10 game modes: four cards in a row, each plays its server from the video (19.44 - 24.32) -->
+        <div id="s10" class="clip layer" data-start="19.44" data-duration="4.88" data-track-index="1">
+          <div class="tan"></div><img class="ghost" src="assets/kit/pose1.png" /><div class="vig"></div>
+          <div class="kv m" id="w-modes" style="left:960px;top:150px"><span>Server</span><span>Game</span><span>Modes:</span></div>
+          <div class="win cut" id="card0" style="left:110px;top:290px;width:400px;height:472px"><video id="gm0" class="clip" src="assets/gameplay/kitpvp-applemc.mp4" muted playsinline data-start="19.60" data-duration="4.72" data-media-start="0" data-track-index="3"></video></div>
+          <div class="kv xs" id="i0" style="left:310px;top:870px"><span>Kit PvP</span></div>
+          <div class="win cut" id="card1" style="left:560px;top:290px;width:400px;height:472px"><video id="gm1" class="clip" src="assets/gameplay/skyblock-myshowbro.mp4" muted playsinline data-start="20.72" data-duration="3.60" data-media-start="0" data-track-index="4"></video></div>
+          <div class="kv xs" id="i1" style="left:760px;top:870px"><span>Skyblock</span></div>
+          <div class="win cut" id="card2" style="left:1010px;top:290px;width:400px;height:472px"><video id="gm2" class="clip" src="assets/gameplay/prisons-talonmc.mp4" muted playsinline data-start="21.68" data-duration="2.64" data-media-start="0" data-track-index="3"></video></div>
+          <div class="kv xs" id="i2" style="left:1210px;top:870px"><span>Prisons</span></div>
+          <div class="win cut" id="card3" style="left:1460px;top:290px;width:400px;height:472px"><video id="gm3" class="clip" src="assets/gameplay/pixelmon-pokefind.mp4" muted playsinline data-start="22.56" data-duration="1.76" data-media-start="0" data-track-index="4"></video></div>
+          <div class="kv xs" id="i3" style="left:1660px;top:870px"><span class="g">Pixelmon!</span></div>
+        </div>
+
+        <!-- S11 what happens (24.32 - 27.44) -->
+        <video id="gp-under2" class="clip full soft" src="assets/gameplay/underrated-riversmp.mp4" muted playsinline data-start="24.32" data-duration="3.12" data-media-start="2.9" data-track-index="3"></video>
+        <div id="s11" class="clip layer" data-start="24.32" data-duration="3.12" data-track-index="1">
+          <div class="kv m" id="w-exact" style="left:960px;top:290px"><span>Exactly</span></div>
+          <div class="kv xl" id="w-what" style="left:960px;top:520px"><span>What</span><span class="g">Happens?</span></div>
+          <div class="kv s" id="w-these" style="left:960px;top:790px"><span>With</span><span>The</span><span>Lesser</span><span>Known</span><span>Ones</span></div>
+        </div>
+
+        <!-- S12 versus split (27.44 - 30.32): do they stack up to the featured ones -->
+        <div class="layer" style="right:960px"><video id="vs-l" class="clip full" src="assets/gameplay/vs-under-myshowbro.mp4" muted playsinline data-start="27.44" data-duration="2.88" data-media-start="0" data-track-index="3"></video></div>
+        <div class="layer" style="left:960px"><video id="vs-r" class="clip full" src="assets/gameplay/vs-featured-lobby.mp4" muted playsinline data-start="27.44" data-duration="2.88" data-media-start="0" data-track-index="4"></video></div>
+        <div id="s12" class="clip layer" data-start="27.44" data-duration="2.88" data-track-index="1">
+          <div id="divider"></div>
+          <div class="kv s" id="w-und" style="left:480px;top:130px"><span>Underrated</span></div>
+          <div class="kv s" id="w-fea" style="left:1440px;top:130px"><span class="g">Featured</span></div>
+          <div class="kv xl" id="w-vs" style="left:960px;top:520px"><span>VS</span></div>
+          <div class="kv m" id="w-stack" style="left:960px;top:880px"><span>Do</span><span>They</span><span>Stack</span><span class="g">Up?</span></div>
+        </div>
+
+        <!-- S13 let's go (30.32 - 31.6); no Studio sting (user 2026-10-24), the main video follows -->
+        <div id="s13" class="clip layer" data-start="30.32" data-duration="1.28" data-track-index="1">
+          <div class="dirt"></div><div class="vig"></div>
+          <img class="masc" id="m5" src="assets/kit/pose1.png" style="left:1300px;top:200px;height:820px" />
+          <div class="kv xl" id="w-lets" style="left:760px;top:540px"><span>Let's</span><span class="g">Go!</span></div>
+        </div>
+      </div>
+
+      <!-- FX layers -->
+      <video id="fire" class="clip full" src="assets/kit/fire.webm" muted playsinline data-start="14.85" data-duration="0.55" data-media-start="0" data-track-index="6"></video>
+      <video id="swirl" class="clip full" src="assets/kit/swirl.webm" muted playsinline data-start="19.0" data-duration="1.15" data-media-start="0" data-track-index="7"></video>
+      <div id="fl1" class="clip layer" data-start="7.28" data-duration="0.3" data-track-index="8"><div class="flash" id="fl1-el"></div></div>
+      <div id="fl2" class="clip layer" data-start="24.32" data-duration="0.3" data-track-index="8"><div class="flash" id="fl2-el"></div></div>
+      <div id="fl3" class="clip layer" data-start="30.32" data-duration="0.3" data-track-index="8"><div class="flash" id="fl3-el"></div></div>
+
+      <!-- audio: VO + the approved Ultra Shooters bed (same automation as servers-intro-top10, tail shortened) -->
+      <audio id="vo" src="assets/vo-norm.wav" data-start="0" data-duration="31.2" data-track-index="10" data-volume="1"></audio>
+      <audio id="music" src="assets/music-ultrashooters.mp3" data-start="0" data-duration="31.6" data-track-index="11" data-volume="1"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0},{"t":0.5,"v":0.1},{"t":14.7,"v":0.1},{"t":14.86,"v":0},{"t":15.1,"v":0},{"t":15.14,"v":0.2},{"t":15.9,"v":0.172},{"t":16.4,"v":0.07},{"t":30.2,"v":0.07},{"t":30.34,"v":0.28},{"t":31.25,"v":0.26},{"t":31.6,"v":0}]}]}'></audio>
+      <!-- SFX v6 (user 2026-10-24 "happy medium"): one soft pitchless swoosh per key beat / listed item, KV whip only on scene entries, nothing stacked; quiet + even. NO swing whistle, cymbal, zap, aww, pops/dings, 808s, risers -->
+      <audio id="sx0" src="assets/kit/sfx/k_pop1.wav" data-start="0.56" data-duration="0.46" data-track-index="12" data-volume="0.07"></audio>
+      <audio id="sx1" src="assets/kit/sfx/k_pop2.wav" data-start="1.20" data-duration="0.43" data-track-index="13" data-volume="0.07"></audio>
+      <audio id="sx2" src="assets/kit/sfx/k_passby.wav" data-start="1.84" data-duration="1.20" data-track-index="14" data-volume="0.09"></audio>
+      <audio id="sx3" src="assets/kit/sfx/k_pop1.wav" data-start="2.64" data-duration="0.46" data-track-index="15" data-volume="0.07"></audio>
+      <audio id="sx4" src="assets/kit/sfx/k_pop2.wav" data-start="4.16" data-duration="0.43" data-track-index="16" data-volume="0.07"></audio>
+      <audio id="sx5" src="assets/kit/sfx/k_shutter.wav" data-start="5.04" data-duration="0.35" data-track-index="17" data-volume="0.6"></audio>
+      <audio id="sx6" src="assets/kit/sfx/k_shutter.wav" data-start="5.36" data-duration="0.35" data-track-index="18" data-volume="0.6"></audio>
+      <audio id="sx7" src="assets/kit/sfx/k_shutter.wav" data-start="5.68" data-duration="0.35" data-track-index="19" data-volume="0.6"></audio>
+      <audio id="sx8" src="assets/kit/sfx/k_pop1.wav" data-start="6.40" data-duration="0.46" data-track-index="12" data-volume="0.07"></audio>
+      <audio id="sx9" src="assets/kit/sfx/k_whip.wav" data-start="7.28" data-duration="0.90" data-track-index="13" data-volume="0.11"></audio>
+      <audio id="sx10" src="assets/kit/sfx/k_pop2.wav" data-start="7.92" data-duration="0.43" data-track-index="14" data-volume="0.07"></audio>
+      <audio id="sx11" src="assets/kit/sfx/k_pop2.wav" data-start="8.40" data-duration="0.43" data-track-index="15" data-volume="0.07"></audio>
+      <audio id="sx12" src="assets/kit/sfx/k_pop2.wav" data-start="9.04" data-duration="0.43" data-track-index="16" data-volume="0.07"></audio>
+      <audio id="sx13" src="assets/kit/sfx/k_pop1.wav" data-start="9.60" data-duration="0.46" data-track-index="17" data-volume="0.07"></audio>
+      <audio id="sx14" src="assets/kit/sfx/k_shutter.wav" data-start="10.80" data-duration="0.35" data-track-index="18" data-volume="0.6"></audio>
+      <audio id="sx15" src="assets/kit/sfx/k_pop2.wav" data-start="11.20" data-duration="0.43" data-track-index="19" data-volume="0.07"></audio>
+      <audio id="sx16" src="assets/kit/sfx/k_passby.wav" data-start="12.24" data-duration="1.20" data-track-index="12" data-volume="0.09"></audio>
+      <audio id="sx17" src="assets/kit/sfx/k_pop1.wav" data-start="12.62" data-duration="0.46" data-track-index="13" data-volume="0.07"></audio>
+      <audio id="sx18" src="assets/kit/sfx/k_pop2.wav" data-start="13.00" data-duration="0.43" data-track-index="14" data-volume="0.07"></audio>
+      <audio id="sx19" src="assets/kit/sfx/k_buzzer.wav" data-start="14.08" data-duration="0.90" data-track-index="15" data-volume="0.1"></audio>
+      <audio id="sx20" src="assets/kit/sfx/k_newpoint.wav" data-start="14.38" data-duration="0.34" data-track-index="16" data-volume="0.1"></audio>
+      <audio id="sx21" src="assets/kit/sfx/t_whoosh.wav" data-start="14.95" data-duration="1.40" data-track-index="17" data-volume="0.13"></audio>
+      <audio id="sx22" src="assets/kit/sfx/k_pop1.wav" data-start="15.50" data-duration="0.46" data-track-index="18" data-volume="0.07"></audio>
+      <audio id="sx23" src="assets/kit/sfx/k_pop2.wav" data-start="16.72" data-duration="0.43" data-track-index="19" data-volume="0.07"></audio>
+      <audio id="sx24" src="assets/kit/sfx/k_pop1.wav" data-start="17.84" data-duration="0.46" data-track-index="12" data-volume="0.07"></audio>
+      <audio id="sx25" src="assets/kit/sfx/t_swish.wav" data-start="19.10" data-duration="1.40" data-track-index="13" data-volume="0.1"></audio>
+      <audio id="sx26" src="assets/kit/sfx/k_pop2.wav" data-start="19.68" data-duration="0.43" data-track-index="14" data-volume="0.07"></audio>
+      <audio id="sx27" src="assets/kit/sfx/k_pop1.wav" data-start="20.80" data-duration="0.46" data-track-index="15" data-volume="0.07"></audio>
+      <audio id="sx28" src="assets/kit/sfx/k_pop2.wav" data-start="21.76" data-duration="0.43" data-track-index="16" data-volume="0.07"></audio>
+      <audio id="sx29" src="assets/kit/sfx/k_pop1.wav" data-start="22.64" data-duration="0.46" data-track-index="17" data-volume="0.07"></audio>
+      <audio id="sx30" src="assets/kit/sfx/k_whip.wav" data-start="24.32" data-duration="0.90" data-track-index="18" data-volume="0.11"></audio>
+      <audio id="sx31" src="assets/kit/sfx/k_pop2.wav" data-start="25.36" data-duration="0.43" data-track-index="19" data-volume="0.07"></audio>
+      <audio id="sx32" src="assets/kit/sfx/k_passby.wav" data-start="27.40" data-duration="1.20" data-track-index="12" data-volume="0.09"></audio>
+      <audio id="sx33" src="assets/kit/sfx/k_whip.wav" data-start="28.40" data-duration="0.90" data-track-index="13" data-volume="0.11"></audio>
+      <audio id="sx34" src="assets/kit/sfx/k_passby.wav" data-start="30.32" data-duration="1.20" data-track-index="14" data-volume="0.09"></audio>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      gsap.set([".kv", ".logo"], { xPercent: -50, yPercent: -50 });
+      // KV entry: comes in big + tilted, lands with a small overshoot, keeps a slight tilt
+      const slam = (sel, t, rot = 0, from = 1.9, dur = 0.2) =>
+        tl.fromTo(sel, { scale: from, rotation: rot * 3 + (rot >= 0 ? 6 : -6), opacity: 0 }, { scale: 1, rotation: rot, opacity: 1, duration: dur, ease: "back.out(2.2)" }, t);
+      const off = (sel, t, dur = 0.1) => tl.to(sel, { opacity: 0, duration: dur, ease: "power1.in" }, t);
+      const show = (sel, t) => tl.set(sel, { opacity: 1 }, t);
+      const hide = (sel, t) => tl.set(sel, { opacity: 0 }, t);
+      const punch = (t, s = 1.05, dur = 0.5) => tl.fromTo("#cam", { scale: s }, { scale: 1, duration: dur, ease: "power3.out" }, t);
+      const shake = (t, amp = 10, n = 5) => {
+        for (let i = 0; i < n; i++) tl.to("#cam", { x: (i % 2 ? -1 : 1) * amp * (1 - i / n), y: ((i % 3) - 1) * amp * 0.6 * (1 - i / n), duration: 0.035, ease: "none" }, t + i * 0.035);
+        tl.to("#cam", { x: 0, y: 0, duration: 0.05 }, t + n * 0.035);
+      };
+      const drift = (sel, t, dur, a, b) => tl.fromTo(sel, a, Object.assign({ duration: dur, ease: "none" }, b), t);
+
+      // S1
+      drift("#dirt1", 0, 5.04, { x: 0, y: 0 }, { x: -30, y: -20 });
+      tl.set("#dirt1", { opacity: 0 }, 0);                                   // the thumbnail wall shows through first
+      tl.to("#dirt1", { opacity: 1, duration: 0.3, ease: "power1.inOut" }, 1.6);
+      tl.fromTo("#m1", { x: 500, opacity: 0, rotation: 8 }, { x: 0, opacity: 1, rotation: 0, duration: 0.32, ease: "back.out(1.6)" }, 0.0);
+      tl.to("#m1", { y: -14, duration: 0.6, ease: "sine.inOut", yoyo: true, repeat: 1 }, 0.5);
+      slam("#w-many", 0.56, -2); slam("#w-diff", 0.88, 2); slam("#w-serv", 1.2, -3, 2.4); shake(1.24);
+      off(["#w-many", "#w-diff", "#w-serv"], 1.74);
+      tl.to("#m1", { x: 700, opacity: 0, duration: 0.25, ease: "power2.in" }, 1.72);
+      tl.fromTo("#keyart", { scale: 0.4, rotation: -14, opacity: 0 }, { scale: 1, rotation: -4, opacity: 1, duration: 0.3, ease: "back.out(1.8)" }, 1.84);
+      tl.to("#keyart", { scale: 1.07, rotation: -2, duration: 1.9, ease: "none" }, 2.14);
+      slam("#w-mc", 1.92, -2); slam("#w-be", 2.64, 2); punch(2.64);
+      off(["#keyart", "#w-mc", "#w-be"], 3.8);
+      tl.fromTo("#m3", { xPercent: -50, y: 120, opacity: 0, scale: 0.9 }, { xPercent: -50, y: 0, opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.6)" }, 3.86);
+      tl.to("#m3", { rotation: -3, duration: 0.6, ease: "sine.inOut", yoyo: true, repeat: 1 }, 4.2);
+      slam("#w-unf", 4.16, -2);
+
+      // S4
+      ["#k0", "#k1", "#k2", "#k3", "#k4"].forEach((s, i) => {
+        const r = [-9, 7, 6, -8, 3][i];
+        tl.fromTo(s, { scale: 1.9, rotation: r * 3, opacity: 0 }, { scale: 1, rotation: r, opacity: 1, duration: 0.18, ease: "back.out(2)" }, 5.04 + i * 0.16);
+      });
+      slam("#w-dont", 5.6, -2);
+      tl.to("#dark", { opacity: 0.7, duration: 0.5, ease: "power2.in" }, 6.2);
+      slam("#w-light", 6.4, 3, 2.3); shake(6.44);
+
+      // S5
+      const fcuts = [7.28, 7.92, 8.4, 9.04, 9.6];
+      fcuts.forEach((t, i) => {
+        show("#f" + i, t); if (i) hide("#f" + (i - 1), t);
+        tl.fromTo("#f" + i, { scale: 1.16 }, { scale: 1.0, duration: (fcuts[i + 1] || 10.8) - t, ease: "power1.out" }, t);
+      });
+      tl.fromTo("#fl1-el", { opacity: 0.85 }, { opacity: 0, duration: 0.28 }, 7.28);
+      slam("#w-feat", 7.92, -2); off("#w-feat", 9.55);
+      tl.to("#f4", { filter: "blur(6px)", duration: 0.2 }, 9.6);
+      slam("#w-reign", 9.6, -5, 2.6, 0.24); shake(9.64, 13, 6);
+      tl.to("#w-reign", { rotation: -3, scale: 1.04, duration: 1.1, ease: "sine.inOut" }, 9.9);
+
+      // S6: consoles photo, then KV-style giant white logos on dirt
+      drift("#cons", 10.8, 1.44, { scale: 1.02 }, { scale: 1.12 });
+      tl.to("#cons", { filter: "blur(6px)", duration: 0.25 }, 11.15);
+      slam("#w-most", 11.2, -2);
+      show("#logos", 12.24); hide("#w-most", 12.24);
+      [[12.24, 0], [12.62, 1], [13.0, 2]].forEach(([t, i]) => {
+        tl.fromTo("#lg" + i, { scale: 1.5, rotation: i % 2 ? 8 : -8, opacity: 0 }, { scale: 1, rotation: i % 2 ? 3 : -3, opacity: 1, duration: 0.16, ease: "back.out(2)" }, t);
+        tl.to("#lg" + i, { scale: 1.05, duration: 0.3, ease: "none" }, t + 0.16);
+        if (i < 2) hide("#lg" + i, [12.62, 13.0][i]);
+      });
+
+      // S7
+      drift("#addsrv", 13.44, 1.0, { scale: 1.0 }, { scale: 1.12 });
+      tl.fromTo("#redx", { scale: 2.6, opacity: 0, rotation: -20 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.18, ease: "back.out(2.2)" }, 14.08); shake(14.1, 13, 6);
+      slam("#w-cant", 14.1, -2);
+      show("#angry", 14.38); hide("#redx", 14.38); hide("#w-cant", 14.38);
+      tl.fromTo("#angry", { scale: 1.25 }, { scale: 1.1, duration: 0.6, ease: "power2.out" }, 14.38);
+
+      // S8
+      tl.fromTo("#m2", { xPercent: -50, y: 300, scale: 0.7, opacity: 0 }, { xPercent: -50, y: 0, scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.8)" }, 15.36);
+      tl.to("#m2", { y: -24, duration: 0.2, ease: "sine.out", yoyo: true, repeat: 1 }, 15.7);
+      slam("#w-today", 15.5, -2); shake(15.54);
+
+      // S9
+      slam("#w-rev", 16.72, -2); slam("#w-less", 17.12, 2); slam("#w-srv2", 17.84, -3, 2.4); shake(17.88);
+      slam("#w-good", 18.36, 0, 1.6);
+      tl.fromTo("#m4", { x: 400, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: "back.out(1.6)" }, 18.6);
+      tl.to("#m4", { rotation: 4, duration: 0.4, ease: "sine.inOut", yoyo: true, repeat: 1 }, 18.9);
+
+      // S10: header, then each card + label slams in on its word and keeps playing
+      slam("#w-modes", 19.5, -2);
+      [[19.68, 0], [20.8, 1], [21.76, 2], [22.64, 3]].forEach(([t, i]) => {
+        const r = [-4, 3, -3, 4][i];
+        tl.fromTo("#card" + i, { opacity: 0, scale: 1.7, rotation: r * 4, y: -40 }, { opacity: 1, scale: 1, rotation: r, y: 0, duration: 0.2, ease: "back.out(2)" }, t - 0.08);
+        slam("#i" + i, t, r < 0 ? -2 : 2, 2.0);
+        punch(t, 1.03, 0.3);
+      });
+      shake(22.68);
+      tl.to(["#card0", "#card1", "#card2", "#card3"], { y: -8, duration: 0.8, ease: "sine.inOut", yoyo: true, repeat: 1, stagger: 0.12 }, 22.9);
+
+      // S11
+      tl.fromTo("#fl2-el", { opacity: 0.8 }, { opacity: 0, duration: 0.28 }, 24.32);
+      slam("#w-exact", 24.88, -2); slam("#w-what", 25.36, 3, 2.4); shake(25.4);
+      tl.to("#w-what", { scale: 1.04, rotation: 1, duration: 1.0, ease: "sine.inOut" }, 25.7);
+      slam("#w-these", 26.24, 0, 1.5);
+      drift("#gp-under2", 24.32, 3.12, { scale: 1.06 }, { scale: 1.16 });
+
+      // S12
+      tl.fromTo("#vs-l", { xPercent: -30 }, { xPercent: 0, duration: 0.3, ease: "power3.out" }, 27.44);
+      tl.fromTo("#vs-r", { xPercent: 30 }, { xPercent: 0, duration: 0.3, ease: "power3.out" }, 27.44);
+      slam("#w-und", 27.6, -3); slam("#w-fea", 27.84, 3);
+      slam("#w-vs", 28.4, -6, 2.8, 0.22); shake(28.44, 13, 6);
+      slam("#w-stack", 28.8, 2);
+      tl.to("#w-vs", { rotation: 3, scale: 1.06, duration: 0.7, ease: "sine.inOut", yoyo: true, repeat: 1 }, 28.7);
+
+      // S13: Let's Go! (no sting); the Studio join slides the main video in over the tail
+      tl.fromTo("#fl3-el", { opacity: 1 }, { opacity: 0, duration: 0.3 }, 30.32);
+      tl.fromTo("#m5", { x: 500, opacity: 0, rotation: 8 }, { x: 0, opacity: 1, rotation: 0, duration: 0.28, ease: "back.out(1.6)" }, 30.34);
+      slam("#w-lets", 30.36, -3, 2.6, 0.22); shake(30.64, 12, 6);
+      tl.to("#w-lets", { scale: 1.05, rotation: -1, duration: 0.9, ease: "sine.inOut" }, 30.6);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+    </script>
+    </div>
+  </body>
+</html>

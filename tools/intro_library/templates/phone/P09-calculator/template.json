@@ -1,0 +1,46 @@
+{
+  "id": "P09",
+  "name": "Running Total",
+  "blurb": "A calculator display bar runs across the top of every scene: each problem line adds the next fee to the sum on the tape (+ 3.99 delivery...), the total turns red; after the turn the methods are subtracted and = is smashed down to 0.00; every line is a literal scene with your clips; title on the display.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "key",
+      "t": 0.4,
+      "vol": 0.1,
+      "d": 0.9
+    },
+    {
+      "sfx": "click",
+      "t": "turn",
+      "off": 1.4,
+      "vol": 0.2,
+      "d": 0.3
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

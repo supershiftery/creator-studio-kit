@@ -1,0 +1,171 @@
+{
+ "why": "Any website he NAMES in an intro VO gets a real scroll of that site on that line (user 2026-10-23, ultimate dhgate free reselling spreadsheet: 'these creators have Alibaba links ... put a screen capture of Alibaba'; 'when I mention different websites inside of an intro, like Canva, we could literally scroll Canva's website'). aliases = how Whisper writes it (it heard Alibaba as 'alley bobble'). search = a page about the video's product ({q}); home = fallback. A project can pin its own page in raw/sites.txt ('alibaba https://...'). DHgate / StockX / YouTube / TikTok have their own recorders and are not listed here. wall = the site shows a human check to automated browsers: it is recorded in a visible window where HE solves the check once (screenrec --verify), never by us.",
+ "sites": {
+  "alibaba": {
+   "aliases": [
+    "alibaba",
+    "ali baba",
+    "alley bobble",
+    "ally baba",
+    "alley baba",
+    "ali bobba",
+    "alibabba",
+    "ollie baba"
+   ],
+   "search": "https://www.alibaba.com/trade/search?SearchText={q}",
+   "home": "https://www.alibaba.com/",
+   "wall": true,
+   "name": "Alibaba"
+  },
+  "aliexpress": {
+   "aliases": [
+    "aliexpress",
+    "ali express",
+    "alley express",
+    "ally express"
+   ],
+   "search": "https://www.aliexpress.us/w/wholesale-{q_dash}.html",
+   "home": "https://www.aliexpress.us/",
+   "wall": true,
+   "name": "AliExpress"
+  },
+  "canva": {
+   "aliases": [
+    "canva"
+   ],
+   "home": "https://www.canva.com/templates/",
+   "search": "https://www.canva.com/templates/?query={q}",
+   "name": "Canva"
+  },
+  "capcut": {
+   "aliases": [
+    "capcut",
+    "cap cut"
+   ],
+   "home": "https://www.capcut.com/",
+   "name": "CapCut"
+  },
+  "amazon": {
+   "aliases": [
+    "amazon"
+   ],
+   "search": "https://www.amazon.com/s?k={q}",
+   "home": "https://www.amazon.com/",
+   "wall": true,
+   "name": "Amazon"
+  },
+  "temu": {
+   "aliases": [
+    "temu",
+    "tee moo",
+    "teemu"
+   ],
+   "search": "https://www.temu.com/search_result.html?search_key={q}",
+   "home": "https://www.temu.com/",
+   "wall": true,
+   "name": "Temu"
+  },
+  "ebay": {
+   "aliases": [
+    "ebay",
+    "e bay"
+   ],
+   "search": "https://www.ebay.com/sch/i.html?_nkw={q}",
+   "home": "https://www.ebay.com/",
+   "name": "eBay"
+  },
+  "etsy": {
+   "aliases": [
+    "etsy"
+   ],
+   "search": "https://www.etsy.com/search?q={q}",
+   "home": "https://www.etsy.com/",
+   "wall": true,
+   "name": "Etsy"
+  },
+  "shopify": {
+   "aliases": [
+    "shopify",
+    "shop ify"
+   ],
+   "home": "https://www.shopify.com/",
+   "name": "Shopify"
+  },
+  "fiverr": {
+   "aliases": [
+    "fiverr",
+    "fiver"
+   ],
+   "search": "https://www.fiverr.com/search/gigs?query={q}",
+   "home": "https://www.fiverr.com/",
+   "name": "Fiverr"
+  },
+  "whop": {
+   "aliases": [
+    "whop"
+   ],
+   "home": "https://whop.com/discover/",
+   "name": "Whop"
+  },
+  "gumroad": {
+   "aliases": [
+    "gumroad",
+    "gum road"
+   ],
+   "home": "https://gumroad.com/discover",
+   "name": "Gumroad"
+  },
+  "chatgpt": {
+   "aliases": [
+    "chatgpt",
+    "chat gpt",
+    "chat g p t"
+   ],
+   "home": "https://chatgpt.com/",
+   "name": "ChatGPT"
+  },
+  "depop": {
+   "aliases": [
+    "depop",
+    "dee pop"
+   ],
+   "search": "https://www.depop.com/search/?q={q}",
+   "home": "https://www.depop.com/",
+   "name": "Depop"
+  },
+  "grailed": {
+   "aliases": [
+    "grailed"
+   ],
+   "search": "https://www.grailed.com/shop?query={q}",
+   "home": "https://www.grailed.com/",
+   "name": "Grailed"
+  },
+  "pandabuy": {
+   "aliases": [
+    "pandabuy",
+    "panda buy"
+   ],
+   "home": "https://www.pandabuy.com/",
+   "name": "Pandabuy"
+  },
+  "1688": {
+   "aliases": [
+    "1688",
+    "sixteen eighty eight"
+   ],
+   "home": "https://www.1688.com/",
+   "wall": true,
+   "name": "1688"
+  },
+  "chime": {
+   "aliases": [
+    "chime",
+    "chime.com"
+   ],
+   "home": "https://www.chime.com/",
+   "wall": true,
+   "name": "Chime"
+  }
+ }
+}

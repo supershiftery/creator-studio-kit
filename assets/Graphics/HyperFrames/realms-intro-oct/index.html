@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "CapFont"; src: url("assets/caption.ttf") format("truetype"); font-weight: 900; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #07050d; }
+      .layer { position: absolute; inset: 0; overflow: hidden; }
+      .abs { position: absolute; }
+      canvas { image-rendering: pixelated; display: block; }
+
+      /* global "case file" backdrop: ink-purple dark room, moving flashlight, film grain */
+      #bg-el { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, #1d1430 0%, #110c1d 45%, #050308 100%); }
+      #dots-el { position: absolute; inset: -200px; background-image: radial-gradient(rgba(180,140,255,.09) 2px, transparent 2.5px); background-size: 48px 48px; }
+      #spot-el { position: absolute; left: 960px; top: 540px; width: 1800px; height: 1800px; margin: -900px 0 0 -900px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,236,190,.10) 0%, rgba(255,236,190,.04) 35%, transparent 62%); }
+      #grain-el { position: absolute; inset: -128px; opacity: .10; }
+      #vig-el { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.72) 100%); }
+      .flash-el { position: absolute; inset: 0; background: #fff; opacity: 0; }
+
+      /* keyword pops */
+      .kw { position: absolute; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 28px; opacity: 0; }
+      .tag { padding: 14px 22px; background: rgba(10,6,18,.84); border: 4px solid rgba(180,130,255,.6); }
+      .stamp { position: absolute; padding: 14px 26px; border: 10px solid #e2231a; background: rgba(226,35,26,.08); opacity: 0; box-shadow: 0 0 0 4px rgba(0,0,0,.35); }
+
+      /* A: realms still going? (ECG monitor) */
+      #a-mon { position: absolute; left: 120px; top: 430px; width: 1680px; height: 300px; border: 6px solid #2a2140; background:
+        linear-gradient(rgba(70,255,160,.06) 2px, transparent 2px) 0 0/60px 60px, linear-gradient(90deg, rgba(70,255,160,.06) 2px, transparent 2px) 0 0/60px 60px, rgba(3,14,10,.78);
+        box-shadow: inset 0 0 60px rgba(0,0,0,.8); overflow: hidden; }
+      #a-ecg-wrap { position: absolute; left: 0; top: 0; height: 300px; width: 0; overflow: hidden; }
+      #a-cur { position: absolute; left: 0; top: 0; width: 6px; height: 288px; background: #c8ffe3; box-shadow: 0 0 24px 8px rgba(80,255,170,.7); }
+      #a-chip { position: absolute; left: 50%; bottom: 40px; top: auto; transform: translateX(-50%); }
+
+      /* B: secret game modes (folder + stamp) */
+      #b-folder { position: absolute; left: 510px; top: 360px; width: 900px; height: 560px; }
+      #b-tab { position: absolute; left: 40px; top: -58px; width: 330px; height: 70px; background: #c9a659; border: 5px solid #2a1d08; border-bottom: none;
+        font-family: "CapFont"; font-size: 30px; color: #3a2a0c; display: flex; align-items: center; justify-content: center; letter-spacing: 2px; }
+      #b-body { position: absolute; inset: 0; background: linear-gradient(180deg, #e3c477, #c9a659); border: 5px solid #2a1d08; box-shadow: 0 30px 70px rgba(0,0,0,.6); }
+      .redact { position: absolute; left: 70px; height: 26px; background: #1a1206; }
+      .head { position: absolute; border: 4px solid #0b0b0b; box-shadow: 0 10px 24px rgba(0,0,0,.5); }
+
+      /* C: game-mode carousel */
+      #c-persp { position: absolute; inset: 0; perspective: 1600px; }
+      #c-track { position: absolute; left: 960px; top: 540px; transform-style: preserve-3d; }
+      .mcard { position: absolute; width: 560px; height: 660px; margin: -330px 0 0 -280px; border: 8px solid #111; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+      .mcard canvas.bgt { position: absolute; inset: 0; filter: brightness(.55); }
+      .mcard .shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.05) 30%, rgba(0,0,0,.75)); }
+      .mcard .art { position: absolute; left: 0; right: 0; top: 150px; display: flex; justify-content: center; }
+      .mcard .lab { position: absolute; left: 0; right: 0; bottom: 60px; display: flex; justify-content: center; }
+      .mcard .num { position: absolute; left: 22px; top: 18px; font-family: "CapFont"; font-size: 28px; color: rgba(255,255,255,.8); }
+      .mcard .edge { position: absolute; inset: 0; border: 6px solid #b48cff; opacity: 0; box-shadow: inset 0 0 60px rgba(180,130,255,.5); }
+
+      /* D: limited (bars + caution tape) */
+      .wall { position: absolute; top: 0; width: 760px; height: 1080px; background:
+        repeating-linear-gradient(90deg, transparent 0 70px, #5b5b5b 70px 80px, #a8a8a8 80px 92px, #3a3a3a 92px 100px); }
+      .wall::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent 0 300px, #5b5b5b 300px 310px, #a8a8a8 310px 318px, #3a3a3a 318px 326px); }
+      .tape { position: absolute; left: 0; width: 3600px; height: 120px; display: flex; align-items: center; gap: 70px; padding-left: 40px;
+        background: repeating-linear-gradient(-45deg, #ffcf1a 0 46px, #151515 46px 92px); border-top: 8px solid #151515; border-bottom: 8px solid #151515;
+        box-shadow: 0 20px 40px rgba(0,0,0,.55); }
+      .tape .tl { background: #ffcf1a; padding: 10px 18px; border: 5px solid #151515; }
+
+      /* E: ten players */
+      .pslot { position: absolute; width: 150px; height: 150px; background: #1a1426; border: 5px solid #3b2f55; box-shadow: inset 0 0 0 4px #0e0a16; }
+      #e-count { position: absolute; left: 0; right: 0; top: 740px; display: flex; justify-content: center; }
+      #e-count div { font-family: "CapFont"; font-size: 40px; color: #e8dcff; padding: 12px 30px; border: 4px solid rgba(180,130,255,.6); background: rgba(10,6,18,.8); letter-spacing: 2px; }
+      #e-count b { color: #fff; font-size: 60px; margin-left: 18px; }
+
+      /* F: detective board */
+      #f-board { position: absolute; inset: -40px; }
+      .pol { position: absolute; width: 420px; height: 380px; background: #f2ede0; box-shadow: 0 24px 50px rgba(0,0,0,.6); }
+      .pol .slot { left: 20px; top: 20px; width: 380px; height: 270px; }
+      .pol .cap { position: absolute; left: 0; right: 0; bottom: 22px; text-align: center; font-family: "CapFont"; font-size: 34px; color: #2a2238; letter-spacing: 2px; }
+      .pin { position: absolute; left: 196px; top: -12px; width: 28px; height: 28px; border-radius: 50%; background: #e2231a; box-shadow: inset -5px -5px 0 #8a120c, 0 6px 10px rgba(0,0,0,.5); }
+
+      /* G: case file */
+      #g-head { position: absolute; left: 0; right: 0; top: 80px; display: flex; justify-content: center; }
+      #g-type { display: block; overflow: hidden; white-space: nowrap; width: 0; }
+      .fcard { position: absolute; top: 300px; width: 280px; height: 380px; background: linear-gradient(180deg, #f3ead2, #ddd0ad); border: 5px solid #2a1d08;
+        box-shadow: 0 24px 50px rgba(0,0,0,.6); display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 20px 0; }
+      .fcard .clip-bar { position: absolute; top: -18px; left: 100px; width: 80px; height: 30px; background: #9a9a9a; border: 4px solid #333; }
+
+      /* H: watch to the end */
+      #h-bar { position: absolute; left: 360px; top: 770px; width: 1200px; height: 18px; background: rgba(255,255,255,.22); }
+      #h-fill { position: absolute; left: 0; top: 0; height: 18px; width: 0; background: #ff2a2a; }
+      #h-dot { position: absolute; left: -15px; top: -12px; width: 42px; height: 42px; border-radius: 50%; background: #ff2a2a; box-shadow: 0 0 0 5px rgba(0,0,0,.4); }
+      #h-time { position: absolute; left: 360px; top: 805px; font-family: "CapFont"; font-size: 30px; color: #fff; letter-spacing: 2px; }
+
+      /* I: title */
+      #i-rays { position: absolute; left: 50%; top: 50%; width: 3000px; height: 3000px; margin: -1500px 0 0 -1500px; border-radius: 50%;
+        background: repeating-conic-gradient(rgba(170,110,255,.14) 0 6deg, transparent 6deg 15deg); }
+      #i-glow { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 44%, rgba(255,200,60,.30), transparent 55%); }
+      #i-pill { position: absolute; left: 0; right: 0; top: 900px; display: flex; justify-content: center; opacity: 0; }
+      #i-pill div { font-family: "CapFont"; font-size: 34px; color: #12081f; background: #b48cff; padding: 10px 28px; letter-spacing: 4px; border: 4px solid #2a1550; }
+      #shake { position: absolute; inset: 0; }
+
+      /* footage placeholder slots (swap in real gameplay once it's filmed) */
+      .slot { position: absolute; overflow: hidden; background: repeating-linear-gradient(45deg, #221a33 0 28px, #1b1429 28px 56px);
+        border: 4px dashed rgba(190,150,255,.6); }
+      .slot .chip, .chip { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); white-space: nowrap;
+        font-family: "CapFont"; font-size: 24px; letter-spacing: 2px; color: #efe6ff; background: rgba(0,0,0,.7); padding: 8px 16px; border: 2px solid rgba(190,150,255,.6); }
+      .mcard .chip { top: 17%; font-size: 20px; }
+      .pol .chip { font-size: 20px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="27.6" data-width="1920" data-height="1080">
+      <div id="shake">
+        <!-- gameplay clips from the recording (moved into the cards / polaroids below) -->
+        <div id="clip-holder" style="display:none">
+        <video id="v-mc0" class="clip" src="assets/clips/skygen.mp4" data-start="5.96" data-duration="3.48" data-media-start="0" data-track-index="21" muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+        <video id="v-mc1" class="clip" src="assets/clips/kitpvp.mp4" data-start="5.96" data-duration="3.48" data-media-start="0" data-track-index="22" muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+        <video id="v-mc2" class="clip" src="assets/clips/prisons.mp4" data-start="5.96" data-duration="3.48" data-media-start="0" data-track-index="23" muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+        <video id="v-pl0" class="clip" src="assets/clips/pol-dragonforge.mp4" data-start="13.4" data-duration="4.5" data-media-start="0" data-track-index="24" muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+        <video id="v-pl1" class="clip" src="assets/clips/pol-anarchy.mp4" data-start="13.4" data-duration="4.5" data-media-start="0" data-track-index="25" muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+        <video id="v-pl2" class="clip" src="assets/clips/pol-rennmon.mp4" data-start="13.4" data-duration="4.5" data-media-start="0" data-track-index="26" muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+        </div>
+        <!-- global backdrop -->
+        <div id="bg" class="clip layer" data-start="0" data-duration="27.6" data-track-index="0"><div id="bg-el"></div><div id="dots-el"></div><div id="spot-el"></div></div>
+
+        <!-- A: "Minecraft realms are still going?" (0 - 3.04) -->
+        <div id="sA" class="clip layer" data-start="0" data-duration="3.04" data-track-index="1">
+          <div id="sA-in" class="layer">
+            <div class="kw" id="kw-mc" style="top:70px"></div>
+            <div class="kw" id="kw-realms" style="top:170px"></div>
+            <div id="a-mon"><div id="a-ecg-wrap"><canvas id="a-ecg"></canvas></div><div id="a-cur"></div></div>
+            <div class="kw" id="kw-still" style="top:790px"></div>
+          </div>
+        </div>
+
+        <!-- B: "people are hosting secret game modes" (3.04 - 5.96) -->
+        <div id="sB" class="clip layer" data-start="3.04" data-duration="2.92" data-track-index="1">
+          <div id="sB-in" class="layer">
+            <div id="b-heads" class="layer"></div>
+            <div class="abs" id="b-crown" style="left:0;right:0;top:40px;display:flex;justify-content:center;opacity:0"></div>
+            <div class="kw" id="kw-host" style="top:150px;justify-content:flex-end;padding-right:150px"></div>
+            <div id="b-folder">
+              <div id="b-tab">REALM FILES</div>
+              <div id="b-body"></div>
+              <div class="redact" style="top:60px;width:520px"></div><div class="redact" style="top:110px;width:700px"></div>
+              <div class="redact" style="top:160px;width:430px"></div><div class="redact" style="top:210px;width:610px"></div>
+              <div class="abs" id="kw-modes" style="left:0;right:0;top:330px;display:flex;justify-content:center;opacity:0"></div>
+              <div class="stamp" id="b-stamp" style="left:420px;top:120px"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- C: Sky Gen / Kit PvP / Prisons (5.96 - 9.44) -->
+        <div id="sC" class="layer" style="visibility:hidden">
+          <div id="c-persp"><div id="c-track"></div></div>
+          <div class="kw" id="kw-cat" style="top:50px"></div>
+          <div class="kw" id="kw-even" style="top:930px"></div>
+        </div>
+
+        <!-- D: "on these limited servers" (9.44 - 11.40) -->
+        <div id="sD" class="clip layer" data-start="9.44" data-duration="1.96" data-track-index="1">
+          <div id="sD-in" class="layer">
+            <div class="abs" id="d-block" style="left:780px;top:330px"></div>
+            <div class="kw" id="kw-realmsrv" style="top:740px"></div>
+            <div class="wall" id="d-wall-l" style="left:-760px"></div>
+            <div class="wall" id="d-wall-r" style="left:1920px"></div>
+            <div class="tape" id="d-tape1" style="top:440px;transform:rotate(-7deg)"></div>
+            <div class="tape" id="d-tape2" style="top:640px;transform:rotate(5deg)"></div>
+            <div class="kw" id="kw-limited" style="top:110px"></div>
+          </div>
+        </div>
+
+        <!-- E: "only hold up to ten players" (11.40 - 13.40) -->
+        <div id="sE" class="clip layer" data-start="11.40" data-duration="2.0" data-track-index="1">
+          <div id="sE-in" class="layer">
+            <div class="kw" id="kw-max" style="top:110px"></div>
+            <div id="e-grid" class="layer"></div>
+            <div id="e-count"><div>PLAYERS<b id="e-num">0/10</b></div></div>
+            <div class="stamp" id="e-full" style="left:690px;top:390px"></div>
+            <div class="abs" id="e-x" style="left:1560px;top:410px;opacity:0"></div>
+          </div>
+        </div>
+
+        <!-- F: "really curious what's going on with these Bedrock realms" (13.40 - 17.90) -->
+        <div id="sF" class="layer" style="visibility:hidden">
+          <div id="sF-in" class="layer">
+            <div id="f-board"><canvas id="f-cork"></canvas></div>
+            <div id="f-pols" class="layer"></div>
+            <svg id="f-strings" class="abs" style="left:0;top:0" width="1920" height="1080"></svg>
+            <div id="f-qs" class="layer"></div>
+            <div class="kw" id="kw-going" style="top:740px"></div>
+            <div class="kw" id="kw-bedrock" style="top:720px"></div>
+            <div class="kw" id="kw-realms2" style="top:860px"></div>
+            <div class="abs" id="f-mag" style="left:0;top:0"></div>
+          </div>
+        </div>
+
+        <!-- G: DROP "In today's video we're investigating" (18.16 - 21.00) -->
+        <div id="sG" class="clip layer" data-start="18.16" data-duration="2.84" data-track-index="1">
+          <div id="sG-in" class="layer">
+            <div id="g-head"><span id="g-type"></span></div>
+            <div id="g-cards" class="layer"></div>
+            <div class="stamp" id="g-stamp" style="left:520px;top:745px"></div>
+            <div class="abs" id="g-mag" style="left:0;top:0"></div>
+          </div>
+        </div>
+
+        <!-- H: "watch the video to the very end" (21.00 - 22.64) -->
+        <div id="sH" class="layer" style="visibility:hidden">
+          <div id="sH-in" class="layer">
+            <div class="slot" id="h-slot" style="left:360px;top:120px;width:1200px;height:620px"><video id="v-teaser" class="clip" src="assets/clips/teaser.mp4" data-start="21.0" data-duration="1.64" data-media-start="0" data-track-index="20" muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video></div>
+            <div id="h-bar"><div id="h-fill"></div><div id="h-dot"></div></div>
+            <div id="h-time">0:00 / 15:00</div>
+            <div class="kw" id="kw-watch" style="top:880px"></div>
+            <div class="kw" id="kw-end" style="top:860px"></div>
+          </div>
+        </div>
+
+        <!-- I: title slam (22.64 - 27.6) -->
+        <div id="sI" class="clip layer" data-start="22.64" data-duration="4.96" data-track-index="1">
+          <div id="i-glow"></div><div id="i-rays"></div>
+          <div class="abs" id="i-top" style="left:0;right:0;top:120px;display:flex;justify-content:center"></div>
+          <div class="abs" id="i-sub" style="left:0;right:0;top:500px;display:flex;justify-content:center;opacity:0"></div>
+          <div class="abs" id="i-trust" style="left:0;right:0;top:690px;display:flex;justify-content:center;opacity:0"></div>
+          <div class="abs" id="i-shock" style="left:0;right:0;top:680px;display:flex;justify-content:center;opacity:0"></div>
+          <div id="i-pill"><div>MINECRAFT BEDROCK · OCTOBER 2026</div></div>
+        </div>
+      </div>
+
+      <!-- overlays -->
+      <div id="glitch" class="clip layer" data-start="3.04" data-duration="0.36" data-track-index="5"><div id="glitch-el" class="abs" style="inset:0"></div></div>
+      <div id="glitch2" class="clip layer" data-start="25.04" data-duration="0.3" data-track-index="5"><div id="glitch2-el" class="abs" style="inset:0"></div></div>
+      <div id="flash1" class="clip layer" data-start="18.16" data-duration="0.4" data-track-index="6"><div id="flash1-el" class="flash-el"></div></div>
+      <div id="flash2" class="clip layer" data-start="22.64" data-duration="0.45" data-track-index="6"><div id="flash2-el" class="flash-el"></div></div>
+      <div id="blackout" class="clip layer" data-start="17.9" data-duration="0.26" data-track-index="6" style="background:#000"></div>
+      <div id="endfade" class="clip layer" data-start="27.0" data-duration="0.6" data-track-index="6"><div id="endfade-el" class="abs" style="inset:0;background:#000;opacity:0"></div></div>
+      <div id="grain" data-layout-allow-occlusion class="clip layer" data-start="0" data-duration="27.6" data-track-index="7"><div id="grain-el"></div><div id="vig-el" data-layout-allow-occlusion></div></div>
+
+      <!-- audio -->
+      <audio id="vo" src="assets/vo-norm.wav" data-start="0" data-duration="25.93" data-track-index="10" data-volume="1"></audio>
+      <audio id="music-pre" src="assets/music-pre.mp3" data-start="0" data-duration="17.9" data-track-index="11" data-volume="1"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0},{"t":0.5,"v":0.13},{"t":17.84,"v":0.13},{"t":17.9,"v":0}]}]}'></audio>
+      <audio id="music" src="assets/music-main.mp3" data-start="18.16" data-duration="9.44" data-track-index="18" data-volume="1"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.2},{"t":0.76,"v":0.172},{"t":1.26,"v":0.07},{"t":4.36,"v":0.07},{"t":4.5,"v":0.2},{"t":5.0,"v":0.11},{"t":7.3,"v":0.11},{"t":7.5,"v":0.3},{"t":8.9,"v":0.27},{"t":9.44,"v":0}]}]}'></audio>
+      <audio id="s-ping0" src="assets/sfx/ping.mp3" data-start="0.62" data-duration="0.9" data-track-index="13" data-volume="0.18"></audio>
+      <audio id="s-beat1" src="assets/sfx/key-press.mp3" data-start="1.44" data-duration="0.4" data-track-index="12" data-volume="0.2"></audio>
+      <audio id="s-beat2" src="assets/sfx/key-press.mp3" data-start="2.0" data-duration="0.4" data-track-index="16" data-volume="0.2"></audio>
+      <audio id="s-glitch" src="assets/sfx/glitch-1.mp3" data-start="3.02" data-duration="1.2" data-track-index="13" data-volume="0.28"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.28},{"t":0.8,"v":0.2},{"t":1.2,"v":0}]}]}'></audio>
+      <audio id="s-heads" src="assets/sfx/click.mp3" data-start="3.92" data-duration="0.36" data-track-index="12" data-volume="0.22"></audio>
+      <audio id="s-host" src="assets/sfx/ping.mp3" data-start="4.4" data-duration="0.9" data-track-index="16" data-volume="0.14"></audio>
+      <audio id="s-whip1" src="assets/sfx/whip.mp3" data-start="5.82" data-duration="0.6" data-track-index="12" data-volume="0.28"></audio>
+      <audio id="s-sw1" src="assets/sfx/whoosh-short.mp3" data-start="7.2" data-duration="0.57" data-track-index="16" data-volume="0.16"></audio>
+      <audio id="s-sw2" src="assets/sfx/whoosh-short.mp3" data-start="8.72" data-duration="0.57" data-track-index="12" data-volume="0.16"></audio>
+      <audio id="s-whip2" src="assets/sfx/whip.mp3" data-start="9.3" data-duration="0.6" data-track-index="16" data-volume="0.26"></audio>
+      <audio id="s-whip3" src="assets/sfx/whoosh-short.mp3" data-start="11.3" data-duration="0.57" data-track-index="12" data-volume="0.22"></audio>
+      <audio id="s-p1" src="assets/sfx/key-press.mp3" data-start="11.92" data-duration="0.4" data-track-index="16" data-volume="0.18"></audio>
+      <audio id="s-p2" src="assets/sfx/key-press.mp3" data-start="12.28" data-duration="0.4" data-track-index="13" data-volume="0.18"></audio>
+      <audio id="s-p3" src="assets/sfx/key-press.mp3" data-start="12.64" data-duration="0.3" data-track-index="16" data-volume="0.2"></audio>
+      <audio id="s-full" src="assets/sfx/error.mp3" data-start="12.94" data-duration="0.66" data-track-index="13" data-volume="0.26"></audio>
+      <audio id="s-whip4" src="assets/sfx/whoosh-short.mp3" data-start="13.3" data-duration="0.57" data-track-index="12" data-volume="0.22"></audio>
+      <audio id="s-curious" src="assets/sfx/ping.mp3" data-start="14.08" data-duration="0.9" data-track-index="16" data-volume="0.14"></audio>
+      <audio id="s-drop" src="assets/sfx/impact-bass-2.mp3" data-start="18.14" data-duration="1.5" data-track-index="14" data-volume="0.42"></audio>
+      <audio id="s-cards" src="assets/sfx/swoosh.mp3" data-start="18.5" data-duration="0.8" data-track-index="12" data-volume="0.16"></audio>
+      <audio id="s-whip5" src="assets/sfx/whip.mp3" data-start="20.9" data-duration="0.6" data-track-index="12" data-volume="0.26"></audio>
+      <audio id="s-xpfill" src="assets/sfx/battle-exp-fill.wav" data-start="21.12" data-duration="1.2" data-track-index="15" data-volume="0.26"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.26},{"t":1.05,"v":0.26},{"t":1.2,"v":0}]}]}'></audio>
+      <audio id="s-xpfull" src="assets/sfx/battle-exp-full.wav" data-start="22.32" data-duration="0.58" data-track-index="17" data-volume="0.28"></audio>
+      <audio id="s-shockg" src="assets/sfx/glitch-3.mp3" data-start="25.02" data-duration="0.6" data-track-index="16" data-volume="0.2"></audio>
+    </div>
+
+    <script>
+      // ---------- deterministic helpers ----------
+      function rng(seed) {
+        let a = seed >>> 0;
+        return function () {
+          a |= 0; a = (a + 0x6d2b79f5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      // 5x7 Minecraft-style pixel font
+      const G = {
+        A:"01110100011000111111100011000110001",B:"11110100011000111110100011000111110",C:"01110100011000010000100001000101110",
+        D:"11110100011000110001100011000111110",E:"11111100001000011110100001000011111",F:"11111100001000011110100001000010000",
+        G:"01111100001000010011100011000101111",H:"10001100011000111111100011000110001",I:"11111001000010000100001000010011111",
+        J:"00111000010000100001100011000101110",K:"10001100101010011000101001001010001",L:"10000100001000010000100001000011111",
+        M:"10001110111010110101100011000110001",N:"10001110011010110011100011000110001",O:"01110100011000110001100011000101110",
+        P:"11110100011000111110100001000010000",Q:"01110100011000110001101011001001101",R:"11110100011000111110101001001010001",
+        S:"01111100001000001110000010000111110",T:"11111001000010000100001000010000100",U:"10001100011000110001100011000101110",
+        V:"10001100011000110001100010101000100",W:"10001100011000110101101011101110001",X:"10001100010101000100010101000110001",
+        Y:"10001100010101000100001000010000100",Z:"11111000010001000100010001000011111",
+        "0":"01110100011001110101110011000101110","1":"00100011000010000100001000010011111","2":"01110100010000100110010001000011111",
+        "3":"01110100010000100110000011000101110","4":"00010001100101010010111110001000010","5":"11111100001111000001000011000101110",
+        "6":"00110010001000011110100011000101110","7":"11111000010001000100010000100001000","8":"01110100011000101110100011000101110",
+        "9":"01110100011000101111000010001001100","+":"00000001000010011111001000010000000","!":"00100001000010000100001000000000100",
+        "?":"01110100010000100110001000000000100","'":"00100001000100000000000000000000000",".":"00000000000000000000000000000000100",
+        "-":"00000000000000011111000000000000000",":":"00000001000000000000000000010000000","/":"00001000100001000100010000100010000",
+        "#":"01010111110101001010111110101000000",",":"00000000000000000000001000010001000"
+      };
+      function glyphCells(text) {
+        const chars = text.toUpperCase().split(""), widths = chars.map((c) => (c === " " ? 3 : 5));
+        const cols = widths.reduce((s, w) => s + w + 1, -1), cells = [];
+        let cx = 0;
+        chars.forEach((c, i) => {
+          const g = G[c];
+          if (g) for (let r = 0; r < 7; r++) for (let k = 0; k < 5; k++) if (g[r * 5 + k] === "1") cells.push([cx + k, r]);
+          cx += widths[i] + 1;
+        });
+        return { cells, cols };
+      }
+      // flat pixel text with outline + drop shadow
+      function pix(text, ps, fill, o = {}) {
+        const out = o.outline ?? Math.round(ps * 0.45), sh = o.shadow ?? ps, shc = o.shadowColor || "rgba(0,0,0,.45)";
+        const { cells, cols } = glyphCells(text);
+        const cv = document.createElement("canvas");
+        cv.width = cols * ps + out * 2 + sh; cv.height = 7 * ps + out * 2 + sh;
+        const ctx = cv.getContext("2d"), at = (x, y) => [out + x * ps, out + y * ps];
+        ctx.fillStyle = shc; cells.forEach(([x, y]) => { const [px, py] = at(x, y); ctx.fillRect(px + sh - out, py + sh - out, ps + out * 2, ps + out * 2); });
+        ctx.fillStyle = o.outlineColor || "#000"; if (out) cells.forEach(([x, y]) => { const [px, py] = at(x, y); ctx.fillRect(px - out, py - out, ps + out * 2, ps + out * 2); });
+        cells.forEach(([x, y]) => { const [px, py] = at(x, y); ctx.fillStyle = Array.isArray(fill) ? (y < 4 ? fill[0] : fill[1]) : fill; ctx.fillRect(px, py, ps, ps); });
+        return cv;
+      }
+      // 3D extruded pixel text (title)
+      function pix3d(text, ps, front, side, depth) {
+        const out = Math.round(ps * 0.35), { cells, cols } = glyphCells(text);
+        const cv = document.createElement("canvas");
+        cv.width = cols * ps + out * 2 + depth + 6; cv.height = 7 * ps + out * 2 + depth + 6;
+        const ctx = cv.getContext("2d");
+        for (let d = depth; d >= 1; d--) {
+          ctx.fillStyle = d === depth ? "#000" : side;
+          cells.forEach(([x, y]) => ctx.fillRect(x * ps + d, y * ps + d, ps + out * 2, ps + out * 2));
+        }
+        ctx.fillStyle = "#000"; cells.forEach(([x, y]) => ctx.fillRect(x * ps, y * ps, ps + out * 2, ps + out * 2));
+        cells.forEach(([x, y]) => { ctx.fillStyle = y < 3 ? front[0] : y < 5 ? front[1] : front[2]; ctx.fillRect(out + x * ps, out + y * ps, ps, ps); });
+        ctx.fillStyle = "rgba(255,255,255,.35)"; cells.forEach(([x, y]) => { if (y === 0) ctx.fillRect(out + x * ps, out + y * ps, ps, Math.round(ps * 0.3)); });
+        return cv;
+      }
+      const PAL = { K:"#111", R:"#e2231a", W:"#fff", D:"#4ee6e0", H:"#8a5a2b", h:"#5e3b1a", G:"#3cc43c", Y:"#ffd400", y:"#e09a00",
+        B:"#3a3a3a", b:"#5b5b5b", S:"#a8a8a8", N:"#5d9e2f", n:"#3f7a1d", M:"#866043", m:"#5f4128", L:"#c8c8c8", g:"rgba(150,220,255,.22)", C:"#8f8f8f", c:"#6b6b6b" };
+      const ICON = {
+        sword:["..........DD",".........DDD","........DDD.",".......DDD..","......DDD...",".....DDD....","H...DDD.....",".H.DDD......","..HHD.......","..HH........",".H..H.......","H..........."],
+        // sky gen: floating island with a cobble generator (lava + water)
+        skygen:["............","..C.....D...","..CcRR.DD...",".NNCcRDDNN..","NNNNNNNNNNN.","nnnnnnnnnnn.",".MMMMMMMMM..","..MMmMMMM...","...mMMMm....","....MMM.....",".....m......","......M....."],
+        bars:["S..S..S..S..","S..S..S..S..","SSSSSSSSSSSS","S..S..S..S..","S..S..S..S..","S..S..S..S..","S..S..S..S..","SSSSSSSSSSSS","S..S..S..S..","S..S..S..S..","S..S..S..S..","S..S..S..S.."],
+        crown:["Y....Y....Y.","YY..YYY..YY.","YYY.YYY.YYY.","YYYYYYYYYYY.","YYRYYYYYRYY.","YYYYYYYYYYY.","yyyyyyyyyyy.","............"],
+        mag:["....KKKKKK......","..KKLLLLLLKK....",".KLLggggggLLK...",".KLgWWgggggLK...","KLgWWgggggggLK..","KLgWgggggggggLK.","KLgggggggggggLK.","KLgggggggggggLK.",
+             "KLgggggggggggLK.",".KLgggggggggLK..",".KLLgggggggLLK..","..KKLLLLLLLKHH..","....KKKKKKKHHHH.","...........HHHHH","............HHHH",".............HH."],
+      };
+      function icon(name, ps) {
+        const m = ICON[name], cv = document.createElement("canvas");
+        cv.width = m[0].length * ps; cv.height = m.length * ps;
+        const ctx = cv.getContext("2d");
+        m.forEach((row, y) => row.split("").forEach((ch, x) => { if (ch !== ".") { ctx.fillStyle = PAL[ch]; ctx.fillRect(x * ps, y * ps, ps, ps); } }));
+        return cv;
+      }
+      // procedural player head (8x8 Steve-style face from a seed)
+      function head(seed, size) {
+        const r = rng(seed), cv = document.createElement("canvas"); cv.width = size; cv.height = size;
+        const ctx = cv.getContext("2d"), p = size / 8;
+        const hh = (r() * 360) | 0, hair = `hsl(${hh},${25 + r() * 45}%,${14 + r() * 30}%)`;
+        const skin = ["#c99a76", "#a4724f", "#e0b48f", "#6e4a32", "#f1c8a4"][(r() * 5) | 0], eye = `hsl(${(r() * 360) | 0},65%,45%)`;
+        for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) {
+          let c = skin;
+          if (y < 2 || (y === 2 && (x === 0 || x === 7))) c = hair;
+          if (y === 4 && (x === 1 || x === 6)) c = "#fff";
+          if (y === 4 && (x === 2 || x === 5)) c = eye;
+          if (y === 6 && (x === 3 || x === 4)) c = "#6a3e2c";
+          ctx.fillStyle = c; ctx.fillRect(x * p, y * p, p, p);
+          ctx.fillStyle = `rgba(0,0,0,${r() * 0.12})`; ctx.fillRect(x * p, y * p, p, p);
+        }
+        return cv;
+      }
+      function tex(cv, type, seed, w, h, ps = 8) {
+        cv.width = w; cv.height = h;
+        const ctx = cv.getContext("2d"), r = rng(seed), cl = (v) => Math.max(0, Math.min(255, v | 0));
+        const per = Math.max(1, Math.round(96 / ps));
+        for (let cy = 0; cy * ps < h; cy++) for (let cx = 0; cx * ps < w; cx++) {
+          const bx = cx % per, by = cy % per, n = r();
+          let c;
+          if (type === "stone") { const d = n * 36 - 18 - (r() < 0.08 ? 35 : 0); c = [125 + d, 125 + d, 125 + d]; }
+          else if (type === "sky") { const d = n * 12; c = [80 + d, 130 + d, 215 + d]; }
+          else if (type === "netherbrick") { let d = n * 24 - 12; if (by % 3 === 2 || bx === ((Math.floor(by / 3) % 2) ? 2 : 5)) d -= 30; c = [80 + d, 30 + d, 34 + d]; }
+          else if (type === "portal") { const s = Math.sin((cx + cy * 0.6) * 0.9 + Math.cos(cy * 0.7) * 2) * 30, d = n * 30 - 15 + s; c = [120 + d, 45 + d * 0.4, 215 + d]; }
+          else if (type === "cork") { const d = n * 34 - 17 - (r() < 0.12 ? 26 : 0); c = [92 + d, 64 + d * 0.8, 40 + d * 0.6]; }
+          else { const top = by < Math.ceil(per / 4) || (by === Math.ceil(per / 4) && r() < 0.5), d = n * 30 - 15; c = top ? [93 + d, 155 + d, 47 + d] : [134 + d, 96 + d, 67 + d]; }
+          ctx.fillStyle = `rgb(${cl(c[0])},${cl(c[1])},${cl(c[2])})`;
+          ctx.fillRect(cx * ps, cy * ps, ps, ps);
+        }
+        return cv;
+      }
+      // portal "realm block" with a dark bevel
+      function realmBlock(size, seed) {
+        const cv = document.createElement("canvas"); tex(cv, "portal", seed, size, size, size / 12);
+        const ctx = cv.getContext("2d"), b = size / 12;
+        ctx.fillStyle = "rgba(0,0,0,.45)"; ctx.fillRect(0, size - b, size, b); ctx.fillRect(size - b, 0, b, size);
+        ctx.fillStyle = "rgba(255,255,255,.22)"; ctx.fillRect(0, 0, size, b); ctx.fillRect(0, 0, b, size);
+        ctx.strokeStyle = "#0b0614"; ctx.lineWidth = b * 0.6; ctx.strokeRect(b * 0.3, b * 0.3, size - b * 0.6, size - b * 0.6);
+        return cv;
+      }
+      const $ = (id) => document.getElementById(id);
+      const put = (id, el) => { $(id).appendChild(el); return el; };
+      const mk = (cls, html) => { const d = document.createElement("div"); if (cls) d.className = cls; if (html != null) d.innerHTML = html; return d; };
+      const PURPLE = ["#e3d0ff", "#b48cff"], GOLD = ["#ffe56b", "#ffb300"], RED = ["#ff5a4e", "#d1170d"], WHITE = ["#ffffff", "#d6d6d6"];
+
+      // ---------- build static art ----------
+      // film grain tile
+      { const cv = document.createElement("canvas"); cv.width = 256; cv.height = 256; const ctx = cv.getContext("2d"), r = rng(7);
+        for (let y = 0; y < 256; y += 2) for (let x = 0; x < 256; x += 2) { const v = (r() * 255) | 0; ctx.fillStyle = `rgb(${v},${v},${v})`; ctx.fillRect(x, y, 2, 2); }
+        $("grain-el").style.backgroundImage = `url(${cv.toDataURL()})`; }
+
+      // A
+      put("kw-mc", pix("MINECRAFT", 8, WHITE, { shadow: 7 }));
+      { const rb = realmBlock(132, 3); rb.id = "a-rb"; put("kw-realms", rb); put("kw-realms", pix("REALMS", 18, PURPLE, { shadow: 14, outlineColor: "#14062a" })); }
+      const ECG_T0 = 0.2, ECG_T1 = 2.9, xAt = (t) => ((t - ECG_T0) / (ECG_T1 - ECG_T0)) * 1680;
+      { const cv = $("a-ecg"); cv.width = 1680; cv.height = 300; const ctx = cv.getContext("2d");
+        const base = 150, beats = [[xAt(0.64), 0.5], [xAt(1.44), 1], [xAt(2.0), 1]];
+        ctx.strokeStyle = "#6dffb0"; ctx.lineWidth = 7; ctx.lineJoin = "round"; ctx.shadowColor = "rgba(80,255,170,.9)"; ctx.shadowBlur = 18;
+        ctx.beginPath(); ctx.moveTo(0, base);
+        beats.forEach(([x, k]) => { ctx.lineTo(x - 40, base); ctx.lineTo(x - 26, base - 18 * k); ctx.lineTo(x - 14, base); ctx.lineTo(x - 6, base + 22 * k);
+          ctx.lineTo(x + 4, base - 120 * k); ctx.lineTo(x + 16, base + 60 * k); ctx.lineTo(x + 26, base); ctx.lineTo(x + 48, base - 24 * k); ctx.lineTo(x + 66, base); });
+        ctx.lineTo(1680, base); ctx.stroke(); }
+      { const t = mk("tag"); t.style.borderColor = "rgba(80,255,170,.6)"; t.appendChild(pix("STILL GOING?", 13, ["#c8ffe3", "#6dffb0"], { shadow: 11 })); put("kw-still", t); }
+
+      // B: heads + folder
+      const HEADS = 5, HS = 120;
+      for (let i = 0; i < HEADS; i++) { const h = head(40 + i * 11, HS); h.className = "head"; h.id = "bh" + i; h.style.left = (960 + (i - 2) * 160 - HS / 2) + "px"; h.style.top = "150px"; $("b-heads").appendChild(h); }
+      put("b-crown", icon("crown", 9));
+      { const t = mk("tag"); t.appendChild(pix("HOSTING", 8, GOLD, { shadow: 7 })); put("kw-host", t); }
+      put("b-stamp", pix("SECRET", 14, RED, { shadow: 0, outline: 0 }));
+      put("kw-modes", pix("GAME MODES", 13, ["#3a2a0c", "#1a1206"], { shadow: 0, outline: 0 }));
+
+      // C: game-mode carousel
+      const MODES = [["SKY GEN", "skygen", "sky", 6.32], ["KIT PVP", "sword", "netherbrick", 7.36], ["PRISONS", "bars", "stone", 8.88]];
+      const SPACING = 640;
+      MODES.forEach(([lab, ic, bg], i) => {
+        const c = mk("mcard"); c.id = "mc" + i; c.style.left = i * SPACING + "px";
+        const bgc = document.createElement("canvas"); bgc.className = "bgt"; tex(bgc, bg, 300 + i, 560, 660, 20); c.appendChild(bgc);
+        c.appendChild(mk("shade"));
+        { const v = $("v-mc" + i); c.insertBefore(v, c.querySelector(".shade")); bgc.style.display = "none"; }
+        const art = mk("art"); art.appendChild(icon(ic, 26)); c.appendChild(art);
+        const lb = mk("lab"); lb.appendChild(pix(lab, 11, WHITE, { shadow: 9 })); c.appendChild(lb);
+        c.appendChild(mk("num", "SECRET MODE " + (i + 1) + "/3"));
+        const e = mk("edge"); e.id = "mce" + i; c.appendChild(e);
+        $("c-track").appendChild(c);
+      });
+      put("kw-cat", pix("SECRET GAME MODES", 7, PURPLE, { shadow: 6 }));
+      { const t = mk("tag"); t.style.borderColor = "rgba(255,212,0,.7)"; t.appendChild(pix("EVEN...", 10, GOLD, { shadow: 8 })); put("kw-even", t); }
+
+      // D: limited
+      put("d-block", realmBlock(360, 11));
+      put("kw-realmsrv", pix("REALM SERVER", 9, PURPLE, { shadow: 8 }));
+      ["d-tape1", "d-tape2"].forEach((id) => { for (let i = 0; i < 9; i++) { const l = mk("tl"); l.appendChild(pix("LIMITED", 6, "#151515", { shadow: 0, outline: 0 })); put(id, l); } });
+      put("kw-limited", pix("LIMITED", 20, GOLD, { shadow: 16, outlineColor: "#1a1000" }));
+
+      // E: ten player slots
+      put("kw-max", pix("MAX PLAYERS", 11, WHITE, { shadow: 9 }));
+      const SLOT = 150, GAP = 30, GX = 960 - (5 * SLOT + 4 * GAP) / 2;
+      for (let i = 0; i < 10; i++) {
+        const x = GX + (i % 5) * (SLOT + GAP), y = 330 + Math.floor(i / 5) * (SLOT + GAP);
+        const s = mk("pslot"); Object.assign(s.style, { left: x + "px", top: y + "px" }); $("e-grid").appendChild(s);
+        const h = head(200 + i * 17, 120); h.className = "head"; h.id = "eh" + i; Object.assign(h.style, { left: x + 15 + "px", top: y + 15 + "px", opacity: 0 }); $("e-grid").appendChild(h);
+      }
+      { const h = head(999, 120); h.className = "head"; h.id = "eh10"; Object.assign(h.style, { left: "1560px", top: "420px", opacity: 0 }); $("e-grid").appendChild(h); }
+      put("e-full", pix("FULL", 22, RED, { shadow: 0, outline: 0 }));
+      put("e-x", pix("X", 20, RED, { shadow: 10 }));
+
+      // F: detective board
+      tex($("f-cork"), "cork", 77, 2000, 1160, 10);
+      const POLS = [[210, 170, -5], [760, 120, 3], [1300, 190, -2]];
+      POLS.forEach(([x, y, r], i) => {
+        const p = mk("pol"); p.id = "pl" + i; p.setAttribute("data-layout-allow-occlusion", ""); Object.assign(p.style, { left: x + "px", top: y + "px", transform: `rotate(${r}deg)` });
+        const s = mk("slot"); s.style.border = "none"; s.appendChild($("v-pl" + i)); p.appendChild(s);
+        p.appendChild(mk("cap", "REALM #?")); p.appendChild(mk("pin"));
+        $("f-pols").appendChild(p);
+      });
+      { const pins = POLS.map(([x, y]) => [x + 210, y + 2]), svg = $("f-strings");
+        [[0, 1], [1, 2], [0, 2]].forEach(([a, b], i) => {
+          const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          const [x1, y1] = pins[a], [x2, y2] = pins[b], len = Math.hypot(x2 - x1, y2 - y1);
+          Object.entries({ x1, y1, x2, y2, stroke: "#e2231a", "stroke-width": 6, "stroke-dasharray": len, "stroke-dashoffset": len, id: "fs" + i }).forEach(([k, v]) => l.setAttribute(k, v));
+          l.dataset.len = len; svg.appendChild(l);
+        }); }
+      [[640, 230], [1210, 160], [1730, 280]].forEach(([x, y], i) => { const q = pix("?", 12, PURPLE, { shadow: 10 }); q.className = "abs"; q.id = "fq" + i; Object.assign(q.style, { left: x + "px", top: y + "px", opacity: 0 }); $("f-qs").appendChild(q); });
+      { const t = mk("tag"); t.appendChild(pix("WHAT'S REALLY GOING ON?", 9, WHITE, { shadow: 8 })); put("kw-going", t); }
+      put("kw-bedrock", pix("BEDROCK EDITION", 11, GOLD, { shadow: 10 }));
+      put("kw-realms2", pix("REALMS", 14, PURPLE, { shadow: 12, outlineColor: "#14062a" }));
+      put("f-mag", icon("mag", 20));
+
+      // G: case file
+      $("g-type").appendChild(pix("CASE FILE: BEDROCK REALMS", 9, ["#f3ead2", "#d9b86a"], { shadow: 8 }));
+      for (let i = 0; i < 5; i++) {
+        const c = mk("fcard"); c.id = "gc" + i; c.style.left = (960 + (i - 2) * 310 - 140) + "px";
+        c.appendChild(mk("clip-bar"));
+        c.appendChild(pix("#" + (5 - i), 14, ["#2a1d08", "#2a1d08"], { shadow: 0, outline: 0 }));
+        c.appendChild(realmBlock(110, 20 + i));
+        c.appendChild(pix("???", 9, RED, { shadow: 0, outline: 0 }));
+        $("g-cards").appendChild(c);
+      }
+      put("g-stamp", pix("INVESTIGATING", 12, RED, { shadow: 0, outline: 0 }));
+      put("g-mag", icon("mag", 16));
+
+      // H: watch to the end
+      put("kw-watch", pix("WATCH TO THE...", 9, WHITE, { shadow: 8 }));
+      put("kw-end", pix("VERY END!", 15, GOLD, { shadow: 12 }));
+
+      // I: title
+      put("i-top", pix3d("TOP 5", 50, ["#fff3a6", "#ffd23a", "#ff9d00"], "#7a3b00", 36));
+      put("i-sub", pix3d("BEDROCK REALMS", 18, ["#ffffff", "#efe3ff", "#c9a8ff"], "#3a1a6a", 16));
+      { const t = mk("tag"); t.appendChild(pix("TRUST ME...", 10, WHITE, { shadow: 8 })); put("i-trust", t); }
+      put("i-shock", pix("YOU'LL BE SHOCKED!", 13, RED, { shadow: 12 }));
+
+      // ---------- timeline ----------
+      const tl = gsap.timeline({ paused: true });
+      const pop = (sel, t, from = 1.6, dur = 0.3) => tl.fromTo(sel, { scale: from, opacity: 0 }, { scale: 1, opacity: 1, duration: dur, ease: "back.out(2.2)" }, t);
+      const out = (sel, t, dur = 0.18) => tl.to(sel, { opacity: 0, duration: dur, ease: "power1.in" }, t);
+      const whip = (sel, t) => tl.fromTo(sel, { x: 1920 }, { x: 0, duration: 0.25, ease: "power3.out" }, t);
+      const stamp = (sel, t, rot) => tl.fromTo(sel, { scale: 2.6, opacity: 0, rotation: rot - 8 }, { scale: 1, opacity: 0.95, rotation: rot, duration: 0.16, ease: "power4.in" }, t);
+      const shake = (t, amp = 14, n = 6) => {
+        for (let i = 0; i < n; i++) tl.to("#shake", { x: (i % 2 ? -1 : 1) * amp * (1 - i / n), y: ((i % 3) - 1) * amp * 0.6 * (1 - i / n), duration: 0.035, ease: "none" }, t + i * 0.035);
+        tl.to("#shake", { x: 0, y: 0, duration: 0.05 }, t + n * 0.035);
+      };
+      const glitch = (el, t0) => {
+        tl.set(el, { background: "linear-gradient(180deg, rgba(180,60,255,.38) 0 18%, transparent 18% 40%, rgba(0,220,255,.35) 40% 52%, transparent 52% 78%, rgba(255,255,255,.25) 78% 84%, transparent 84%)" }, t0);
+        [0, 0.07, 0.14, 0.21, 0.28].forEach((d, i) => tl.set(el, { y: [0, -80, 60, -30, 120][i], opacity: [1, 0.6, 1, 0.4, 0][i] }, t0 + d));
+      };
+
+      // global: dot drift, flashlight wander, grain jitter
+      tl.fromTo("#dots-el", { x: 0, y: 0 }, { x: -48, y: -192, duration: 27.6, ease: "none" }, 0);
+      tl.fromTo("#spot-el", { x: -420, y: -120 }, { x: 380, y: 90, duration: 9, ease: "sine.inOut" }, 0);
+      tl.to("#spot-el", { x: -260, y: 160, duration: 9, ease: "sine.inOut" }, 9);
+      tl.to("#spot-el", { x: 0, y: -60, duration: 9.6, ease: "sine.inOut" }, 18);
+      { const r = rng(5); for (let i = 0; i < 27.6 * 12; i++) tl.set("#grain-el", { x: -((r() * 128) | 0), y: -((r() * 128) | 0) }, i / 12); }
+
+      // A: realms + heartbeat
+      pop("#kw-mc", 0.02, 1.8);
+      pop("#kw-realms", 0.64, 1.9, 0.32);
+      tl.fromTo("#a-mon", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }, 0.1);
+      tl.fromTo("#a-ecg-wrap", { width: 0 }, { width: 1680, duration: ECG_T1 - ECG_T0, ease: "none" }, ECG_T0);
+      tl.fromTo("#a-cur", { x: 0 }, { x: 1680, duration: ECG_T1 - ECG_T0, ease: "none" }, ECG_T0);
+      [1.44, 2.0].forEach((t) => { tl.to("#a-rb", { scale: 1.18, duration: 0.07, yoyo: true, repeat: 1, ease: "power2.out" }, t);
+        tl.set("#a-mon", { borderColor: "#6dffb0" }, t); tl.to("#a-mon", { borderColor: "#2a2140", duration: 0.4 }, t + 0.02); });
+      pop("#kw-still", 2.0, 1.8);
+      tl.to("#kw-realms", { y: -8, duration: 2, ease: "sine.inOut" }, 1.0);
+      // B: glitch cut, players host, SECRET stamp
+      glitch("#glitch-el", 3.04);
+      [0, 0.07, 0.14, 0.21].forEach((d, i) => tl.set("#sB-in", { x: [24, -30, 12, 0][i] }, 3.04 + d));
+      tl.fromTo("#b-folder", { y: 700, rotation: 4 }, { y: 0, rotation: -1, duration: 0.5, ease: "back.out(1.4)" }, 3.1);
+      for (let i = 0; i < HEADS; i++) tl.fromTo("#bh" + i, { y: -260, opacity: 0 }, { y: 0, opacity: 1, duration: 0.28, ease: "back.out(2)" }, 3.92 + i * 0.06);
+      tl.fromTo("#b-crown", { y: -200, opacity: 1 }, { y: 0, opacity: 1, duration: 0.3, ease: "bounce.out" }, 4.4);
+      pop("#kw-host", 4.42, 1.8);
+      stamp("#b-stamp", 4.88, -9); shake(5.02, 14);
+      pop("#kw-modes", 5.28, 1.6);
+      tl.to("#b-folder", { scale: 1.05, duration: 0.8, ease: "power1.out" }, 5.1);
+      // C: carousel, card snaps in on each spoken word
+      tl.set("#c-track", { rotationY: -14, rotationX: 6 }, 5.96);
+      tl.fromTo("#c-track", { x: 1400 }, { x: 0, duration: 0.3, ease: "power3.out" }, 5.96);
+      pop("#kw-cat", 6.04, 1.4);
+      MODES.forEach((m, i) => {
+        const t = m[3], at = Math.max(5.96, t - 0.16);
+        if (i > 0) tl.to("#c-track", { x: -i * SPACING, duration: 0.3, ease: "power3.inOut" }, at);
+        MODES.forEach((_, j) => tl.to("#mc" + j, { scale: j === i ? 1.08 : 0.82, opacity: j === i ? 1 : 0.45, z: j === i ? 60 : 0, duration: 0.3, ease: "power3.out" }, at));
+        tl.to("#mce" + i, { opacity: 1, duration: 0.15 }, t);
+        if (i < MODES.length - 1) tl.to("#mce" + i, { opacity: 0, duration: 0.15 }, MODES[i + 1][3] - 0.16);
+      });
+      tl.to("#c-track", { rotationY: -4, duration: 3.4, ease: "none" }, 6.0);
+      pop("#kw-even", 8.56, 1.8);
+      tl.to("#mc2", { scale: 1.16, duration: 0.5, ease: "power1.out" }, 8.94);
+      // D: limited
+      whip("#sD-in", 9.44);
+      tl.fromTo("#d-block", { rotation: -4, y: 20 }, { rotation: 3, y: -10, duration: 1.96, ease: "sine.inOut" }, 9.44);
+      pop("#kw-realmsrv", 9.6, 1.5);
+      tl.fromTo("#d-wall-l", { x: 0 }, { x: 500, duration: 0.22, ease: "power3.in" }, 9.86);
+      tl.fromTo("#d-wall-r", { x: 0 }, { x: -500, duration: 0.22, ease: "power3.in" }, 9.86);
+      tl.to("#d-block", { scale: 0.74, duration: 0.25, ease: "back.out(2)" }, 10.06);
+      tl.fromTo("#d-tape1", { x: -3600 }, { x: -700, duration: 0.3, ease: "power3.out" }, 10.0);
+      tl.fromTo("#d-tape2", { x: 1920 }, { x: -900, duration: 0.3, ease: "power3.out" }, 10.1);
+      pop("#kw-limited", 10.0, 2.4, 0.3); shake(10.08, 14);
+      tl.to(["#d-tape1", "#d-tape2"], { x: "-=120", duration: 1.0, ease: "none" }, 10.4);
+      // E: ten players
+      whip("#sE-in", 11.4);
+      pop("#kw-max", 11.5, 1.6);
+      for (let i = 0; i < 10; i++) tl.fromTo("#eh" + i, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.18, ease: "back.out(2.6)" }, 11.92 + i * 0.08);
+      const pc = { v: 0 };
+      tl.fromTo(pc, { v: 0 }, { v: 10, duration: 0.72, ease: "none", onUpdate: () => { $("e-num").textContent = Math.round(pc.v) + "/10"; } }, 11.92);
+      tl.to("#e-count", { scale: 1.14, duration: 0.08, yoyo: true, repeat: 1 }, 12.64);
+      stamp("#e-full", 12.96, 8); shake(13.1, 9);
+      tl.fromTo("#eh10", { x: 500, opacity: 1 }, { x: 0, opacity: 1, duration: 0.14, ease: "power2.out" }, 12.98);
+      tl.to("#eh10", { x: 420, rotation: 40, opacity: 0, duration: 0.25, ease: "power2.in" }, 13.14);
+      tl.fromTo("#e-x", { scale: 2, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.12 }, 13.12);
+      out("#e-x", 13.28, 0.1);
+      // F: detective board
+      whip("#sF-in", 13.4);
+      tl.fromTo("#f-board", { scale: 1 }, { scale: 1.08, duration: 4.5, ease: "none" }, 13.4);
+      POLS.forEach((_, i) => tl.fromTo("#pl" + i, { y: -700 }, { y: 0, duration: 0.3, ease: "back.out(1.4)" }, 13.42 + i * 0.05));
+      [0, 1, 2].forEach((i) => { const l = $("fs" + i); tl.fromTo(l, { attr: { "stroke-dashoffset": l.dataset.len } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.4, ease: "power1.inOut" }, 13.8 + i * 0.15); });
+      [0, 1, 2].forEach((i) => pop("#fq" + i, 14.08 + i * 0.06, 2));
+      tl.fromTo("#f-mag", { x: 1650, y: 760 }, { x: 330, y: 160, duration: 1.0, ease: "power2.inOut" }, 13.6);
+      tl.to("#f-mag", { x: 880, y: 110, duration: 0.9, ease: "power1.inOut" }, 14.7);
+      tl.to("#f-mag", { x: 1420, y: 200, duration: 0.9, ease: "power1.inOut" }, 15.6);
+      tl.to("#f-mag", { x: 1500, y: 470, scale: 1.25, duration: 1.2, ease: "power1.inOut" }, 16.5);
+      pop("#kw-going", 14.64, 1.6);
+      out("#kw-going", 16.38, 0.12);
+      pop("#kw-bedrock", 16.48, 1.8);
+      pop("#kw-realms2", 17.52, 2.0, 0.26);
+      tl.to("#sF-in", { filter: "brightness(0.6)", duration: 1.2, ease: "power1.in" }, 16.7);
+      // G: DROP — case file
+      tl.fromTo("#g-type", { width: 0 }, { width: 1400, duration: 0.7, ease: "steps(25)" }, 18.22);
+      for (let i = 0; i < 5; i++) tl.fromTo("#gc" + i, { y: 800, rotation: (i - 2) * 10 }, { y: Math.abs(i - 2) * 22, rotation: (i - 2) * 3, duration: 0.42, ease: "back.out(1.5)" }, 18.4 + i * 0.07);
+      stamp("#g-stamp", 19.68, -5); shake(19.8, 16);
+      tl.fromTo("#g-mag", { x: 160, y: 300, opacity: 0 }, { x: 260, y: 300, opacity: 1, duration: 0.2 }, 19.95);
+      tl.to("#g-mag", { x: 1500, y: 280, duration: 0.8, ease: "power1.inOut" }, 20.16);
+      for (let i = 0; i < 5; i++) tl.to("#gc" + i, { y: "-=26", duration: 0.12, yoyo: true, repeat: 1, ease: "power2.out" }, 20.1 + i * 0.17);
+      // H: progress bar races to the end
+      whip("#sH-in", 21.0);
+      pop("#kw-watch", 21.06, 1.5);
+      tl.fromTo("#h-fill", { width: 0 }, { width: 1200, duration: 1.22, ease: "power1.in" }, 21.1);
+      tl.fromTo("#h-dot", { x: 0 }, { x: 1200, duration: 1.22, ease: "power1.in" }, 21.1);
+      const tc = { v: 0 };
+      tl.fromTo(tc, { v: 0 }, { v: 900, duration: 1.22, ease: "power1.in", onUpdate: () => { const s = Math.round(tc.v); $("h-time").textContent = Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0") + " / 15:00"; } }, 21.1);
+      out("#kw-watch", 22.1, 0.08);
+      pop("#kw-end", 22.16, 2.2, 0.26);
+      tl.to("#h-dot", { scale: 1.6, duration: 0.08, yoyo: true, repeat: 1 }, 22.32);
+      // I: title slam
+      tl.fromTo("#i-top", { scale: 3.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "power4.out" }, 22.64); shake(22.68, 22, 8);
+      tl.fromTo("#i-rays", { rotation: 0, scale: 0.8 }, { rotation: 45, scale: 1.1, duration: 4.96, ease: "none" }, 22.64);
+      tl.fromTo("#i-sub", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.28, ease: "back.out(2)" }, 22.78);
+      pop("#i-trust", 22.96, 1.6);
+      tl.fromTo("#i-pill", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.3 }, 23.3);
+      tl.to("#i-top", { y: -12, duration: 2.2, ease: "sine.inOut", yoyo: true, repeat: 1 }, 23.0);
+      out("#i-trust", 24.94, 0.1);
+      glitch("#glitch2-el", 25.04);
+      pop("#i-shock", 25.04, 2.4, 0.3); shake(25.06, 20, 8);
+      tl.fromTo("#i-shock", { rotation: -3 }, { rotation: 2, duration: 0.45, ease: "sine.inOut", yoyo: true, repeat: 3, immediateRender: false }, 25.36);
+      // flashes / fades
+      tl.fromTo("#flash1-el", { opacity: 0.95 }, { opacity: 0, duration: 0.38, ease: "power2.out" }, 18.16);
+      tl.fromTo("#flash2-el", { opacity: 1 }, { opacity: 0, duration: 0.42, ease: "power2.out" }, 22.64);
+      tl.fromTo("#endfade-el", { opacity: 0 }, { opacity: 1, duration: 0.55, ease: "power1.in" }, 27.02);
+
+      // scenes holding gameplay <video>s can't be timed elements themselves, so the timeline shows/hides them
+      tl.set("#sC", { visibility: "visible" }, 5.96); tl.set("#sC", { visibility: "hidden" }, 9.44);
+      tl.set("#sF", { visibility: "visible" }, 13.4); tl.set("#sF", { visibility: "hidden" }, 17.9);
+      tl.set("#sH", { visibility: "visible" }, 21.0); tl.set("#sH", { visibility: "hidden" }, 22.64);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

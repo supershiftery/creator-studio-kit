@@ -1,0 +1,39 @@
+{
+  "id": "P17",
+  "name": "Sticky-Note Plan",
+  "blurb": "A whiteboard 'money plan': every scene sits on a whiteboard with a yellow sticky note in the corner carrying the line's key word in marker, a red marker arrow drawn to it; after the turn the notes turn green; each line is its own literal scene with your clips; title written in marker.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "raid-dens", "label": "RAID DENS", "short": "RAID DENS",
+    "start": 12.88, "end": 14.0, "hit": 12.88,
+    "colors": ["#e2b4ff", "#a85cff"], "texture": "amethyst", "check": true,
+    "footage": null,
+    "images": []
+  },
+  {
+    "id": "trading-systems", "label": "TRADING SYSTEMS", "short": "TRADING",
+    "start": 14.0, "end": 15.12, "hit": 14.0,
+    "colors": ["#a6ff8a", "#2fbf3a"], "texture": "planks", "check": true,
+    "footage": null,
+    "images": []
+  },
+  {
+    "id": "gym-leaders", "label": "GYM LEADERS", "short": "GYM LEADERS",
+    "start": 15.12, "end": 18.0, "hit": 15.68,
+    "colors": ["#ffe14a", "#ffb400"], "texture": "bricks", "check": true,
+    "footage": null,
+    "images": [
+      { "src": "assets/broll/gym-battle-brock.png", "credit": "via CurseForge (CobbleDrock by lota882)" },
+      { "src": "assets/broll/gym-natural.png", "credit": "via CurseForge (CobbleDrock by lota882)" }
+    ]
+  }
+]

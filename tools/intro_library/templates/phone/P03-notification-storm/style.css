@@ -1,0 +1,21 @@
+#bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 40%, color-mix(in srgb, var(--accent) 45%, #0a0a12) 0%, #07070c 70%); }
+#bokeh { position: absolute; inset: 0; }
+.bk { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.18), rgba(255,255,255,0) 70%); }
+#persp { position: absolute; inset: 0; perspective: 1800px; }
+#dev { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-style: preserve-3d; }
+.lock { position: absolute; left: 0; right: 0; top: 90px; text-align: center; color: #fff; font: 600 30px "Inter", sans-serif; letter-spacing: 1px; opacity: .9; }
+.lock b { display: block; font: 800 120px "Inter", sans-serif; letter-spacing: -3px; margin-top: 8px; }
+#words { position: absolute; inset: 0; }
+.kw { position: absolute; left: 1040px; top: 430px; width: 840px; font: 400 200px "Anton", sans-serif; color: #fff; line-height: .95; text-transform: uppercase;
+  text-shadow: 0 10px 40px rgba(0,0,0,.5); opacity: 0; }
+.kw.money { color: #ff4d4d; }
+.kw.good { color: var(--accent); }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 34px; opacity: 0; z-index: 45; }
+#title .row { display: flex; align-items: center; gap: 40px; }
+#title .t1 { font: 400 190px "Anton", sans-serif; color: #fff; text-transform: uppercase; white-space: nowrap; text-shadow: 0 12px 40px rgba(0,0,0,.5); }
+#title .pill { font: 800 46px "Poppins", sans-serif; color: #111; background: #fff; padding: 14px 44px; border-radius: 60px; letter-spacing: 2px; }
+.xp-fill { background: var(--accent); }
+#badge { position: absolute; right: 70px; top: 60px; width: 120px; height: 120px; z-index: 60; }
+#badge .bd { position: absolute; right: -22px; top: -22px; min-width: 62px; height: 62px; padding: 0 12px; border-radius: 31px; background: #ff3b30; color: #fff;
+  font: 800 34px "Inter", sans-serif; display: flex; align-items: center; justify-content: center; border: 4px solid #fff; }
+.dir .scene { z-index: 10; }

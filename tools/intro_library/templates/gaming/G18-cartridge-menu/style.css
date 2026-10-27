@@ -1,0 +1,12 @@
+:root { --g-acc:#ffe14a;--g-acc2:#ff7b00;--g-panel:rgba(0,0,40,.85);--g-edge:#ffffff;--g-wipe:#0a1a6a; }
+#bg{position:absolute;inset:0;background:linear-gradient(180deg,#2a5adf,#7fb2ff)}
+#bg .cl{position:absolute;width:240px;height:60px;background:#fff;box-shadow:60px -30px 0 #fff,120px 0 0 #fff}
+#frame .mn{position:absolute;left:50px;top:200px;padding:20px 26px 20px 60px;background:rgba(0,0,40,.85);border:6px solid #fff;display:flex;flex-direction:column;gap:18px}
+
+.xp { left: 560px; width: 800px; }
+.xp-lab { font-family: "MC", monospace; font-weight: 400; color: #80ff20; text-shadow: 3px 3px 0 #000; font-size: 34px; }
+.xp-bar { height: 26px; border: 4px solid #000; border-radius: 0; background: #2b2b2b; }
+.xp-fill { background: linear-gradient(180deg, #b8ff4a, #64c814); }
+.dir .scene { z-index: 10; }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; opacity: 0; z-index: 46; }
+#frame { position: absolute; inset: 0; z-index: 50; pointer-events: none; }

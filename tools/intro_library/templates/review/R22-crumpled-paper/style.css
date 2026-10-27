@@ -1,0 +1,21 @@
+#bg { position: absolute; inset: 0; background: #151517; overflow: hidden; }
+#foot { position: absolute; inset: 0; }
+#foot .slot { background: #000; }
+.kin { font: 800 132px "Poppins", sans-serif; color: #fff; letter-spacing: -2px; text-shadow: 0 4px 0 rgba(0,0,0,.35), 0 0 34px rgba(0,0,0,.85), 0 0 8px rgba(0,0,0,.9); }
+.kin .k.brand, .kin .k.money, .kin .k.pos { color: var(--accent); }
+.kin .neg { color: #ff5a5a; }
+.kin.small { font-size: 96px; }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; opacity: 0; z-index: 45; }
+#title .t1 { font: 900 150px "Poppins", sans-serif; color: #fff; letter-spacing: 22px; text-transform: uppercase; white-space: nowrap; }
+#title .t1 b { color: var(--accent); font-weight: 900; }
+#title .bar { width: 0; height: 10px; background: var(--accent); border-radius: 5px; }
+#title .t2 { font: 700 44px "Poppins", sans-serif; color: rgba(255,255,255,.82); letter-spacing: 14px; text-transform: uppercase; }
+.xp-fill { background: linear-gradient(90deg, var(--accent), #c8ffd9); }
+.xp-bar { border-color: #fff; }
+#pics { position: absolute; inset: 0; z-index: 30; }
+.cut { position: absolute; width: 760px; padding: 16px 16px 70px; background: #f4f2ec; box-shadow: 0 24px 60px rgba(0,0,0,.6); opacity: 0; }
+.cut img { display: block; width: 728px; height: 470px; object-fit: cover; }
+.cut .lab { position: absolute; left: 0; right: 0; bottom: 14px; text-align: center; font: 800 40px "Poppins", sans-serif; color: #111; text-transform: lowercase; }
+/* any logo (dark on white jpg or black on transparent) becomes a white stamp: invert, then screen drops the black */
+.logo { position: absolute; width: 700px; max-height: 300px; object-fit: contain; opacity: 0; filter: grayscale(1) invert(1) contrast(1.6); mix-blend-mode: screen; }
+.emo-in { font: 190px "Emoji"; line-height: 1; }

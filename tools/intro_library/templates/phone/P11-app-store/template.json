@@ -1,0 +1,46 @@
+{
+  "id": "P11",
+  "name": "Store Listing",
+  "blurb": "Framed like the app's store listing: a header strip with the real icon, name and a star rating that sinks on every problem line (the fees) and climbs back to 5.0 after the turn with a GET button pulse; each line plays its literal scene with your clips beneath; title as the listing header.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.2,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "turn",
+      "off": 1.0,
+      "vol": 0.12,
+      "d": 0.6
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

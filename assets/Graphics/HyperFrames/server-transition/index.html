@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* Server-to-server transition (Top Servers videos ONLY; Realms keep realm-transition).
+         Bedrock-style "server list" rows (block icon, placeholder name bars, ping bars) slide in from
+         alternating sides with pixel-stepped edges, center row first, lock into a full-frame server list
+         at 0.34-0.44 s (cut hidden at 0.40 s) while a big signal-bars glyph pops, then slide on out.
+         Transparent overlay, 0.8 s, 30 fps. */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: transparent; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      .row { position: absolute; left: 0; width: 1920px; height: 121px; background: var(--bg);
+        box-shadow: inset 0 6px 0 var(--hi), inset 0 -10px 0 var(--lo), inset 0 -14px 0 #1e1e1f; }
+      .tooth { position: absolute; width: 40px; background: var(--bg); }
+      .icon { position: absolute; left: 44px; top: 16px; width: 80px; height: 80px; outline: 5px solid #1e1e1f; }
+      .bar { position: absolute; height: 24px; background: var(--ink); }
+      .ping { position: absolute; bottom: 30px; width: 14px; background: #55ff55; outline: 4px solid #1e1e1f; }
+      #glyph { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+      .gbar { position: absolute; bottom: -150px; width: 56px; background: #ffffff;
+        border: 8px solid #1e1e1f; box-shadow: 12px 12px 0 rgba(30,30,31,.55); transform-origin: 50% 100%; transform: scaleY(0); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-fps="60" data-start="0" data-duration="0.8" data-width="1920" data-height="1080">
+      <div id="rows" class="clip" data-start="0" data-duration="0.8" data-track-index="1" style="position:absolute;inset:0"></div>
+      <div id="glyph"></div>
+      <audio id="whoosh" src="assets/whoosh-short.mp3" data-start="0.12" data-duration="0.57" data-track-index="2" data-volume="0.22"></audio>
+    </div>
+    <script>
+      const ROWS = 9, RH = 120, W = 1920, OFF = W + 140, MID = 4, rowsEl = document.getElementById("rows");
+      const GREY = { bg: "#c6c6c6", hi: "#f4f4f4", lo: "#8b8b8b", ink: "#4c4c4c" };
+      const GREEN = { bg: "#3c8527", hi: "#6cc349", lo: "#27591a", ink: "#e9ffe0" };
+      // 8x8 pixel block icons: [top color, base color, speck color, top rows]
+      const ICONS = [["#5fb43c", "#8a5a34", "#6b4426", 2], ["#9a9a9a", "#7d7d7d", "#5e5e5e", 0], ["#8fe8e0", "#7d7d7d", "#4fd1c5", 0],
+                     ["#d8403a", "#d8403a", "#f2f2f2", 0], ["#e8d27a", "#d9c06a", "#b89c4a", 0], ["#3a7d2c", "#5a3a20", "#2a5c20", 3]];
+      const TEETH = [[80, 40, 0], [40, 80, 40], [0, 40, 80], [80, 0, 40], [40, 120, 0]];
+      const hash = (a, b) => ((a * 73856093) ^ (b * 19349663)) >>> 0;
+      const rows = [];
+      for (let r = 0; r < ROWS; r++) {
+        const p = r === MID ? GREEN : GREY, row = document.createElement("div");
+        row.className = "row"; row.style.top = r * RH + "px";
+        for (const k in p) row.style.setProperty("--" + k, p[k]);
+        // pixel-stepped teeth on both ends (leading edge on the way in, trailing on the way out)
+        TEETH[r % TEETH.length].forEach((len, i) => {
+          if (!len) return;
+          for (const side of ["left", "right"]) {
+            const t = document.createElement("div"); t.className = "tooth";
+            t.style.top = i * 40 + "px"; t.style.height = (i === 2 ? 41 : 40) + "px"; t.style.width = len + "px";
+            t.style[side] = -len + "px"; row.appendChild(t);
+          }
+        });
+        // block icon
+        const [top, base, speck, topRows] = ICONS[r % ICONS.length], icon = document.createElement("div");
+        icon.className = "icon"; let svg = '<svg width="80" height="80" viewBox="0 0 8 8" shape-rendering="crispEdges">';
+        for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) {
+          const h = hash(x + r * 11, y + 7) % 10;
+          const c = y < topRows ? (h < 2 ? speck : top) : (h < 3 ? speck : base);
+          svg += `<rect x="${x}" y="${y}" width="1" height="1" fill="${c}"/>`;
+        }
+        icon.innerHTML = svg + "</svg>"; row.appendChild(icon);
+        // placeholder "name" and "motd" bars (no words)
+        const b1 = document.createElement("div"); b1.className = "bar";
+        b1.style.cssText = `left:156px;top:24px;width:${420 + hash(r, 3) % 320}px`;
+        const b2 = document.createElement("div"); b2.className = "bar";
+        b2.style.cssText = `left:156px;top:62px;height:16px;opacity:.55;width:${640 + hash(r, 9) % 480}px`;
+        const b3 = document.createElement("div"); b3.className = "bar";
+        b3.style.cssText = `left:1560px;top:40px;height:20px;width:${110 + hash(r, 5) % 60}px;opacity:.7`;
+        row.append(b1, b2, b3);
+        // ping bars (all 5 lit = full signal)
+        for (let i = 0; i < 5; i++) {
+          const pb = document.createElement("div"); pb.className = "ping";
+          pb.style.left = 1760 + i * 24 + "px"; pb.style.height = 14 + i * 13 + "px"; row.appendChild(pb);
+        }
+        rowsEl.appendChild(row); rows.push(row);
+      }
+      // centre signal-bars glyph
+      const glyph = document.getElementById("glyph"), gbars = [];
+      for (let i = 0; i < 5; i++) {
+        const g = document.createElement("div"); g.className = "gbar";
+        g.style.left = -190 + i * 80 + "px"; g.style.height = 80 + i * 55 + "px";
+        if (i === 4) g.style.background = "#55ff55";
+        glyph.appendChild(g); gbars.push(g);
+      }
+
+      const tl = gsap.timeline({ paused: true });
+      rows.forEach((row, r) => {
+        const dir = r % 2 ? 1 : -1, d = Math.abs(r - MID) * 0.025;        // centre row first, alternating sides
+        tl.fromTo(row, { x: dir * OFF }, { x: 0, duration: 0.22, ease: "power3.out" }, d);          // all in by 0.32 s
+        tl.to(row, { x: -dir * OFF, duration: 0.2, ease: "power3.in" }, 0.44 + d);                   // out 0.44-0.74 s
+      });
+      gbars.forEach((g, i) => {
+        tl.to(g, { scaleY: 1, duration: 0.07, ease: "back.out(2.2)" }, 0.24 + i * 0.025);
+        tl.to(g, { scaleY: 0, duration: 0.06, ease: "power2.in" }, 0.44 + i * 0.012);
+      });
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

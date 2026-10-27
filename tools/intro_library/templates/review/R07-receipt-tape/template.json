@@ -1,0 +1,10 @@
+{
+  "id": "R07",
+  "name": "Receipt Tape",
+  "blurb": "A thermal receipt prints down the left side, one line item per VO line (retail-store prices for the problem half), the TOTAL slams in red; on the turn it's torn off and a second receipt prints the DHgate order at a fraction of the price with a SCAM OR STEAL? stamp; B-roll plays in a big frame on the right throughout.",
+  "status": "off",
+  "off_why": "lv trainer 2026-10-23: the receipt column on the left ('LV RETAIL' line items with made-up prices) reads slow and dull next to the B-roll ('the motion graphic just doesn't seem as interesting over there')",
+  "footage": {"roles": ["hook", "problem", "turn", "reveal", "watch"], "every": 1, "max": 16, "maxlen": 5.0},
+  "hold": 2.0,
+  "sfx": [{"sfx": "key", "t": 0.2, "vol": 0.1, "d": 0.9}, {"sfx": "click", "t": "turn", "vol": 0.15, "d": 0.3}]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "R05",
+  "name": "Paper Collage",
+  "blurb": "Dusty beige paper desk: B-roll is printed and taped down at angles, every line drops a torn white strip with the key words typed on it, the brand line gets a ransom-note cut-out; on the turn a fresh sheet slides over and the shots stack into a three-photo collage; the turn stamps the brand logo VS the DHgate logo; the title is a brand lockup (brand logo + product + on DHgate logo) on a torn sheet (ransom letters retired 2026-10-22).",
+  "ref": "{{REVIEW_CHANNEL}} North Face intro (paper + DHgate print)",
+  "status": "ready",
+  "footage": {"roles": ["hook", "problem", "turn", "reveal", "watch"], "every": 1, "max": 16, "maxlen": 4.0},
+  "hold": 1.5,
+  "sfx": [{"sfx": "click", "t": "turn", "vol": 0.14, "d": 0.3}]
+}

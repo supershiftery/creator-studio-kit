@@ -1,0 +1,29 @@
+{
+  "id": "R04",
+  "name": "Newspaper Spin",
+  "blurb": "Old-movie front pages as an ACCENT: at most two pages (the hook, and one more after >= 2 full-frame lines), each <= 2 lines / 4.6 s, headline + highlighter + colour photo changing on the page (text columns where a line has no clip, never a dark box); every other line is FULL-FRAME B-roll with tall condensed caps over smoke; a store-listing card only on a store/price line after the turn that does not knock other resellers.",
+  "ref": "{{REVIEW_CHANNEL}} AirPods Pro intro",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal",
+      "watch"
+    ],
+    "every": 1,
+    "max": 16,
+    "maxlen": 4.0
+  },
+  "hold": 2.0,
+  "sfx": [
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.15,
+      "d": 0.3
+    }
+  ],
+  "open_type": true
+}

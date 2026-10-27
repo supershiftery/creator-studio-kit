@@ -1,0 +1,40 @@
+{
+  "id": "P08",
+  "name": "Live Tracking",
+  "blurb": "A delivery-tracking map world: streets and blocks behind every scene, a route line drawing itself across the map with a scooter pin moving a step per line, and an ETA + order-total chip that climbs with fees, then flips green to $0.00 after the turn; your clips inside the scenes; title as the 'delivered' card.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "notify",
+      "t": "turn",
+      "off": 0.2,
+      "vol": 0.1,
+      "d": 0.6
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

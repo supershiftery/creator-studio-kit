@@ -1,0 +1,10 @@
+Yo, new version of the studio kit is attached (version 2). Lots of upgrades: haul + vertical Short video types, a render queue, captions, a smarter music picker that uses your whole music folder by mood, new intro templates with a quality check, cleaner cuts on reviews, zooms on screen recordings, a privacy blur scan, and a new look.
+
+You DON'T have to set it up again. To update:
+1. Close the Studio.
+2. Unzip "Creator Studio Kit.zip" into your Downloads (NOT over your current kit).
+3. Open the new folder and double-click UPDATE.cmd. It finds your kit, backs it up and updates it. Your settings, channels, codes and projects stay.
+4. Open Claude Code in your normal kit folder and paste what's in UPDATE PROMPT.md. Claude finishes it off and test-builds a video.
+5. Delete the folder in Downloads.
+
+Every update from now on works the same way.

@@ -1,0 +1,39 @@
+{
+  "id": "P05",
+  "name": "Scratch Ticket",
+  "blurb": "The whole intro is an instant-win scratch ticket: a ticket border with an INSTANT WIN header in the app's colour frames every scene, a silver scratch strip along the bottom gets scratched a bit more on every line until it reads $0.00 TO PAY after the turn; your clips play inside; title on the winning ticket.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

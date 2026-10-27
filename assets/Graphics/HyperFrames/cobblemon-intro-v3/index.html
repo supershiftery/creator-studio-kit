@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "CapFont";
+        src: url("assets/caption.ttf") format("truetype");
+        font-weight: 900;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #000; }
+      #stage { position: absolute; inset: 0; }
+      .layer { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; }
+      .fill { display: block; width: 1920px; height: 1080px; object-fit: cover; }
+      .center { position: absolute; left: 0; right: 0; display: flex; justify-content: center; }
+      canvas { display: block; }
+
+      /* scene stacking */
+      #s1 { z-index: 7; } #s2 { z-index: 6; } #slam-plate, #slam-still { z-index: 5; }
+      #s4, #s5a, #s5b, #s5c, #s6, #s7, #s8 { z-index: 4; }
+      #title { z-index: 20; } #ring, #blocks { z-index: 21; } #checklist { z-index: 22; }
+      #flash, #endflash { z-index: 30; } #captions { z-index: 40; }
+
+      /* S1 sky */
+      #sky { position: absolute; inset: 0; background: linear-gradient(#5fa8ff, #a9d6ff 70%, #d8efff); }
+      .cloud { position: absolute; background: #fff; box-shadow: 0 16px 0 #e6eef5; }
+      #ground { position: absolute; left: 0; bottom: 0; }
+      #s1-titles { z-index: 3; top: 150px; flex-direction: column; align-items: center; gap: 26px; }
+      #tiles { position: absolute; left: 285px; top: 380px; width: 1350px; height: 430px; }
+      .tile { position: absolute; width: 200px; height: 200px; background: #8b8b8b;
+        border: 6px solid; border-color: #f2f2f2 #373737 #373737 #f2f2f2; display: flex; align-items: center; justify-content: center; }
+
+      /* S2 */
+      #s2-bg { position: absolute; inset: 0; background: radial-gradient(circle at 50% 55%, #5a0b0b 0%, #1a0505 55%, #070202 100%); }
+      #lucky { position: absolute; left: 810px; top: 520px; width: 300px; height: 300px; background: #f2c40f;
+        border: 16px solid; border-color: #ffe27a #9b6a00 #9b6a00 #ffe27a; display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 0 0 8px #2a1a00, 0 30px 60px rgba(0,0,0,.6); }
+      .glitch { position: absolute; top: 0; left: 0; mix-blend-mode: screen; opacity: 0; }
+
+      /* title slam */
+      #plate-img, #title-wrap { transform-origin: 960px 505px; }
+      #title-wrap { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+      #shine { position: absolute; inset: 0; width: 1920px; height: 1080px;
+        -webkit-mask-image: url("assets/title-cut.png"); mask-image: url("assets/title-cut.png");
+        -webkit-mask-size: 1920px 1080px; mask-size: 1920px 1080px; overflow: hidden; }
+      #shine-band { position: absolute; top: -200px; left: 0; width: 240px; height: 1480px;
+        background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.85), rgba(255,255,255,0)); mix-blend-mode: screen; }
+      #ring-el { position: absolute; left: 610px; top: 375px; width: 700px; height: 260px; border: 12px solid #fff; border-radius: 50%; opacity: 0; }
+      .blk { position: absolute; opacity: 0; box-shadow: inset -6px -6px 0 rgba(0,0,0,.35); }
+      .flash-el { position: absolute; inset: 0; background: #fff; opacity: 0; }
+
+      /* S4 */
+      #s4-bg { position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, #1d3fa0 0%, #0c1a4d 55%, #050a1f 100%); }
+      #rays { position: absolute; left: -540px; top: -960px; width: 3000px; height: 3000px;
+        background: repeating-conic-gradient(rgba(255,255,255,.07) 0deg 9deg, rgba(255,255,255,0) 9deg 22.5deg); }
+      .ball { position: absolute; opacity: 0; }
+      #count-row { top: 330px; align-items: center; gap: 10px; }
+
+      /* gameplay slots */
+      .slot-shade { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, rgba(0,0,0,.05) 0%, rgba(0,0,0,.55) 75%, rgba(0,0,0,.8) 100%); }
+      .chip { position: absolute; right: 48px; top: 44px; padding: 14px 22px; background: rgba(0,0,0,.72); border: 4px solid #ffd400;
+        font-family: "CapFont"; font-weight: 900; font-size: 26px; color: #ffd400; letter-spacing: 1px; }
+      .kw { top: 170px; }
+      #checklist { position: absolute; left: 0; top: 0; }
+      #panel { position: absolute; left: 56px; top: 330px; width: 520px; padding: 26px 26px 10px; background: rgba(12,12,12,.84);
+        border: 6px solid; border-color: #5a5a5a #1c1c1c #1c1c1c #5a5a5a; }
+      .row { display: flex; align-items: center; gap: 18px; margin-bottom: 18px; opacity: 0; }
+
+      /* S6 */
+      #s6-bg { position: absolute; inset: 0; }
+      #player { position: absolute; left: 400px; top: 160px; width: 1120px; height: 630px; border: 10px solid #111; border-radius: 18px; overflow: hidden; background: #000;
+        box-shadow: 0 30px 80px rgba(0,0,0,.7); }
+      #bar { position: absolute; left: 40px; right: 40px; bottom: 34px; height: 14px; background: rgba(255,255,255,.3); border-radius: 7px; }
+      #bar-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 1020px; background: #ff1f1f; border-radius: 7px; transform-origin: 0 50%; }
+      #knob { position: absolute; top: -9px; left: -16px; width: 32px; height: 32px; border-radius: 50%; background: #ff1f1f; box-shadow: 0 0 0 4px #fff; }
+      #player-dim { position: absolute; inset: 0; background: #000; opacity: 0; }
+      #changes { position: absolute; left: 0; top: 0; width: 1100px; height: 610px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; }
+      .heart { position: absolute; opacity: 0; }
+
+      /* S7 */
+      #s7-bg { position: absolute; inset: 0; }
+      #s7-glow { position: absolute; inset: 0; background: radial-gradient(circle at 50% 48%, rgba(120,220,90,.45), rgba(0,0,0,.75) 70%); }
+      #btn { position: absolute; left: 470px; top: 380px; width: 980px; height: 180px; background: #7a7a7a; border: 8px solid #000;
+        display: flex; align-items: center; justify-content: center; gap: 40px;
+        box-shadow: inset 0 8px 0 #b4b4b4, inset 0 -10px 0 #4a4a4a; }
+      #btn-hi { position: absolute; inset: 0; background: #4fae3a; opacity: 0; box-shadow: inset 0 8px 0 #8be06d, inset 0 -10px 0 #2d6b20; }
+      #btn-inner { position: relative; display: flex; align-items: center; gap: 40px; }
+      #cursor { position: absolute; left: 0; top: 0; }
+      #btn-ring { position: absolute; left: 960px; top: 470px; width: 900px; height: 900px; margin: -450px 0 0 -450px; border: 6px solid #fff; border-radius: 50%; opacity: 0; }
+      #sub { top: 600px; }
+
+      /* S8 */
+      #s8-bg { position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, #ffd23a 0%, #ff8a00 60%, #c43d00 100%); }
+      #rays8 { position: absolute; left: -540px; top: -960px; width: 3000px; height: 3000px;
+        background: repeating-conic-gradient(rgba(255,255,255,.22) 0deg 8deg, rgba(255,255,255,0) 8deg 20deg); }
+      #go-wrap { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+
+      /* captions */
+      #captions { position: absolute; inset: 0; pointer-events: none; }
+      .cap { position: absolute; left: 0; right: 0; top: 850px; text-align: center; opacity: 0;
+        font-family: "CapFont"; font-weight: 900; font-size: 84px; color: #fff; letter-spacing: -1px;
+        -webkit-text-stroke: 14px #000; paint-order: stroke fill; text-shadow: 0 8px 0 rgba(0,0,0,.55); }
+      .cap .hl { color: #ffd400; }
+
+      /* tone-up */
+      #cam { position: absolute; inset: 0; transform-origin: 960px 540px; }
+      #vignette { position: absolute; inset: 0; z-index: 25; pointer-events: none; background: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,.38) 100%); }
+      .orb { position: absolute; left: 950px; top: 430px; width: 26px; height: 26px; border-radius: 50%; opacity: 0;
+        background: radial-gradient(circle at 35% 35%, #f6ffb0, #8de832 55%, #3f9a12); box-shadow: 0 0 18px 6px rgba(160,255,80,.55); }
+      /* mention cutaways */
+      .ment { z-index: 4; }
+      .ment-ov { z-index: 9; }
+      .m-blur { position: absolute; left: -60px; top: -60px; width: 2040px; height: 1200px; object-fit: cover; filter: blur(34px) brightness(.55); }
+      .m-img { position: absolute; left: 210px; top: 150px; width: 1500px; height: 844px; object-fit: contain; }
+      .credit { position: absolute; right: 40px; bottom: 34px; padding: 8px 16px; background: rgba(0,0,0,.6);
+        font-family: "CapFont"; font-weight: 900; font-size: 24px; color: rgba(255,255,255,.85); }
+
+      /* 3D scrolling mod list (reusable: driven by SCROLL3D config) */
+      #scroll3d { position: absolute; left: 0; top: 330px; width: 1920px; height: 830px; perspective: 1500px; perspective-origin: 50% 20%;
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 190px, #000 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 190px, #000 100%); }
+      #sc-plane { position: absolute; left: 440px; top: 40px; width: 1040px; transform-style: preserve-3d; transform-origin: 50% 0; }
+      #sc-list { position: relative; transform-style: preserve-3d; }
+      .sc-row { position: relative; height: 128px; margin-bottom: 18px; display: flex; align-items: center; gap: 28px; padding: 0 30px;
+        background: rgba(20, 20, 20, .88); border: 6px solid; border-color: #5a5a5a #1c1c1c #1c1c1c #5a5a5a; box-shadow: 0 18px 30px rgba(0,0,0,.35); }
+      .sc-row .who { font-family: "CapFont"; font-weight: 900; font-size: 26px; color: #9a9a9a; margin-left: auto; }
+      .sc-row.hl { border-color: #ffd400; box-shadow: 0 0 0 6px #000, 0 0 40px 10px rgba(255,212,0,.65); }
+
+      /* page mode: a captured web page (e.g. YouTube results) on the 3D plane */
+      #sc-plane.page { left: 200px; width: 1520px; }
+      .sc-page { display: block; width: 1520px; height: 4339px; border-radius: 18px; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+      .sc-pick { position: absolute; border-radius: 14px; background-image: url("assets/yt-page.png"); background-size: 1520px 4339px; opacity: 0; }
+      .sc-pick.hl { border: 6px solid #ffd400; box-shadow: 0 0 0 6px #000, 0 0 50px 14px rgba(255,212,0,.7); }
+      .sc-cursor { position: absolute; left: 0; top: 0; }
+
+      /* v2: anime speed-line reveal burst + section badge */
+      .burst { position: absolute; left: -540px; top: -960px; width: 3000px; height: 3000px; opacity: 0; pointer-events: none;
+        background: repeating-conic-gradient(rgba(255,255,255,.9) 0deg 1.1deg, rgba(255,255,255,0) 1.1deg 6.5deg);
+        -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent 14%, #000 34%); mask-image: radial-gradient(circle at 50% 50%, transparent 14%, #000 34%); }
+      #burst1 { z-index: 19; } #secbadge { z-index: 23; }
+      .sb { position: absolute; left: 56px; bottom: 56px; opacity: 0; padding: 14px 20px; background: rgba(12,12,12,.85);
+        border: 5px solid; border-color: #5a5a5a #1c1c1c #1c1c1c #5a5a5a; }
+
+      /* v3: full-screen website scroll (slow-fast-slow ease, vertical motion blur, spotlight + click) */
+      #scroll3d { display: none; }
+      #fp { position: absolute; inset: 0; z-index: 5; overflow: hidden; background: #fff; opacity: 0; }
+      #fp-zoom { position: absolute; inset: 0; transform-origin: 835px 540px; }
+      #fp-page { position: absolute; left: 0; top: 0; width: 1920px; height: 5480px; filter: url(#vblur); }
+      #fp-spot { position: absolute; left: 30px; top: 345px; width: 1612px; height: 390px; border: 8px solid #ffd400; border-radius: 18px; opacity: 0;
+        box-shadow: 0 0 0 4000px rgba(0,0,0,.6), 0 0 40px 12px rgba(255,212,0,.6); }
+      #fp-cursor { position: absolute; left: 0; top: 0; opacity: 0; filter: drop-shadow(0 6px 6px rgba(0,0,0,.4)); }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-935a" id="root" data-composition-id="main" data-start="0" data-duration="26.8" data-width="1920" data-height="1080">
+      <div data-hf-id="hf-1rt5" id="stage">
+      <div id="cam">
+        <!-- S1: Minecraft Bedrock + many add-ons -->
+        <div data-hf-id="hf-gdsl" id="s1" class="clip layer" data-start="0" data-duration="4.8" data-track-index="0">
+          <div data-hf-id="hf-f7j0" id="sky"></div>
+          <div data-hf-id="hf-qf07" id="clouds"></div>
+          <canvas data-hf-id="hf-jfvr" id="ground"></canvas>
+          <div data-hf-id="hf-ytkj" id="s1-titles" class="center"><div data-hf-id="hf-7mag" id="t-mc"></div><div data-hf-id="hf-zchz" id="t-be"></div></div>
+          <svg width="0" height="0" style="position:absolute"><filter id="vblur" x="0" y="-5%" width="100%" height="110%"><feGaussianBlur id="vblur-g" stdDeviation="0 0"/></filter></svg>
+          <div id="fp"><div id="fp-zoom"><img id="fp-page" src="assets/yt-page.png" alt="" /><div id="fp-spot"></div></div><div id="fp-cursor"></div></div>
+          <div id="scroll3d"><div id="sc-plane"><div id="sc-list"></div></div></div>
+        </div>
+
+        <!-- S2: controversial + lucky block -->
+        <div data-hf-id="hf-ecwu" id="s2" class="clip layer" data-start="4.48" data-duration="3.84" data-track-index="1">
+          <div data-hf-id="hf-uddq" id="s2-in" class="layer">
+            <div data-hf-id="hf-8zlu" id="s2-bg"></div>
+            <div data-hf-id="hf-xaij" id="t-today" class="center" style="top:120px"></div>
+            <div data-hf-id="hf-rxv6" id="t-most" class="center" style="top:215px"></div>
+            <div data-hf-id="hf-h56x" id="t-contro" class="center" style="top:300px"><div data-hf-id="hf-05q6" style="position:relative"><div data-hf-id="hf-7lfi" id="c-main"></div><div data-hf-id="hf-l1gs" id="c-cyan" class="glitch"></div><div data-hf-id="hf-d8c2" id="c-mag" class="glitch"></div></div></div>
+            <div data-hf-id="hf-c1x7" id="lucky"></div>
+          </div>
+        </div>
+
+        <!-- S3: Higgsfield logo slam -->
+        <div data-hf-id="hf-rjbl" id="slam-plate" class="clip layer" data-start="8.14" data-duration="0.5" data-track-index="2">
+          <img data-hf-id="hf-31tl" id="plate-img" class="fill" src="assets/plate.jpg" alt="" />
+        </div>
+        <div data-hf-id="hf-9hf2" id="slam-still" class="clip layer" data-start="8.64" data-duration="1.2" data-track-index="2">
+          <img data-hf-id="hf-ktpa" id="still-img" class="fill" src="assets/clip-f0.png" alt="" />
+        </div>
+        <div data-hf-id="hf-q75v" id="ring" class="clip layer" data-start="8.64" data-duration="0.7" data-track-index="3"><div data-hf-id="hf-gejr" id="ring-el"></div></div>
+        <div data-hf-id="hf-2vhx" id="blocks" class="clip layer" data-start="8.64" data-duration="1.1" data-track-index="4"></div>
+        <div id="burst1" class="clip layer" data-start="8.64" data-duration="0.6" data-track-index="3" style="overflow:visible"><div class="burst" id="burst1-el"></div></div>
+        <div data-hf-id="hf-azxl" id="title" class="clip layer" data-start="8.14" data-duration="10.1" data-track-index="5" style="overflow:visible">
+          <div data-hf-id="hf-cnra" id="title-wrap">
+            <img data-hf-id="hf-casn" class="fill" src="assets/title-cut.png" alt="Cobblemon Bedrock Edition" />
+            <div data-hf-id="hf-svny" id="shine"><div data-hf-id="hf-22ju" id="shine-band"></div></div>
+          </div>
+        </div>
+
+        <!-- S4: 900+ Pokemon -->
+        <div data-hf-id="hf-fcjt" id="s4" class="clip layer" data-start="9.5" data-duration="3.45" data-track-index="1">
+          <div data-hf-id="hf-un2o" id="s4-bg"></div>
+          <div data-hf-id="hf-e4eq" id="rays"></div>
+          <div class="burst" id="burst4-el"></div>
+          <div data-hf-id="hf-jnft" id="balls"></div>
+          <div data-hf-id="hf-p3l9" id="count-row" class="center"><canvas data-hf-id="hf-s5cz" id="count"></canvas><div data-hf-id="hf-f769" id="plus"></div></div>
+          <div data-hf-id="hf-xk8g" id="t-diff" class="center" style="top:600px"></div>
+          <div id="orbs"></div>
+        </div>
+
+        <!-- S5: mention cutaways, generated from mentions.json by _Assets/Tools/mentions.py -->
+        <!-- MENTIONS:START -->
+        <div id="m-raid-dens-p" class="clip layer ment" data-start="12.88" data-duration="1.12" data-track-index="1"><canvas class="slot-tex" data-tex="amethyst" data-seed="11"></canvas></div>
+        <div id="m-raid-dens-ov" class="clip layer ment-ov" data-start="12.88" data-duration="1.12" data-track-index="9"><div class="slot-shade"></div><div class="chip">GAMEPLAY GOES HERE · RAID DENS</div><div class="kw center" id="kw-raid-dens"></div></div>
+        <div id="m-trading-systems-p" class="clip layer ment" data-start="14.0" data-duration="1.12" data-track-index="1"><canvas class="slot-tex" data-tex="planks" data-seed="24"></canvas></div>
+        <div id="m-trading-systems-ov" class="clip layer ment-ov" data-start="14.0" data-duration="1.12" data-track-index="9"><div class="slot-shade"></div><div class="chip">GAMEPLAY GOES HERE · TRADING SYSTEMS</div><div class="kw center" id="kw-trading-systems"></div></div>
+        <div id="m-gym-leaders-0" class="clip layer ment" data-start="15.12" data-duration="1.44" data-track-index="1"><img class="m-blur" src="assets/broll/gym-battle-brock.png" alt="" /><img class="m-img" src="assets/broll/gym-battle-brock.png" alt="GYM LEADERS" /></div>
+        <div id="m-gym-leaders-1" class="clip layer ment" data-start="16.56" data-duration="1.44" data-track-index="1"><img class="m-blur" src="assets/broll/gym-natural.png" alt="" /><img class="m-img" src="assets/broll/gym-natural.png" alt="GYM LEADERS" /></div>
+        <div id="m-gym-leaders-ov" class="clip layer ment-ov" data-start="15.12" data-duration="2.88" data-track-index="9"><div class="slot-shade"></div><div class="credit">via CurseForge (CobbleDrock by lota882)</div><div class="kw center" id="kw-gym-leaders"></div></div>        <!-- MENTIONS:END -->
+        <div id="secbadge" class="clip layer" data-start="12.88" data-duration="5.12" data-track-index="6"></div>
+        <div data-hf-id="hf-sjpo" id="checklist" class="clip layer" data-start="12.88" data-duration="5.12" data-track-index="6">
+          <div data-hf-id="hf-zk0l" id="panel"></div>
+        </div>
+
+        <!-- S6: watch to the end + custom changes -->
+        <div data-hf-id="hf-s6r1" id="s6" class="clip layer" data-start="18" data-duration="4.96" data-track-index="1">
+          <canvas data-hf-id="hf-6v8n" id="s6-bg" data-tex="dirt" data-seed="5"></canvas>
+          <div data-hf-id="hf-4zo0" class="layer" style="background:rgba(0,0,0,.55)"></div>
+          <div data-hf-id="hf-l18t" id="t-watch" class="center" style="top:50px"></div>
+          <div data-hf-id="hf-ac6i" id="player">
+            <canvas data-hf-id="hf-ek4i" class="slot-tex" data-tex="stone" data-seed="71" data-w="1100" data-h="610"></canvas>
+            <div data-hf-id="hf-8006" class="slot-shade"></div>
+            <div data-hf-id="hf-mi3b" id="player-dim"></div>
+            <div data-hf-id="hf-9kn4" id="changes"><div data-hf-id="hf-3bby" id="pick"></div><div data-hf-id="hf-5lbj" id="t-changes"></div></div>
+            <div data-hf-id="hf-2to0" id="bar"><div data-hf-id="hf-jika" id="bar-fill"></div><div data-hf-id="hf-00i1" id="knob"></div></div>
+          </div>
+          <div data-hf-id="hf-m272" id="hearts"></div>
+        </div>
+
+        <!-- S7: download -->
+        <div data-hf-id="hf-x38z" id="s7" class="clip layer" data-start="22.96" data-duration="2" data-track-index="1">
+          <canvas data-hf-id="hf-7gft" id="s7-bg" data-tex="grass" data-seed="9"></canvas>
+          <div data-hf-id="hf-swgv" id="s7-glow"></div>
+          <div data-hf-id="hf-uzsn" id="btn"><div data-hf-id="hf-9e69" id="btn-hi"></div><div data-hf-id="hf-nqrc" id="btn-inner"><div data-hf-id="hf-tvpo" id="arrow"></div><div data-hf-id="hf-w25o" id="t-dl"></div></div></div>
+          <div data-hf-id="hf-iofq" id="btn-ring"></div>
+          <div data-hf-id="hf-xnv5" id="sub" class="center"></div>
+          <div data-hf-id="hf-8gdj" id="cursor"></div>
+        </div>
+
+        <!-- S8: let's go -->
+        <div data-hf-id="hf-qzm1" id="s8" class="clip layer" data-start="24.96" data-duration="1.84" data-track-index="1">
+          <div data-hf-id="hf-9r2c" id="s8-bg"></div>
+          <div data-hf-id="hf-upfy" id="rays8"></div>
+          <div data-hf-id="hf-9obg" id="go-wrap"><div data-hf-id="hf-1hha" id="t-go"></div></div>
+        </div>
+      </div>
+      </div>
+
+      <div id="vignette"></div>
+      <div data-hf-id="hf-okr4" id="flash" class="clip layer" data-start="8.64" data-duration="0.35" data-track-index="7"><div data-hf-id="hf-bqmm" id="flash-el" class="flash-el"></div></div>
+      <div data-hf-id="hf-05hw" id="endflash" class="clip layer" data-start="26.35" data-duration="0.45" data-track-index="7"><div data-hf-id="hf-k5pl" id="endflash-el" class="flash-el"></div></div>
+      <div data-hf-id="hf-beos" id="captions" class="clip layer" data-start="0" data-duration="26.8" data-track-index="8"></div>
+
+      <!-- audio -->
+      <!-- v2: Gen 5 game SFX ({{MUSIC_ROOT}}\Sound Effects\Pokemon), sparse + quiet -->
+      <audio id="g-scroll" src="assets/whoosh.mp3" data-start="2.95" data-duration="0.57" data-track-index="12" data-volume="0.26"></audio>
+      <audio id="g-ytclick" src="assets/sfx/ui-confirm-1.wav" data-start="3.92" data-duration="0.48" data-track-index="16" data-volume="0.32"></audio>
+      <audio id="g-luckypop" src="assets/sfx/battle-ball-pop-1.wav" data-start="5.52" data-duration="0.27" data-track-index="16" data-volume="0.3"></audio>
+      <audio id="g-contro" src="assets/sfx/battle-hit-super-effective.wav" data-start="6.94" data-duration="1.0" data-track-index="16" data-volume="0.3"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.3},{"t":0.7,"v":0.3},{"t":1.0,"v":0}]}]}'></audio>
+      <audio id="g-riser1" src="assets/sfx/riser.wav" data-start="7.14" data-duration="1.5" data-media-start="0.9" data-track-index="17" data-volume="0.38"></audio>
+      <audio id="g-warp" src="assets/sfx/world-door-stairs-warp.wav" data-start="8.12" data-duration="0.5" data-track-index="16" data-volume="0.3"></audio>
+      <audio id="g-lvl" src="assets/sfx/jingle-level-up.wav" data-start="11.6" data-duration="0.78" data-track-index="16" data-volume="0.26"></audio>
+      <audio id="g-raid" src="assets/sfx/battle-entrance-large.wav" data-start="12.88" data-duration="0.88" data-track-index="16" data-volume="0.3"></audio>
+      <audio id="g-expfill" src="assets/sfx/battle-exp-fill.wav" data-start="18.48" data-duration="1.2" data-track-index="16" data-volume="0.26"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.26},{"t":1.05,"v":0.26},{"t":1.2,"v":0}]}]}'></audio>
+      <audio id="g-expfull" src="assets/sfx/battle-exp-full.wav" data-start="19.68" data-duration="0.58" data-track-index="16" data-volume="0.28"></audio>
+      <audio id="g-save" src="assets/sfx/ui-save.wav" data-start="20.32" data-duration="0.96" data-track-index="16" data-volume="0.28"></audio>
+      <audio id="g-dlclick" src="assets/sfx/ui-confirm-2.wav" data-start="24.32" data-duration="0.65" data-track-index="16" data-volume="0.32"></audio>
+      <audio id="g-itemget" src="assets/sfx/jingle-item-obtained.wav" data-start="24.4" data-duration="0.56" data-track-index="18" data-volume="0.24"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.24},{"t":0.4,"v":0.24},{"t":0.56,"v":0}]}]}'></audio>
+      <audio id="g-riser2" src="assets/sfx/riser.wav" data-start="23.96" data-duration="1.0" data-media-start="1.4" data-track-index="17" data-volume="0.32"></audio>
+      <audio id="g-pika" src="assets/sfx/cry-pikachu.wav" data-start="25.85" data-duration="0.9" data-track-index="18" data-volume="0.3"></audio>
+      <audio data-hf-id="hf-cr4o" id="vo" src="assets/vo-norm.wav" data-start="0" data-duration="25.85" data-track-index="10" data-volume="1"></audio>
+      <audio data-hf-id="hf-m5ob" id="music" src="assets/music.mp3" data-start="0" data-duration="26.8" data-media-start="14.34" data-track-index="11" data-volume="1"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0},{"t":0.6,"v":0.2},{"t":8.1,"v":0.2},{"t":8.2,"v":0.02},{"t":8.58,"v":0.02},{"t":8.62,"v":0.62},{"t":9.4,"v":0.6},{"t":9.9,"v":0.17},{"t":24.8,"v":0.17},{"t":25.0,"v":0.55},{"t":25.8,"v":0.5},{"t":26.8,"v":0}]}]}'></audio>
+      <audio data-hf-id="hf-98dq" id="whoosh1" src="assets/whoosh.mp3" data-start="4.3" data-duration="0.57" data-track-index="12" data-volume="0.32"></audio>
+      <audio data-hf-id="hf-cdoq" id="whoosh3" src="assets/whoosh.mp3" data-start="9.45" data-duration="0.57" data-track-index="12" data-volume="0.32"></audio>
+      <audio data-hf-id="hf-4k1w" id="whoosh4" src="assets/whoosh.mp3" data-start="17.85" data-duration="0.57" data-track-index="12" data-volume="0.32"></audio>
+      <audio data-hf-id="hf-iewh" id="whoosh5" src="assets/whoosh.mp3" data-start="22.85" data-duration="0.57" data-track-index="12" data-volume="0.32"></audio>
+      <audio data-hf-id="hf-pzgs" id="boom1" src="assets/boom.mp3" data-start="8.61" data-duration="2.1" data-track-index="13" data-volume="0.5"></audio>
+      <audio data-hf-id="hf-njs6" id="boom2" src="assets/boom.mp3" data-start="24.98" data-duration="1.2" data-track-index="13" data-volume="0.42"></audio>
+    </div>
+
+    <script>
+      // ---------- deterministic helpers ----------
+      function rng(seed) {
+        let a = seed >>> 0;
+        return function () {
+          a |= 0; a = (a + 0x6d2b79f5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      // 5x7 Minecraft-style pixel font
+      const G = {
+        A:"01110100011000111111100011000110001",B:"11110100011000111110100011000111110",C:"01110100011000010000100001000101110",
+        D:"11110100011000110001100011000111110",E:"11111100001000011110100001000011111",F:"11111100001000011110100001000010000",
+        G:"01111100001000010011100011000101111",H:"10001100011000111111100011000110001",I:"11111001000010000100001000010011111",
+        J:"00111000010000100001100011000101110",K:"10001100101010011000101001001010001",L:"10000100001000010000100001000011111",
+        M:"10001110111010110101100011000110001",N:"10001110011010110011100011000110001",O:"01110100011000110001100011000101110",
+        P:"11110100011000111110100001000010000",Q:"01110100011000110001101011001001101",R:"11110100011000111110101001001010001",
+        S:"01111100001000001110000010000111110",T:"11111001000010000100001000010000100",U:"10001100011000110001100011000101110",
+        V:"10001100011000110001100010101000100",W:"10001100011000110101101011101110001",X:"10001100010101000100010101000110001",
+        Y:"10001100010101000100001000010000100",Z:"11111000010001000100010001000011111",
+        "0":"01110100011001110101110011000101110","1":"00100011000010000100001000010011111","2":"01110100010000100110010001000011111",
+        "3":"01110100010000100110000011000101110","4":"00010001100101010010111110001000010","5":"11111100001111000001000011000101110",
+        "6":"00110010001000011110100011000101110","7":"11111000010001000100010000100001000","8":"01110100011000101110100011000101110",
+        "9":"01110100011000101111000010001001100","+":"00000001000010011111001000010000000","!":"00100001000010000100001000000000100",
+        "?":"01110100010000100110001000000000100","'":"00100001000100000000000000000000000",".":"00000000000000000000000000000000100",
+        "-":"00000000000000011111000000000000000",":":"00000001000000000000000000010000000","/":"00001000100001000100010000100010000"
+      };
+      function pix(text, ps, fill, o = {}) {
+        const out = o.outline ?? Math.round(ps * 0.45), sh = o.shadow ?? ps, shc = o.shadowColor || "rgba(0,0,0,.45)";
+        const chars = text.toUpperCase().split("");
+        const widths = chars.map((c) => (c === " " ? 3 : 5));
+        const cols = widths.reduce((s, w) => s + w + 1, -1);
+        const cv = document.createElement("canvas");
+        cv.width = cols * ps + out * 2 + sh; cv.height = 7 * ps + out * 2 + sh;
+        const ctx = cv.getContext("2d");
+        const cells = [];
+        let cx = 0;
+        chars.forEach((c, i) => {
+          const g = G[c];
+          if (g) for (let r = 0; r < 7; r++) for (let k = 0; k < 5; k++) if (g[r * 5 + k] === "1") cells.push([cx + k, r]);
+          cx += widths[i] + 1;
+        });
+        const at = (x, y) => [out + x * ps, out + y * ps];
+        ctx.fillStyle = shc; cells.forEach(([x, y]) => { const [px, py] = at(x, y); ctx.fillRect(px + sh - out, py + sh - out, ps + out * 2, ps + out * 2); });
+        ctx.fillStyle = o.outlineColor || "#000"; if (out) cells.forEach(([x, y]) => { const [px, py] = at(x, y); ctx.fillRect(px - out, py - out, ps + out * 2, ps + out * 2); });
+        cells.forEach(([x, y]) => { const [px, py] = at(x, y); ctx.fillStyle = Array.isArray(fill) ? (y < 4 ? fill[0] : fill[1]) : fill; ctx.fillRect(px, py, ps, ps); });
+        return cv;
+      }
+      const PAL = { K:"#111", R:"#e2231a", W:"#fff", P:"#ff9aa8", D:"#4ee6e0", H:"#8a5a2b", G:"#3cc43c", Y:"#ffd400", C:"#2fd4e0", c:"#b8fbff", g:"#7a7a7a" };
+      const ICON = {
+        ball:["..KKKK..",".KRRRRK.","KRRRRRRK","KKKWWKKK","KWWWWWWK","KWWWWWWK",".KWWWWK.","..KKKK.."],
+        heart:[".RR..RR.","RPRRRRRR","RRRRRRRR","RRRRRRRR",".RRRRRR.","..RRRR..","...RR...","........"],
+        sword:["......DD",".....DDD","....DDD.","H..DDD..",".HDDD...","..HH....",".H.HH...","H......."],
+        pick:["DDDDDD..",".....DD.","....H.D.","...H..D.","..H.....",".H......","H.......","........"],
+        egg:["...WW...","..WWWW..",".WGWWWW.",".WWWWGW.",".WWGWWW.",".WWWWWW.","..WWWW..","........"],
+        star:["...YY...","...YY...","YYYYYYYY",".YYYYYY.","..YYYY..",".YY..YY.","YY....YY","........"],
+        gem:["..CCCC..",".CccCCC.","CCcCCCCC",".CCCCCC.","..CCCC..","...CC...","........","........"],
+        check:["........",".......G","......GG","G....GG.","GG..GG..",".GGGG...","..GG....","........"],
+        down:["..WWWW..","..WWWW..","..WWWW..","WWWWWWWW",".WWWWWW.","..WWWW..","...WW...","........"],
+        cursor:["K.......","KK......","KWK.....","KWWK....","KWWWK...","KWWKKK..","KKWK....","...K...."]
+      };
+      function icon(name, ps) {
+        const m = ICON[name], cv = document.createElement("canvas");
+        cv.width = 8 * ps; cv.height = 8 * ps;
+        const ctx = cv.getContext("2d");
+        m.forEach((row, y) => row.split("").forEach((ch, x) => { if (ch !== ".") { ctx.fillStyle = PAL[ch]; ctx.fillRect(x * ps, y * ps, ps, ps); } }));
+        return cv;
+      }
+      function tex(cv, type, seed, w = 1920, h = 1080, ps = 8) {
+        cv.width = w; cv.height = h;
+        const ctx = cv.getContext("2d"), r = rng(seed);
+        const cl = (v) => Math.max(0, Math.min(255, v | 0));
+        for (let cy = 0; cy * ps < h; cy++) for (let cx = 0; cx * ps < w; cx++) {
+          const bx = cx % 16, by = cy % 16, n = r();
+          let c;
+          if (type === "stone") { const d = n * 36 - 18 - (r() < 0.08 ? 35 : 0); c = [125 + d, 125 + d, 125 + d]; }
+          else if (type === "dirt") { const s = r() < 0.1; const d = n * 44 - 22; c = s ? [100, 70, 48] : [134 + d, 96 + d, 67 + d]; }
+          else if (type === "planks") { let d = n * 24 - 12; if (by % 4 === 3) d -= 45; if (bx === ((Math.floor(by / 4) % 2) ? 7 : 15)) d -= 35; c = [160 + d, 122 + d, 70 + d]; }
+          else if (type === "amethyst") { const s = r() < 0.1; const d = n * 50 - 25; c = s ? [181, 138, 230] : [107 + d, 63 + d, 160 + d]; }
+          else if (type === "bricks") { let d = n * 28 - 14; if (by % 8 === 7 || bx === ((by >> 3) % 2 ? 7 : 15)) d -= 42; c = [122 + d, 122 + d, 122 + d]; }
+          else { // grass block
+            const top = by < 3 || (by === 3 && r() < 0.5);
+            const d = n * 30 - 15;
+            c = top ? [93 + d, 155 + d, 47 + d] : [134 + d, 96 + d, 67 + d];
+          }
+          ctx.fillStyle = `rgb(${cl(c[0])},${cl(c[1])},${cl(c[2])})`;
+          ctx.fillRect(cx * ps, cy * ps, ps, ps);
+        }
+      }
+      const $ = (id) => document.getElementById(id);
+      const put = (id, el) => { $(id).appendChild(el); return el; };
+
+      // ---------- build static art ----------
+      document.querySelectorAll("canvas[data-tex]").forEach((cv) =>
+        tex(cv, cv.dataset.tex, +cv.dataset.seed, +(cv.dataset.w || 1920), +(cv.dataset.h || 1080)));
+
+      // S1
+      const gnd = $("ground"); tex(gnd, "grass", 3, 1920, 256);
+      const clouds = $("clouds");
+      [[120, 90, 300, 56], [640, 150, 220, 44], [1180, 70, 360, 60], [1600, 190, 260, 48], [-200, 240, 240, 44]].forEach(([x, y, w, hh], i) => {
+        const c = document.createElement("div"); c.className = "cloud"; c.id = "cloud" + i;
+        Object.assign(c.style, { left: x + "px", top: y + "px", width: w + "px", height: hh + "px" }); clouds.appendChild(c);
+      });
+      put("t-mc", pix("MINECRAFT", 18, ["#ffffff", "#d9d9d9"], { shadow: 18 }));
+      put("t-be", pix("BEDROCK EDITION", 10, ["#ffe14a", "#ffb400"], { shadow: 10 }));
+      // 3D scrolling list config (swap items/target per video)
+      const SCROLL3D = {
+        enter: 2.8, scroll: 2.95, highlight: 4.05, exit: 4.32,
+        items: [
+          ["AGE OF DRAGONS", "Tomanex & Mrngda", "egg"], ["VIBRANCY", "ItsDrCat", "star"], ["DRAGON MOUNTS 2", "Tomanex", "egg"],
+          ["ULTRAMARINE", "notnicto", "gem"], ["FROST AND FLAMES", "mrngda", "sword"], ["DREAMY VISUALS", "xchizax", "star"],
+          ["MYTHOLOGICAL CRAFT", "iagoo_br", "sword"], ["LUNAC SHADERS 3D", "Mod_MC", "gem"], ["FIRE AND STEEL", "_storm157_", "egg"],
+          ["ALYLICA'S DRAGONS", "Alylica", "heart"], ["POCKETMOBS", "{{GAMING_CHANNEL}}", "ball"], ["??????", "coming up", "ball"],
+        ],
+        target: 11,
+        // "page" = scroll a captured page and click a video; "cards" = the pixel card list above
+        mode: "page",
+        page: { src: "assets/yt-page.png", w: 1520, h: 4339, pick: { x: 30, y: 2338, w: 1262, h: 296 }, cursorAt: { x: 640, y: 2470 }, click: 3.92 },
+      };
+      if (SCROLL3D.mode === "page") {
+        const P = SCROLL3D.page, list = $("sc-list");
+        $("sc-plane").classList.add("page");
+        const img = document.createElement("img"); img.className = "sc-page"; img.src = P.src; img.alt = ""; list.appendChild(img);
+        const pk = document.createElement("div"); pk.className = "sc-pick"; pk.id = "sc-pick";
+        Object.assign(pk.style, { left: P.pick.x + "px", top: P.pick.y + "px", width: P.pick.w + "px", height: P.pick.h + "px",
+          backgroundPosition: `-${P.pick.x}px -${P.pick.y}px` });
+        list.appendChild(pk);
+        const cur = document.createElement("div"); cur.className = "sc-cursor"; cur.id = "sc-cursor"; cur.appendChild(icon("cursor", 13)); list.appendChild(cur);
+      } else SCROLL3D.items.forEach(([name, who, ic], i) => {
+        const r = document.createElement("div"); r.className = "sc-row"; r.id = "sc-row" + i;
+        r.appendChild(icon(ic, 11)); r.appendChild(pix(name, 7, i === SCROLL3D.target ? ["#ffe14a", "#ffb400"] : "#ffffff", { shadow: 7 }));
+        const w = document.createElement("div"); w.className = "who"; w.textContent = who; r.appendChild(w);
+        $("sc-list").appendChild(r);
+      });
+
+      // S2
+      put("t-today", pix("IN TODAY'S VIDEO", 7, "#ffffff"));
+      put("t-most", pix("ONE OF THE MOST", 8, "#ffffff"));
+      put("c-main", pix("CONTROVERSIAL", 16, ["#ff4040", "#c40000"], { shadow: 16 }));
+      put("c-cyan", pix("CONTROVERSIAL", 16, "#00e5ff", { outline: 0, shadow: 0 }));
+      put("c-mag", pix("CONTROVERSIAL", 16, "#ff00d4", { outline: 0, shadow: 0 }));
+      put("lucky", pix("?", 26, "#ffffff", { shadowColor: "rgba(120,70,0,.9)" }));
+
+      // S4
+      const balls = $("balls");
+      [[180, 200], [420, 760], [1500, 160], [1700, 640], [300, 470], [1560, 860], [880, 860], [1180, 120], [90, 880], [1780, 360]].forEach(([x, y], i) => {
+        const b = document.createElement("div"); b.className = "ball"; b.id = "ball" + i;
+        b.style.left = x + "px"; b.style.top = y + "px"; b.appendChild(icon("ball", 9 + (i % 3) * 3)); balls.appendChild(b);
+      });
+      const countCv = $("count");
+      function drawCount(v) {
+        const src = pix(String(Math.round(v)), 30, ["#ffe14a", "#ffb400"], { shadow: 26 });
+        countCv.width = src.width; countCv.height = src.height;
+        countCv.getContext("2d").drawImage(src, 0, 0);
+      }
+      drawCount(0);
+      put("plus", pix("+", 30, ["#ffffff", "#e6e6e6"], { shadow: 26 }));
+      put("t-diff", pix("DIFFERENT POKEMON", 10, "#ffffff", { shadow: 10 }));
+
+      // S5 mentions
+      /* MENTIONS:DATA */ const MENTIONS = [{"id": "raid-dens", "label": "RAID DENS", "colors": ["#e2b4ff", "#a85cff"], "start": 12.88, "end": 14.0, "hit": 12.88, "check": true, "short": "RAID DENS", "kind": "placeholder", "slides": []}, {"id": "trading-systems", "label": "TRADING SYSTEMS", "colors": ["#a6ff8a", "#2fbf3a"], "start": 14.0, "end": 15.12, "hit": 14.0, "check": true, "short": "TRADING", "kind": "placeholder", "slides": []}, {"id": "gym-leaders", "label": "GYM LEADERS", "colors": ["#ffe14a", "#ffb400"], "start": 15.12, "end": 18.0, "hit": 15.68, "check": true, "short": "GYM LEADERS", "kind": "images", "slides": [{"id": "m-gym-leaders-0", "start": 15.12, "dur": 1.44, "credit": "via CurseForge (CobbleDrock by lota882)"}, {"id": "m-gym-leaders-1", "start": 16.56, "dur": 1.44, "credit": "via CurseForge (CobbleDrock by lota882)"}]}]; /* MENTIONS:END */
+      MENTIONS.forEach((m) => {
+        const ps = Math.min(17, Math.floor(1500 / (m.label.length * 6)));
+        put("kw-" + m.id, pix(m.label, ps, m.colors, { shadow: ps }));
+        if (m.check) {
+          const row = document.createElement("div"); row.className = "row"; row.id = "row-" + m.id;
+          row.appendChild(icon("check", 7)); row.appendChild(pix(m.short, 6, "#ffffff", { shadow: 6 }));
+          $("panel").appendChild(row);
+        }
+      });
+
+      // S6
+      tex($("s6-bg"), "dirt", 5);
+      put("t-watch", pix("WATCH TO THE END", 11, "#ffffff", { shadow: 11 }));
+      put("pick", icon("pick", 22));
+      put("t-changes", pix("MY CUSTOM CHANGES", 10, ["#ffe14a", "#ffb400"], { shadow: 10 }));
+      const hearts = $("hearts");
+      for (let i = 0; i < 7; i++) {
+        const h = document.createElement("div"); h.className = "heart"; h.id = "heart" + i;
+        h.style.left = 260 + i * 230 + "px"; h.style.top = "900px"; h.appendChild(icon("heart", 10 + (i % 3) * 2)); hearts.appendChild(h);
+      }
+
+      // S7
+      tex($("s7-bg"), "grass", 9);
+      put("arrow", icon("down", 13));
+      put("t-dl", pix("DOWNLOAD", 14, "#ffffff", { outline: 0, shadow: 10, shadowColor: "#3a3a3a" }));
+      put("sub", pix("LINK IN DESCRIPTION", 7, "#ffe14a"));
+      put("cursor", icon("cursor", 12));
+
+      // S8
+      put("t-go", pix("LET'S GO!", 30, ["#ffffff", "#ffe9a8"], { shadow: 26 }));
+
+      // slam blocks
+      const blkColors = ["#e2231a", "#ffffff", "#2b2b2b", "#f7d518", "#e2231a", "#ffffff", "#8a5a2b"];
+      for (let i = 0; i < 18; i++) {
+        const b = document.createElement("div"); b.className = "blk"; b.id = "blk" + i;
+        const t = i / 17, size = 38 + ((i * 7) % 24);
+        Object.assign(b.style, { left: 260 + t * 1400 + "px", top: (i % 2 === 0 ? 330 : 690) + "px", width: size + "px", height: size + "px", background: blkColors[i % 7] });
+        $("blocks").appendChild(b);
+      }
+
+      // ---------- edit parameters ----------
+      const CFG = { captions: false }; // captions off: the user finds them messy
+
+      // captions (intro only), grouped 1-3 words, keywords highlighted
+      const W = [["It's",0.08,0.32],["no",0.32,0.48],["secret",0.48,0.8],["that",0.8,0.96],["Minecraft",0.96,1.6],["Bedrock",1.6,2.08],["edition",2.24,2.56],["has",2.64,2.88],["many",2.88,3.2],["different",3.2,3.6],["add-ons,",3.6,4.48],["but",4.48,4.72],["in",4.72,4.88],["today's",4.88,5.2],["video,",5.2,5.52],["we're",5.52,5.76],["gonna",5.76,5.92],["be",5.92,6],["revealing",6,6.4],["one",6.4,6.56],["of",6.56,6.64],["the",6.64,6.72],["most",6.72,6.96],["controversial",6.96,7.68],["ones,",7.68,8],["which",8,8.16],["is",8.16,8.24],["gonna",8.24,8.4],["be",8.4,8.48],["This",9.6,9.76],["add-on",9.76,10.24],["has",10.24,10.4],["everything",10.4,10.72],["from",10.72,10.96],["900",10.96,11.6],["plus",11.6,11.76],["different",11.92,12.24],["Pokemon,",12.24,12.88],["raid",12.88,13.2],["dens,",13.36,14],["trading",14,14.56],["systems,",14.56,15.12],["and",15.12,15.36],["even",15.36,15.68],["gym",15.68,16.08],["leaders",16.08,16.56],["that",16.56,16.72],["you",16.72,16.88],["can",16.88,17.12],["take",17.12,17.44],["on.",17.44,18],["Watch",18,18.4],["the",18.4,18.48],["video",18.48,18.8],["to",18.88,19.04],["the",19.04,19.2],["very",19.2,19.36],["end,",19.36,19.68],["because",19.68,19.92],["I",19.92,20.08],["even",20.08,20.32],["made",20.32,20.56],["some",20.56,20.72],["changes",20.72,21.12],["to",21.12,21.28],["the",21.28,21.36],["add-on",21.36,21.76],["that",21.84,22],["I",22,22.08],["think",22.08,22.24],["you",22.24,22.32],["guys",22.32,22.56],["will",22.56,22.72],["like,",22.72,22.96],["and",22.96,23.12],["I",23.12,23.28],["honestly",23.28,23.6],["am",23.6,23.76],["gonna",23.76,24],["provide",24,24.24],["a",24.24,24.32],["download.",24.32,24.96]];
+      const HL = new Set(["minecraft", "bedrock", "edition", "add-ons", "controversial", "900", "plus", "pokemon", "raid", "dens", "trading", "systems", "gym", "leaders", "end", "changes", "download"]);
+      const CUTS = [4.48, 8.64, 9.6, 12.88, 14, 15.12, 18, 22.96];
+      const groups = []; let cur = [];
+      W.forEach((w, i) => {
+        if (cur.length) {
+          const prev = cur[cur.length - 1];
+          const crosses = CUTS.some((c) => prev[1] < c && w[1] >= c);
+          if (cur.length >= 3 || /[,.]$/.test(prev[0]) || w[1] - prev[2] > 0.25 || crosses) { groups.push(cur); cur = []; }
+        }
+        cur.push(w);
+      });
+      if (cur.length) groups.push(cur);
+      const capRoot = $("captions");
+      const capEls = groups.map((g, i) => {
+        const d = document.createElement("div"); d.className = "cap"; d.id = "cap" + i;
+        d.innerHTML = g.map((w) => { const clean = w[0].replace(/[,.]/g, ""); return HL.has(clean.toLowerCase()) ? `<span class="hl">${clean}</span>` : clean; }).join(" ");
+        capRoot.appendChild(d); return d;
+      });
+
+      // ---------- timeline ----------
+      const tl = gsap.timeline({ paused: true });
+      const pop = (sel, t, from = 1.5, dur = 0.28) => tl.fromTo(sel, { scale: from, opacity: 0 }, { scale: 1, opacity: 1, duration: dur, ease: "back.out(2.2)" }, t);
+
+      // captions
+      if (CFG.captions) groups.forEach((g, i) => {
+        const start = g[0][1], next = groups[i + 1] ? groups[i + 1][0][1] : g[g.length - 1][2] + 0.2;
+        const end = Math.min(next, g[g.length - 1][2] + 0.35);
+        tl.set(capEls[i], { opacity: 1 }, start);
+        tl.fromTo(capEls[i], { scale: 0.86 }, { scale: 1, duration: 0.1, ease: "power2.out", immediateRender: false }, start);
+        tl.set(capEls[i], { opacity: 0 }, end);
+      });
+
+      // S1
+      [0, 1, 2, 3, 4].forEach((i) => tl.fromTo("#cloud" + i, { x: 0 }, { x: 160 + i * 25, duration: 4.8, ease: "none" }, 0));
+      tl.fromTo("#s1-titles", { scale: 1.08, y: 140 }, { scale: 1, y: 140, duration: 2.8, ease: "none" }, 0);
+      pop("#t-mc", 0.96, 1.8);
+      pop("#t-be", 1.6, 1.8);
+      tl.to("#s1-titles", { y: -20, scale: 0.78, duration: 0.35, ease: "power3.out" }, 2.8);
+      // 3D scroll: plane swings in, list scrolls under a drifting yaw, target row lifts + glows, plane drops out
+      {
+        const C = SCROLL3D, rowH = 146;
+        tl.fromTo("#sc-plane", { rotationX: 44, rotationY: -30, rotationZ: 8, y: 520, opacity: 0 },
+          { rotationX: 32, rotationY: -18, rotationZ: 5, y: 0, opacity: 1, duration: 0.35, ease: "power3.out" }, C.enter);
+        tl.to("#sc-plane", { rotationY: -6, rotationZ: 2, duration: C.exit - C.enter - 0.35, ease: "none" }, C.enter + 0.35);
+        if (C.mode === "page") {
+          const P = C.page;
+          tl.fromTo("#sc-list", { y: 0 }, { y: -(P.pick.y - 260), duration: P.click - 0.3 - C.scroll, ease: "power3.inOut" }, C.scroll);
+          tl.fromTo("#sc-cursor", { x: P.cursorAt.x + 520, y: P.cursorAt.y + 420, opacity: 0 }, { x: P.cursorAt.x, y: P.cursorAt.y, opacity: 1, duration: 0.45, ease: "power2.out" }, P.click - 0.5);
+          tl.to("#sc-cursor", { scale: 0.8, duration: 0.06, yoyo: true, repeat: 1 }, P.click);
+          tl.set("#sc-pick", { opacity: 1, className: "sc-pick hl" }, P.click);
+          tl.fromTo("#sc-pick", { z: 0, scale: 1 }, { z: 110, scale: 1.1, duration: 0.25, ease: "back.out(2)" }, P.click);
+          tl.to("#sc-cursor", { opacity: 0, duration: 0.1 }, P.click + 0.15);
+        } else {
+          tl.fromTo("#sc-list", { y: 0 }, { y: -(C.target * rowH - 300), duration: C.highlight - C.scroll, ease: "power3.inOut" }, C.scroll);
+          tl.set("#sc-row" + C.target, { className: "sc-row hl" }, C.highlight);
+          tl.fromTo("#sc-row" + C.target, { z: 0, scale: 1 }, { z: 90, scale: 1.08, duration: 0.2, ease: "back.out(2)" }, C.highlight);
+        }
+        tl.to("#sc-plane", { y: 1100, rotationX: 60, duration: 0.4, ease: "power2.in" }, C.exit);
+      }
+      tl.to("#s1-titles", { y: -500, duration: 0.35, ease: "power2.in" }, 4.32);
+      tl.to("#ground", { y: 300, duration: 0.35, ease: "power2.in" }, 4.38);
+      tl.to("#sky, #clouds", { opacity: 0, duration: 0.2, ease: "none" }, 4.5);
+
+      // S2
+      pop("#t-today", 4.88, 1.3);
+      tl.fromTo("#lucky", { scale: 0, rotation: -30 }, { scale: 1, rotation: 0, duration: 0.4, ease: "back.out(2)" }, 5.52);
+      tl.to("#lucky", { y: -18, rotation: 4, duration: 0.3, ease: "sine.inOut", yoyo: true, repeat: 3 }, 5.92);
+      pop("#t-most", 6.72, 1.3);
+      tl.fromTo("#t-contro", { scale: 2.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "power3.in" }, 6.82);
+      [[-14, 4, 10, -3], [12, -3, -9, 2], [-8, 2, 7, -1], [6, -2, -5, 1], [-3, 1, 2, 0], [0, 0, 0, 0]].forEach(([a, b, c, d], i) => {
+        const t = 6.96 + i * 0.09;
+        tl.set("#c-cyan", { x: a, y: b, opacity: i < 5 ? 0.8 : 0 }, t);
+        tl.set("#c-mag", { x: c, y: d, opacity: i < 5 ? 0.8 : 0 }, t);
+        tl.set("#t-contro", { x: i < 5 ? (i % 2 ? 8 : -8) : 0 }, t);
+      });
+      tl.fromTo("#s2-bg", { filter: "brightness(1)" }, { filter: "brightness(1.8)", duration: 0.12, yoyo: true, repeat: 1, ease: "none" }, 6.96);
+      [0, 1, 2, 3, 4, 5].forEach((i) => tl.to("#lucky", { x: i % 2 ? 10 : -10, duration: 0.04, ease: "none" }, 7.9 + i * 0.04));
+      tl.to("#lucky", { x: 0, scale: 9, duration: 0.24, ease: "power3.in" }, 8.14);
+      tl.to("#t-today, #t-most, #t-contro", { opacity: 0, duration: 0.12 }, 8.1);
+      tl.to("#s2-in", { opacity: 0, duration: 0.12, ease: "none" }, 8.2);
+
+      // S3 slam (HIT = 8.64)
+      const HIT = 8.64, BASE = 1.005;
+      tl.fromTo("#plate-img", { scale: 1.2, filter: "blur(10px)" }, { scale: BASE, filter: "blur(2px)", duration: 0.5, ease: "power2.in" }, 8.14);
+      tl.fromTo("#title-wrap", { scale: 2.3, rotation: -8, filter: "blur(8px)" }, { scale: BASE, rotation: 0, filter: "blur(0px)", duration: 0.5, ease: "power3.in" }, 8.14);
+      tl.fromTo("#title-wrap", { opacity: 0 }, { opacity: 1, duration: 0.15, ease: "none" }, 8.14);
+      tl.to("#title-wrap", { scale: BASE * 1.07, duration: 0.06, ease: "power2.out" }, HIT);
+      tl.to("#title-wrap", { scale: BASE, duration: 0.45, ease: "power3.out" }, HIT + 0.06);
+      tl.fromTo("#flash-el", { opacity: 0.9 }, { opacity: 0, duration: 0.3, ease: "power2.out" }, HIT);
+      tl.fromTo("#ring-el", { scale: 0.45, opacity: 0.9 }, { scale: 2.3, opacity: 0, duration: 0.6, ease: "power2.out" }, HIT);
+      [[-22, 14], [18, -12], [-14, 9], [11, -8], [-7, 5], [5, -3], [-2, 2], [0, 0]].forEach(([x, y], i) => tl.to("#stage", { x, y, duration: 0.045, ease: "none" }, HIT + i * 0.045));
+      for (let i = 0; i < 18; i++) {
+        const t = i / 17, top = i % 2 === 0;
+        const dx = (t - 0.5) * 900 + ((i * 37) % 120) - 60, up = top ? 220 + ((i * 53) % 140) : 90 + ((i * 29) % 80), fall = 520 + ((i * 41) % 200);
+        tl.set("#blk" + i, { opacity: 1, x: 0, y: 0, rotation: 0 }, HIT);
+        tl.to("#blk" + i, { x: dx, rotation: (i % 2 ? 1 : -1) * (180 + i * 20), duration: 1.0, ease: "power1.out" }, HIT);
+        tl.to("#blk" + i, { y: -up, duration: 0.32, ease: "power2.out" }, HIT);
+        tl.to("#blk" + i, { y: fall, duration: 0.68, ease: "power2.in" }, HIT + 0.32);
+        tl.to("#blk" + i, { opacity: 0, duration: 0.25, ease: "none" }, HIT + 0.8);
+      }
+      tl.fromTo("#shine-band", { x: -300, skewX: -20 }, { x: 2000, skewX: -20, duration: 0.7, ease: "power2.inOut" }, 8.9);
+      // logo shrinks into a corner badge while the scene changes under it
+      tl.to("#still-img", { opacity: 0, duration: 0.25, ease: "none" }, 9.55);
+      tl.to("#title-wrap", { scale: 0.24, x: -723, y: -408, filter: "drop-shadow(0 18px 18px rgba(0,0,0,.6))", duration: 0.45, ease: "power3.inOut" }, 9.5);
+      tl.to("#title-wrap", { y: -700, duration: 0.3, ease: "power2.in" }, 17.88);
+
+      // S4
+      tl.fromTo("#rays", { rotation: 0 }, { rotation: 40, duration: 3.45, ease: "none" }, 9.5);
+      for (let i = 0; i < 10; i++) {
+        tl.fromTo("#ball" + i, { opacity: 0, scale: 0 }, { opacity: 0.85, scale: 1, duration: 0.3, ease: "back.out(2)" }, 9.75 + i * 0.07);
+        tl.to("#ball" + i, { y: (i % 2 ? -1 : 1) * (60 + i * 8), rotation: (i % 2 ? 90 : -90), duration: 3.0, ease: "sine.inOut" }, 9.75);
+      }
+      const cnt = { v: 0 };
+      tl.fromTo("#count", { opacity: 0, scale: 1.6 }, { opacity: 1, scale: 1, duration: 0.18, ease: "power3.out" }, 10.96);
+      tl.fromTo(cnt, { v: 0 }, { v: 900, duration: 0.6, ease: "power1.out", onUpdate: () => drawCount(cnt.v) }, 10.96);
+      pop("#plus", 11.6, 2.2, 0.22);
+      tl.fromTo("#count-row", { scale: 1 }, { scale: 1.12, duration: 0.08, yoyo: true, repeat: 1, ease: "power2.out" }, 11.6);
+      pop("#t-diff", 11.92, 1.4);
+      tl.to("#s4 #count-row, #t-diff", { scale: 1.06, duration: 0.9, ease: "none" }, 12.0);
+
+      // S5 mention cutaways
+      MENTIONS.forEach((m, i) => {
+        if (m.kind === "placeholder") tl.fromTo(`#m-${m.id}-p .slot-tex`, { scale: 1.12 }, { scale: 1.0, duration: m.end - m.start, ease: "none" }, m.start);
+        m.slides.forEach((sl, k) => tl.fromTo(`#${sl.id} .m-img`, { scale: 1.0, x: k % 2 ? 30 : -30 }, { scale: 1.07, x: 0, duration: sl.dur, ease: "none" }, sl.start));
+        tl.fromTo("#kw-" + m.id, { scale: 1.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.28, ease: "back.out(2.2)" }, m.hit);
+        tl.to("#kw-" + m.id, { scale: 1.06, duration: Math.max(0.3, m.end - m.hit - 0.3), ease: "none" }, m.hit + 0.3);
+        if (m.check) tl.fromTo("#row-" + m.id, { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.25, ease: "back.out(2)" }, m.hit + 0.07);
+      });
+      if (MENTIONS.length) {
+        const first = MENTIONS[0].start, last = MENTIONS[MENTIONS.length - 1].end;
+        tl.fromTo("#panel", { x: -620 }, { x: 0, duration: 0.35, ease: "power3.out" }, first);
+        tl.to("#panel", { x: -640, duration: 0.3, ease: "power2.in" }, last - 0.3);
+      }
+
+      // S6
+      pop("#t-watch", 18.0, 1.4);
+      tl.fromTo("#player", { scale: 0.85, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(1.6)" }, 18.0);
+      tl.fromTo("#bar-fill", { scaleX: 0 }, { scaleX: 1, duration: 1.2, ease: "power1.inOut" }, 18.48);
+      tl.fromTo("#knob", { x: 0 }, { x: 1020, duration: 1.2, ease: "power1.inOut" }, 18.48);
+      tl.fromTo("#knob", { scale: 1 }, { scale: 1.6, duration: 0.12, yoyo: true, repeat: 1 }, 19.68);
+      tl.to("#player-dim", { opacity: 0.6, duration: 0.2 }, 20.25);
+      tl.fromTo("#pick", { scale: 0, rotation: -120 }, { scale: 1, rotation: 0, duration: 0.35, ease: "back.out(2)" }, 20.32);
+      pop("#t-changes", 20.5, 1.6);
+      tl.to("#pick", { rotation: -25, duration: 0.12, yoyo: true, repeat: 5, ease: "power1.inOut" }, 20.8);
+      for (let i = 0; i < 7; i++) {
+        tl.fromTo("#heart" + i, { y: 0, scale: 0.4 }, { y: -360 - (i % 3) * 120, scale: 1, duration: 0.9, ease: "power2.out" }, 22.3 + i * 0.05);
+        tl.fromTo("#heart" + i, { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "none" }, 22.3 + i * 0.05);
+        tl.to("#heart" + i, { opacity: 0, duration: 0.2, ease: "none" }, 22.72);
+      }
+
+      // S7
+      tl.fromTo("#btn", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2)" }, 22.96);
+      pop("#sub", 23.2, 1.3);
+      tl.to("#arrow", { y: 16, duration: 0.18, yoyo: true, repeat: 5, ease: "sine.inOut" }, 23.2);
+      tl.fromTo("#cursor", { x: 1700, y: 980 }, { x: 1180, y: 480, duration: 0.85, ease: "power2.out" }, 23.35);
+      tl.to("#btn-hi", { opacity: 1, duration: 0.1 }, 24.05);
+      tl.to("#btn", { y: 10, scale: 0.97, duration: 0.07, yoyo: true, repeat: 1 }, 24.32);
+      tl.to("#cursor", { scale: 0.85, duration: 0.07, yoyo: true, repeat: 1 }, 24.32);
+      tl.fromTo("#btn-ring", { scale: 0.1, opacity: 0.9 }, { scale: 1.3, opacity: 0, duration: 0.5, ease: "power2.out" }, 24.32);
+
+      // S8
+      tl.fromTo("#rays8", { rotation: 0 }, { rotation: 30, duration: 1.24, ease: "none" }, 24.96);
+      tl.fromTo("#t-go", { scale: 2.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.16, ease: "power3.in" }, 24.96);
+      [[-18, 12], [14, -10], [-9, 6], [6, -4], [-3, 2], [0, 0]].forEach(([x, y], i) => tl.to("#go-wrap", { x, y, duration: 0.045, ease: "none" }, 25.12 + i * 0.045));
+      tl.to("#t-go", { scale: 1.12, duration: 0.1, yoyo: true, repeat: 1, ease: "power2.out" }, 25.36);
+      tl.to("#go-wrap", { scale: 1.35, duration: 0.45, ease: "power2.in" }, 25.75);
+      tl.fromTo("#endflash-el", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power1.in" }, 26.4);
+
+      // ---------- tone-up: camera punch-ins on key words, whip cuts, XP orbs ----------
+      // set-then-to (not fromTo) so seeking backwards restores the rest state instead of a stale blur
+      tl.set("#cam", { scale: 1, x: 0, filter: "blur(0px)" }, 0);
+      const punch = (t, sc = 1.07) => { tl.set("#cam", { scale: sc }, t); tl.to("#cam", { scale: 1, duration: 0.4, ease: "power3.out" }, t); };
+      const whip = (t, dir = 1) => { tl.set("#cam", { x: -90 * dir, filter: "blur(16px)" }, t); tl.to("#cam", { x: 0, filter: "blur(0px)", duration: 0.2, ease: "power2.out" }, t); };
+      [0.96, 1.6, 6.96, 10.96, 11.6, 20.32].forEach((t) => punch(t));
+      MENTIONS.forEach((m) => punch(m.hit, 1.09));
+      [4.48, 18.0, 22.96].forEach((t, i) => whip(t, i % 2 ? -1 : 1));
+      MENTIONS.forEach((m, i) => { if (Math.abs(m.start - m.hit) > 0.01 || i) whip(m.start, i % 2 ? -1 : 1); else whip(m.start); });
+      for (let i = 0; i < 16; i++) {
+        const o = document.createElement("div"); o.className = "orb"; o.id = "orb" + i; $("orbs").appendChild(o);
+        const a = (i / 16) * Math.PI * 2, r = 260 + ((i * 47) % 160);
+        tl.set(o, { opacity: 1, x: 0, y: 0, scale: 0.6 }, 11.6);
+        tl.to(o, { x: Math.cos(a) * r, y: Math.sin(a) * r * 0.6, scale: 1, duration: 0.45, ease: "power3.out" }, 11.6);
+        tl.to(o, { y: "-=" + (220 + (i % 4) * 40), duration: 0.8, ease: "power1.in" }, 12.05);
+        tl.to(o, { opacity: 0, duration: 0.3, ease: "none" }, 12.55);
+      }
+
+      // ---------- v2: research upgrades ----------
+      // speed-line bursts on the two big reveals (logo hit, 900+)
+      [["#burst1-el", 8.64], ["#burst4-el", 11.6]].forEach(([el, t]) => {
+        tl.fromTo(el, { opacity: 0, scale: 1.25, rotation: 0 }, { opacity: 0.95, scale: 1.0, rotation: 4, duration: 0.12, ease: "power2.out" }, t);
+        tl.to(el, { opacity: 0, rotation: 9, duration: 0.42, ease: "power1.in" }, t + 0.12);
+      });
+      // section badge: "FEATURE n/N · NAME", swapped on each feature (the swap is the transition)
+      MENTIONS.forEach((m, i) => {
+        const b = document.createElement("div"); b.className = "sb"; b.id = "sb-" + m.id;
+        b.appendChild(pix(`FEATURE ${i + 1}/${MENTIONS.length}  ${m.short}`, 6, m.colors, { shadow: 6 }));
+        $("secbadge").appendChild(b);
+        tl.fromTo(b, { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.2, ease: "back.out(2)" }, m.hit);
+        if (i < MENTIONS.length - 1) tl.to(b, { opacity: 0, duration: 0.08 }, MENTIONS[i + 1].hit);
+      });
+      // longer white hold at the end for the Pikachu sting
+      tl.to("#t-go", { scale: 1.1, rotation: -3, duration: 0.09, yoyo: true, repeat: 1, ease: "power2.out" }, 25.88); // bounce on the Pikachu cry
+
+      // ---------- v3: full-screen page scroll for "many different add-ons" ----------
+      {
+        $("fp-cursor").appendChild(icon("cursor", 11));
+        const IN = 2.75, END = 3.75, CLICK = 3.92;
+        tl.fromTo("#fp", { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "none" }, IN);
+        tl.fromTo("#fp-zoom", { scale: 1.12 }, { scale: 1, duration: 0.25, ease: "power3.out" }, IN);
+        tl.fromTo("#fp-page", { y: 0 }, { y: -2600, duration: END - IN - 0.1, ease: "power3.inOut" }, IN + 0.1);
+        tl.fromTo("#vblur-g", { attr: { stdDeviation: "0 0" } }, { attr: { stdDeviation: "0 22" }, duration: 0.42, ease: "power2.in" }, IN + 0.12);
+        tl.to("#vblur-g", { attr: { stdDeviation: "0 0" }, duration: 0.4, ease: "power2.out" }, IN + 0.54);
+        tl.fromTo("#fp-spot", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.18, ease: "power2.out" }, END);
+        tl.fromTo("#fp-cursor", { x: 1500, y: 900, opacity: 0 }, { x: 420, y: 520, opacity: 1, duration: 0.42, ease: "power2.out" }, CLICK - 0.45);
+        tl.to("#fp-cursor", { scale: 0.82, duration: 0.06, yoyo: true, repeat: 1 }, CLICK);
+        tl.to("#fp-zoom", { scale: 1.22, duration: 0.38, ease: "power2.inOut" }, CLICK + 0.04);
+        tl.to("#fp-cursor", { opacity: 0, duration: 0.1 }, CLICK + 0.2);
+      }
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

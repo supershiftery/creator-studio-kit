@@ -1,0 +1,18 @@
+{
+  "id": "G12",
+  "name": "Countdown Podium",
+  "blurb": "A dark stage with sweeping spotlights; every scene plays above a three-step podium whose ??? silhouettes light up one by one through the reveal, and a rank ticker counts down #10 -> #1 along the bottom; whip cuts; the title lands on the top step.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "turn",
+      "reveal",
+      "go"
+    ],
+    "max": 7,
+    "maxlen": 6
+  },
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": []
+}

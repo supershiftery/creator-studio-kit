@@ -1,0 +1,18 @@
+{
+  "id": "G15",
+  "name": "Portal Hop",
+  "blurb": "Every scene is seen through a nether portal: an obsidian frame with a swirling purple portal surface around the edges, purple particles drifting inward, and on every cut the portal swirls hard as if you travelled to the next world; the title emerges out of the portal.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "turn",
+      "reveal",
+      "go"
+    ],
+    "max": 7,
+    "maxlen": 6
+  },
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": []
+}

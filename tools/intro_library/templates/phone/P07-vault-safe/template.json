@@ -1,0 +1,60 @@
+{
+  "id": "P07",
+  "name": "Vault Keypad",
+  "blurb": "A dark vault room: a keypad readout in the corner flashes DENIED in red on each problem line, then types the combination digit by digit and flips to OPEN after the turn, gold light leaking in from the edges; every line is a literal scene with your clips inside; title in gold.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "error",
+      "t": 0.9,
+      "vol": 0.1,
+      "d": 0.4
+    },
+    {
+      "sfx": "click",
+      "t": "turn",
+      "off": 0.3,
+      "vol": 0.16,
+      "d": 0.3
+    },
+    {
+      "sfx": "click",
+      "t": "turn",
+      "off": 0.75,
+      "vol": 0.16,
+      "d": 0.3
+    },
+    {
+      "sfx": "click",
+      "t": "turn",
+      "off": 1.2,
+      "vol": 0.16,
+      "d": 0.3
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

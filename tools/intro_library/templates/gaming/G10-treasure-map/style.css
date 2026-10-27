@@ -1,0 +1,12 @@
+:root { --g-acc:#b3261e;--g-acc2:#6b1208;--g-panel:rgba(60,40,20,.85);--g-edge:#b3261e;--g-wipe:#5a3a1a; }
+#bg{position:absolute;inset:0;filter:sepia(.6) brightness(.85) contrast(1.1)}
+#frame .cmp{position:absolute;right:60px;top:50px;width:170px;height:170px;border-radius:50%;border:8px solid #6b4a20;background:radial-gradient(circle,#f3e2b8,#d9bf86)}
+#frame .cmp i{position:absolute;left:77px;top:15px;width:16px;height:140px;background:linear-gradient(#b3261e 50%,#333 50%);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+
+.xp { left: 560px; width: 800px; }
+.xp-lab { font-family: "MC", monospace; font-weight: 400; color: #80ff20; text-shadow: 3px 3px 0 #000; font-size: 34px; }
+.xp-bar { height: 26px; border: 4px solid #000; border-radius: 0; background: #2b2b2b; }
+.xp-fill { background: linear-gradient(180deg, #b8ff4a, #64c814); }
+.dir .scene { z-index: 10; }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; opacity: 0; z-index: 46; }
+#frame { position: absolute; inset: 0; z-index: 50; pointer-events: none; }

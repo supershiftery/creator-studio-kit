@@ -1,0 +1,18 @@
+{
+  "id": "G05",
+  "name": "Book & Quill",
+  "blurb": "An open book on a wooden desk frames every scene: the pages show each literal scene like an illustration, the line's key word is written beneath in a scratchy handwritten pixel font, page numbers count up and the page curls on each cut; the title is stamped on the book's cover.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "turn",
+      "reveal",
+      "go"
+    ],
+    "max": 7,
+    "maxlen": 6
+  },
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": []
+}

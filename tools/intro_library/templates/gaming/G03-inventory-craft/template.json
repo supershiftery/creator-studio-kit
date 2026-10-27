@@ -1,0 +1,10 @@
+{
+  "id": "G03",
+  "name": "Inventory Craft",
+  "blurb": "A survival-style inventory over a stone wall: every problem line drops a pixel item into a slot with a tooltip naming it; blackout, DROP, the inventory flips to a crafting grid and each reveal line crafts in a gameplay clip window; the XP bar fills on 'watch to the end'; the crafted result is the 3D pixel title.",
+  "status": "ready",
+  "footage": {"roles": ["turn", "reveal", "go"], "max": 7, "maxlen": 6},
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": [{"sfx": "click", "t": 0.4, "vol": 0.16, "d": 0.3}]
+}

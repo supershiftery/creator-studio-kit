@@ -1,0 +1,45 @@
+{
+  "id": "P12",
+  "name": "Search Results",
+  "blurb": "A search engine frames everything: the search bar at the top retypes the query on each line (free <app> code, <app> code that works...), problem lines stamp the results counter with EXPIRED / FAKE, and after the turn a green VERIFIED badge sticks; each line is a literal scene with your clips; title on a clean results page.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "error",
+      "t": 1.2,
+      "vol": 0.09,
+      "d": 0.4
+    },
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.2,
+      "d": 0.3
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

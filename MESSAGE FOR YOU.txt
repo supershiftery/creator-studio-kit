@@ -1,0 +1,17 @@
+Yo! Here's my whole editing setup, cleaned up so it's yours.
+
+It's a video studio that runs on your PC with Claude doing the editing. You drop in a raw recording and it cuts out the bad takes, pauses and filler words, builds an intro from your voiceover, adds music and graphics, checks every render for mistakes, and writes the description and Shorts. You watch the draft, leave notes like "1:22 clipped word" or "music too loud", and it fixes them AND turns each note into a rule, so it keeps getting better. That's also how you train your eye.
+
+What you need:
+- A Windows PC (an NVIDIA graphics card is faster, but you don't need one) and about 40 GB free
+- Claude Code with a Claude Pro or Max plan: https://claude.com/claude-code
+- Your own recordings and music you own (none is included)
+
+Setup (about an hour, mostly downloads):
+1. Unzip "Creator Studio Kit.zip" somewhere permanent, like D:\Creator Studio Kit
+2. Open Claude Code in that folder
+3. Open "MASTER PROMPT.md", copy everything under the line and paste it as your first message
+
+Claude reads everything, installs what's missing, asks you setup questions (mostly buttons to click: your channels, how you record, your style), sets it all up for you and does your first edit with you. Have one raw recording of each type of video you make ready to drop in.
+
+Read "EDITING PLAYBOOK.md" when you get a sec. It's every rule I learned and WHY. "EYE TRAINING.md" is the weekly routine for getting better.

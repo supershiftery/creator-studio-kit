@@ -1,0 +1,524 @@
+[
+  {
+    "id": "w0",
+    "text": "It's",
+    "start": 0.08,
+    "end": 0.32
+  },
+  {
+    "id": "w1",
+    "text": "no",
+    "start": 0.32,
+    "end": 0.48
+  },
+  {
+    "id": "w2",
+    "text": "secret",
+    "start": 0.48,
+    "end": 0.8
+  },
+  {
+    "id": "w3",
+    "text": "that",
+    "start": 0.8,
+    "end": 0.96
+  },
+  {
+    "id": "w4",
+    "text": "Minecraft",
+    "start": 0.96,
+    "end": 1.6
+  },
+  {
+    "id": "w5",
+    "text": "Better",
+    "start": 1.6,
+    "end": 1.84
+  },
+  {
+    "id": "w6",
+    "text": "Roc",
+    "start": 1.92,
+    "end": 2.08
+  },
+  {
+    "id": "w7",
+    "text": "edition",
+    "start": 2.24,
+    "end": 2.56
+  },
+  {
+    "id": "w8",
+    "text": "has",
+    "start": 2.64,
+    "end": 2.88
+  },
+  {
+    "id": "w9",
+    "text": "many",
+    "start": 2.88,
+    "end": 3.2
+  },
+  {
+    "id": "w10",
+    "text": "different",
+    "start": 3.2,
+    "end": 3.6
+  },
+  {
+    "id": "w11",
+    "text": "add-ons,",
+    "start": 3.6,
+    "end": 4.48
+  },
+  {
+    "id": "w12",
+    "text": "but",
+    "start": 4.48,
+    "end": 4.72
+  },
+  {
+    "id": "w13",
+    "text": "in",
+    "start": 4.72,
+    "end": 4.88
+  },
+  {
+    "id": "w14",
+    "text": "today's",
+    "start": 4.88,
+    "end": 5.2
+  },
+  {
+    "id": "w15",
+    "text": "video,",
+    "start": 5.2,
+    "end": 5.52
+  },
+  {
+    "id": "w16",
+    "text": "we're",
+    "start": 5.52,
+    "end": 5.76
+  },
+  {
+    "id": "w17",
+    "text": "gonna",
+    "start": 5.76,
+    "end": 5.92
+  },
+  {
+    "id": "w18",
+    "text": "be",
+    "start": 5.92,
+    "end": 6
+  },
+  {
+    "id": "w19",
+    "text": "revealing",
+    "start": 6,
+    "end": 6.4
+  },
+  {
+    "id": "w20",
+    "text": "one",
+    "start": 6.4,
+    "end": 6.56
+  },
+  {
+    "id": "w21",
+    "text": "of",
+    "start": 6.56,
+    "end": 6.64
+  },
+  {
+    "id": "w22",
+    "text": "the",
+    "start": 6.64,
+    "end": 6.72
+  },
+  {
+    "id": "w23",
+    "text": "most",
+    "start": 6.72,
+    "end": 6.96
+  },
+  {
+    "id": "w24",
+    "text": "controversial",
+    "start": 6.96,
+    "end": 7.68
+  },
+  {
+    "id": "w25",
+    "text": "ones,",
+    "start": 7.68,
+    "end": 8
+  },
+  {
+    "id": "w26",
+    "text": "which",
+    "start": 8,
+    "end": 8.16
+  },
+  {
+    "id": "w27",
+    "text": "is",
+    "start": 8.16,
+    "end": 8.24
+  },
+  {
+    "id": "w28",
+    "text": "gonna",
+    "start": 8.24,
+    "end": 8.4
+  },
+  {
+    "id": "w29",
+    "text": "be",
+    "start": 8.4,
+    "end": 8.48
+  },
+  {
+    "id": "w30",
+    "text": "Cobble",
+    "start": 8.64,
+    "end": 9.12
+  },
+  {
+    "id": "w31",
+    "text": "Mon.",
+    "start": 9.2,
+    "end": 9.6
+  },
+  {
+    "id": "w32",
+    "text": "This",
+    "start": 9.6,
+    "end": 9.76
+  },
+  {
+    "id": "w33",
+    "text": "add-on",
+    "start": 9.76,
+    "end": 10.24
+  },
+  {
+    "id": "w34",
+    "text": "has",
+    "start": 10.24,
+    "end": 10.4
+  },
+  {
+    "id": "w35",
+    "text": "everything",
+    "start": 10.4,
+    "end": 10.72
+  },
+  {
+    "id": "w36",
+    "text": "from",
+    "start": 10.72,
+    "end": 10.96
+  },
+  {
+    "id": "w37",
+    "text": "900",
+    "start": 10.96,
+    "end": 11.6
+  },
+  {
+    "id": "w38",
+    "text": "plus",
+    "start": 11.6,
+    "end": 11.76
+  },
+  {
+    "id": "w39",
+    "text": "different",
+    "start": 11.92,
+    "end": 12.24
+  },
+  {
+    "id": "w40",
+    "text": "Pokemon,",
+    "start": 12.24,
+    "end": 12.88
+  },
+  {
+    "id": "w41",
+    "text": "raid",
+    "start": 12.88,
+    "end": 13.2
+  },
+  {
+    "id": "w42",
+    "text": "dens,",
+    "start": 13.36,
+    "end": 14
+  },
+  {
+    "id": "w43",
+    "text": "trading",
+    "start": 14,
+    "end": 14.56
+  },
+  {
+    "id": "w44",
+    "text": "systems,",
+    "start": 14.56,
+    "end": 15.12
+  },
+  {
+    "id": "w45",
+    "text": "and",
+    "start": 15.12,
+    "end": 15.36
+  },
+  {
+    "id": "w46",
+    "text": "even",
+    "start": 15.36,
+    "end": 15.68
+  },
+  {
+    "id": "w47",
+    "text": "gym",
+    "start": 15.68,
+    "end": 16.08
+  },
+  {
+    "id": "w48",
+    "text": "leaders",
+    "start": 16.08,
+    "end": 16.56
+  },
+  {
+    "id": "w49",
+    "text": "that",
+    "start": 16.56,
+    "end": 16.72
+  },
+  {
+    "id": "w50",
+    "text": "you",
+    "start": 16.72,
+    "end": 16.88
+  },
+  {
+    "id": "w51",
+    "text": "can",
+    "start": 16.88,
+    "end": 17.12
+  },
+  {
+    "id": "w52",
+    "text": "take",
+    "start": 17.12,
+    "end": 17.44
+  },
+  {
+    "id": "w53",
+    "text": "on.",
+    "start": 17.44,
+    "end": 18
+  },
+  {
+    "id": "w54",
+    "text": "Watch",
+    "start": 18,
+    "end": 18.4
+  },
+  {
+    "id": "w55",
+    "text": "the",
+    "start": 18.4,
+    "end": 18.48
+  },
+  {
+    "id": "w56",
+    "text": "videos",
+    "start": 18.48,
+    "end": 18.8
+  },
+  {
+    "id": "w57",
+    "text": "to",
+    "start": 18.88,
+    "end": 19.04
+  },
+  {
+    "id": "w58",
+    "text": "the",
+    "start": 19.04,
+    "end": 19.2
+  },
+  {
+    "id": "w59",
+    "text": "very",
+    "start": 19.2,
+    "end": 19.36
+  },
+  {
+    "id": "w60",
+    "text": "end,",
+    "start": 19.36,
+    "end": 19.68
+  },
+  {
+    "id": "w61",
+    "text": "because",
+    "start": 19.68,
+    "end": 19.92
+  },
+  {
+    "id": "w62",
+    "text": "I",
+    "start": 19.92,
+    "end": 20.08
+  },
+  {
+    "id": "w63",
+    "text": "even",
+    "start": 20.08,
+    "end": 20.32
+  },
+  {
+    "id": "w64",
+    "text": "made",
+    "start": 20.32,
+    "end": 20.56
+  },
+  {
+    "id": "w65",
+    "text": "some",
+    "start": 20.56,
+    "end": 20.72
+  },
+  {
+    "id": "w66",
+    "text": "changes",
+    "start": 20.72,
+    "end": 21.12
+  },
+  {
+    "id": "w67",
+    "text": "to",
+    "start": 21.12,
+    "end": 21.28
+  },
+  {
+    "id": "w68",
+    "text": "the",
+    "start": 21.28,
+    "end": 21.36
+  },
+  {
+    "id": "w69",
+    "text": "add-on",
+    "start": 21.36,
+    "end": 21.76
+  },
+  {
+    "id": "w70",
+    "text": "that",
+    "start": 21.84,
+    "end": 22
+  },
+  {
+    "id": "w71",
+    "text": "I",
+    "start": 22,
+    "end": 22.08
+  },
+  {
+    "id": "w72",
+    "text": "think",
+    "start": 22.08,
+    "end": 22.24
+  },
+  {
+    "id": "w73",
+    "text": "you",
+    "start": 22.24,
+    "end": 22.32
+  },
+  {
+    "id": "w74",
+    "text": "guys",
+    "start": 22.32,
+    "end": 22.56
+  },
+  {
+    "id": "w75",
+    "text": "will",
+    "start": 22.56,
+    "end": 22.72
+  },
+  {
+    "id": "w76",
+    "text": "like,",
+    "start": 22.72,
+    "end": 22.96
+  },
+  {
+    "id": "w77",
+    "text": "and",
+    "start": 22.96,
+    "end": 23.12
+  },
+  {
+    "id": "w78",
+    "text": "I",
+    "start": 23.12,
+    "end": 23.28
+  },
+  {
+    "id": "w79",
+    "text": "honestly",
+    "start": 23.28,
+    "end": 23.6
+  },
+  {
+    "id": "w80",
+    "text": "am",
+    "start": 23.6,
+    "end": 23.76
+  },
+  {
+    "id": "w81",
+    "text": "gonna",
+    "start": 23.76,
+    "end": 24
+  },
+  {
+    "id": "w82",
+    "text": "provide",
+    "start": 24,
+    "end": 24.24
+  },
+  {
+    "id": "w83",
+    "text": "a",
+    "start": 24.24,
+    "end": 24.32
+  },
+  {
+    "id": "w84",
+    "text": "download.",
+    "start": 24.32,
+    "end": 24.96
+  },
+  {
+    "id": "w85",
+    "text": "Let's",
+    "start": 24.96,
+    "end": 25.36
+  },
+  {
+    "id": "w86",
+    "text": "go.",
+    "start": 25.36,
+    "end": 25.76
+  }
+]

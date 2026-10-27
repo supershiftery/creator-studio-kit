@@ -1,0 +1,18 @@
+{
+  "id": "G11",
+  "name": "Command Console",
+  "blurb": "A black terminal world: every scene plays behind a live command log in the bottom-left where each line types itself as a slash command (/find underrated, /locate featured...) with green or red output, a blinking cursor and glitch cuts; the title prints as the final command's output.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "turn",
+      "reveal",
+      "go"
+    ],
+    "max": 7,
+    "maxlen": 6
+  },
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": []
+}

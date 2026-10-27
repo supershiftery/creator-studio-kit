@@ -1,0 +1,18 @@
+#wall { position: absolute; inset: 0; background-color: #1a0e10;
+  background-image: linear-gradient(0deg, rgba(0,0,0,.55) 4px, transparent 4px), linear-gradient(90deg, rgba(0,0,0,.55) 4px, transparent 4px),
+  linear-gradient(90deg, rgba(0,0,0,.55) 4px, transparent 4px);
+  background-size: 100% 64px, 180px 128px, 180px 128px; background-position: 0 0, 0 0, 90px 64px; }
+#wall::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, rgba(90,40,60,.4), rgba(0,0,0,.85) 75%); }
+#board { position: absolute; left: 440px; top: 70px; width: 1040px; height: 585px; border-radius: 10px; overflow: hidden; background: #000;
+  box-shadow: 0 0 0 10px #111, 0 0 0 14px #333, 0 0 80px rgba(120,180,255,.35); opacity: 0; }
+#board .in { position: absolute; inset: 0; }
+#signs { position: absolute; inset: 0; }
+.neon { position: absolute; left: 0; right: 0; top: 720px; text-align: center; font: 400 150px "Monoton", sans-serif; color: #fff; white-space: nowrap; opacity: 0;
+  text-shadow: 0 0 6px #fff, 0 0 18px var(--nc), 0 0 40px var(--nc), 0 0 80px var(--nc), 0 0 140px var(--nc); text-transform: uppercase; }
+.neon.sm { font-size: 110px; }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; opacity: 0; z-index: 45; }
+#title .t0 { font: 400 50px "Monoton", sans-serif; color: #fff; --nc: #ff2e63; text-shadow: 0 0 6px #fff, 0 0 20px #ff2e63, 0 0 50px #ff2e63; letter-spacing: 8px; }
+#title .t1 { font: 400 160px "Monoton", sans-serif; color: #fff; white-space: nowrap; text-transform: uppercase;
+  text-shadow: 0 0 8px #fff, 0 0 24px var(--accent), 0 0 60px var(--accent), 0 0 120px var(--accent); }
+#title .t2 { font: 700 italic 56px "Poppins", sans-serif; color: #ffd1e0; text-shadow: 0 0 20px #ff2e63; }
+.xp-fill { background: #ff2e63; box-shadow: 0 0 20px #ff2e63; }

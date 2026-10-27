@@ -1,0 +1,28 @@
+{
+ "id": "R20",
+ "name": "Score Card Teaser",
+ "blurb": "A sports-broadcast style rating card: the B-roll plays big on the left, a score panel on the right fills with categories pulled from the VO (QUALITY, PRICE, FIT...) whose bars spin like slot reels and stop on '?' to tease the verdict; on the turn the panel flips gold and the bars fill; a ticker crawls along the bottom with the key words; the title sits on the final OVERALL score card.",
+ "status": "off",
+ "footage": {
+  "roles": [
+   "hook",
+   "problem",
+   "turn",
+   "reveal",
+   "watch"
+  ],
+  "every": 1,
+  "max": 16,
+  "maxlen": 5.0
+ },
+ "hold": 2.0,
+ "sfx": [
+  {
+   "sfx": "click",
+   "t": "turn",
+   "vol": 0.15,
+   "d": 0.3
+  }
+ ],
+ "off_why": "dhgate watchb spread 2026-10-24: 'it's okay, but it's not moving ... this template still is like not alive' (B-roll boxed on the left, score panel + ticker take half the frame)"
+}

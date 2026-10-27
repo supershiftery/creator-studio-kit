@@ -1,0 +1,29 @@
+{
+  "id": "R01",
+  "name": "Smoke Words",
+  "blurb": "Black room with drifting smoke for the text-only beats (the opening words and the closing line + title); everywhere else full-colour B-roll and real clips/photos of what the VO names, with the VO landing word by word in bold lowercase and brand words in green; wide-tracked title in smoke.",
+  "ref": "{{REVIEW_CHANNEL}} reviews North Face + AirPods intros",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 1,
+    "max": 16,
+    "maxlen": 9.0,
+    "start_after": 1.3
+  },
+  "hold": 1.9,
+  "sfx": [
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.16,
+      "d": 0.3
+    }
+  ],
+  "lead": 0.27
+}

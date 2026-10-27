@@ -1,0 +1,542 @@
+[
+  {
+    "id": "w0",
+    "text": "There",
+    "start": 0.08,
+    "end": 0.32
+  },
+  {
+    "id": "w1",
+    "text": "are",
+    "start": 0.32,
+    "end": 0.56
+  },
+  {
+    "id": "w2",
+    "text": "many",
+    "start": 0.56,
+    "end": 0.88
+  },
+  {
+    "id": "w3",
+    "text": "different",
+    "start": 0.88,
+    "end": 1.2
+  },
+  {
+    "id": "w4",
+    "text": "servers",
+    "start": 1.2,
+    "end": 1.76
+  },
+  {
+    "id": "w5",
+    "text": "on",
+    "start": 1.76,
+    "end": 1.92
+  },
+  {
+    "id": "w6",
+    "text": "Minecraft,",
+    "start": 1.92,
+    "end": 2.64
+  },
+  {
+    "id": "w7",
+    "text": "bedrock",
+    "start": 2.64,
+    "end": 3.28
+  },
+  {
+    "id": "w8",
+    "text": "edition,",
+    "start": 3.28,
+    "end": 3.84
+  },
+  {
+    "id": "w9",
+    "text": "but",
+    "start": 3.84,
+    "end": 4.16
+  },
+  {
+    "id": "w10",
+    "text": "unfortunately,",
+    "start": 4.16,
+    "end": 5.04
+  },
+  {
+    "id": "w11",
+    "text": "a",
+    "start": 5.04,
+    "end": 5.2
+  },
+  {
+    "id": "w12",
+    "text": "lot",
+    "start": 5.2,
+    "end": 5.36
+  },
+  {
+    "id": "w13",
+    "text": "of",
+    "start": 5.36,
+    "end": 5.44
+  },
+  {
+    "id": "w14",
+    "text": "them",
+    "start": 5.44,
+    "end": 5.6
+  },
+  {
+    "id": "w15",
+    "text": "don't",
+    "start": 5.6,
+    "end": 5.92
+  },
+  {
+    "id": "w16",
+    "text": "even",
+    "start": 5.92,
+    "end": 6.08
+  },
+  {
+    "id": "w17",
+    "text": "get",
+    "start": 6.08,
+    "end": 6.24
+  },
+  {
+    "id": "w18",
+    "text": "the",
+    "start": 6.24,
+    "end": 6.4
+  },
+  {
+    "id": "w19",
+    "text": "light",
+    "start": 6.4,
+    "end": 6.64
+  },
+  {
+    "id": "w20",
+    "text": "of",
+    "start": 6.64,
+    "end": 6.8
+  },
+  {
+    "id": "w21",
+    "text": "day",
+    "start": 6.8,
+    "end": 7.2
+  },
+  {
+    "id": "w22",
+    "text": "because",
+    "start": 7.28,
+    "end": 7.6
+  },
+  {
+    "id": "w23",
+    "text": "the",
+    "start": 7.68,
+    "end": 7.92
+  },
+  {
+    "id": "w24",
+    "text": "featured",
+    "start": 7.92,
+    "end": 8.4
+  },
+  {
+    "id": "w25",
+    "text": "servers",
+    "start": 8.4,
+    "end": 8.96
+  },
+  {
+    "id": "w26",
+    "text": "honestly",
+    "start": 9.04,
+    "end": 9.44
+  },
+  {
+    "id": "w27",
+    "text": "reign",
+    "start": 9.6,
+    "end": 10
+  },
+  {
+    "id": "w28",
+    "text": "supreme,",
+    "start": 10.16,
+    "end": 10.8
+  },
+  {
+    "id": "w29",
+    "text": "and",
+    "start": 10.8,
+    "end": 11.04
+  },
+  {
+    "id": "w30",
+    "text": "most",
+    "start": 11.2,
+    "end": 11.44
+  },
+  {
+    "id": "w31",
+    "text": "of",
+    "start": 11.44,
+    "end": 11.6
+  },
+  {
+    "id": "w32",
+    "text": "the",
+    "start": 11.6,
+    "end": 11.76
+  },
+  {
+    "id": "w33",
+    "text": "time",
+    "start": 11.76,
+    "end": 11.92
+  },
+  {
+    "id": "w34",
+    "text": "on",
+    "start": 12.08,
+    "end": 12.24
+  },
+  {
+    "id": "w35",
+    "text": "console",
+    "start": 12.24,
+    "end": 12.8
+  },
+  {
+    "id": "w36",
+    "text": "edition,",
+    "start": 12.8,
+    "end": 13.44
+  },
+  {
+    "id": "w37",
+    "text": "you",
+    "start": 13.44,
+    "end": 13.6
+  },
+  {
+    "id": "w38",
+    "text": "can't",
+    "start": 13.6,
+    "end": 13.92
+  },
+  {
+    "id": "w39",
+    "text": "even",
+    "start": 13.92,
+    "end": 14.08
+  },
+  {
+    "id": "w40",
+    "text": "add",
+    "start": 14.08,
+    "end": 14.4
+  },
+  {
+    "id": "w41",
+    "text": "servers.",
+    "start": 14.4,
+    "end": 15.12
+  },
+  {
+    "id": "w42",
+    "text": "But",
+    "start": 15.12,
+    "end": 15.36
+  },
+  {
+    "id": "w43",
+    "text": "in",
+    "start": 15.36,
+    "end": 15.52
+  },
+  {
+    "id": "w44",
+    "text": "today's",
+    "start": 15.52,
+    "end": 15.84
+  },
+  {
+    "id": "w45",
+    "text": "video,",
+    "start": 15.84,
+    "end": 16.16
+  },
+  {
+    "id": "w46",
+    "text": "I'm",
+    "start": 16.16,
+    "end": 16.4
+  },
+  {
+    "id": "w47",
+    "text": "gonna",
+    "start": 16.4,
+    "end": 16.64
+  },
+  {
+    "id": "w48",
+    "text": "be",
+    "start": 16.64,
+    "end": 16.72
+  },
+  {
+    "id": "w49",
+    "text": "revealing",
+    "start": 16.72,
+    "end": 17.12
+  },
+  {
+    "id": "w50",
+    "text": "lesser",
+    "start": 17.12,
+    "end": 17.44
+  },
+  {
+    "id": "w51",
+    "text": "known",
+    "start": 17.6,
+    "end": 17.84
+  },
+  {
+    "id": "w52",
+    "text": "servers",
+    "start": 17.84,
+    "end": 18.24
+  },
+  {
+    "id": "w53",
+    "text": "to",
+    "start": 18.24,
+    "end": 18.32
+  },
+  {
+    "id": "w54",
+    "text": "see",
+    "start": 18.32,
+    "end": 18.48
+  },
+  {
+    "id": "w55",
+    "text": "if",
+    "start": 18.48,
+    "end": 18.64
+  },
+  {
+    "id": "w56",
+    "text": "they're",
+    "start": 18.64,
+    "end": 18.88
+  },
+  {
+    "id": "w57",
+    "text": "any",
+    "start": 18.88,
+    "end": 19.12
+  },
+  {
+    "id": "w58",
+    "text": "good",
+    "start": 19.12,
+    "end": 19.36
+  },
+  {
+    "id": "w59",
+    "text": "from",
+    "start": 19.44,
+    "end": 19.68
+  },
+  {
+    "id": "w60",
+    "text": "kit",
+    "start": 19.68,
+    "end": 19.84
+  },
+  {
+    "id": "w61",
+    "text": "PvP,",
+    "start": 20.08,
+    "end": 20.8
+  },
+  {
+    "id": "w62",
+    "text": "Skyblock,",
+    "start": 20.8,
+    "end": 21.76
+  },
+  {
+    "id": "w63",
+    "text": "prisons,",
+    "start": 21.76,
+    "end": 22.24
+  },
+  {
+    "id": "w64",
+    "text": "and",
+    "start": 22.24,
+    "end": 22.4
+  },
+  {
+    "id": "w65",
+    "text": "even",
+    "start": 22.4,
+    "end": 22.64
+  },
+  {
+    "id": "w66",
+    "text": "Pixelmon",
+    "start": 22.64,
+    "end": 23.44
+  },
+  {
+    "id": "w67",
+    "text": "servers",
+    "start": 23.6,
+    "end": 24.08
+  },
+  {
+    "id": "w68",
+    "text": "to",
+    "start": 24.32,
+    "end": 24.56
+  },
+  {
+    "id": "w69",
+    "text": "see",
+    "start": 24.56,
+    "end": 24.88
+  },
+  {
+    "id": "w70",
+    "text": "exactly",
+    "start": 24.88,
+    "end": 25.36
+  },
+  {
+    "id": "w71",
+    "text": "what",
+    "start": 25.36,
+    "end": 25.6
+  },
+  {
+    "id": "w72",
+    "text": "happens",
+    "start": 25.6,
+    "end": 26.08
+  },
+  {
+    "id": "w73",
+    "text": "with",
+    "start": 26.08,
+    "end": 26.24
+  },
+  {
+    "id": "w74",
+    "text": "these",
+    "start": 26.24,
+    "end": 26.4
+  },
+  {
+    "id": "w75",
+    "text": "lesser",
+    "start": 26.4,
+    "end": 26.72
+  },
+  {
+    "id": "w76",
+    "text": "known",
+    "start": 26.88,
+    "end": 27.2
+  },
+  {
+    "id": "w77",
+    "text": "ones",
+    "start": 27.2,
+    "end": 27.36
+  },
+  {
+    "id": "w78",
+    "text": "and",
+    "start": 27.44,
+    "end": 27.68
+  },
+  {
+    "id": "w79",
+    "text": "if",
+    "start": 27.68,
+    "end": 27.84
+  },
+  {
+    "id": "w80",
+    "text": "they",
+    "start": 27.84,
+    "end": 28.08
+  },
+  {
+    "id": "w81",
+    "text": "actually",
+    "start": 28.08,
+    "end": 28.4
+  },
+  {
+    "id": "w82",
+    "text": "stack",
+    "start": 28.4,
+    "end": 28.8
+  },
+  {
+    "id": "w83",
+    "text": "up",
+    "start": 28.8,
+    "end": 29.04
+  },
+  {
+    "id": "w84",
+    "text": "to",
+    "start": 29.04,
+    "end": 29.28
+  },
+  {
+    "id": "w85",
+    "text": "the",
+    "start": 29.28,
+    "end": 29.44
+  },
+  {
+    "id": "w86",
+    "text": "featured",
+    "start": 29.44,
+    "end": 29.84
+  },
+  {
+    "id": "w87",
+    "text": "ones.",
+    "start": 29.84,
+    "end": 30.32
+  },
+  {
+    "id": "w88",
+    "text": "Let's",
+    "start": 30.32,
+    "end": 30.64
+  },
+  {
+    "id": "w89",
+    "text": "go.",
+    "start": 30.64,
+    "end": 30.88
+  }
+]

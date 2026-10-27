@@ -1,0 +1,16 @@
+#foot { position: absolute; inset: 0; background: #000; }
+#masks { position: absolute; inset: 0; }
+/* black card with white letters, multiplied over the footage = footage only inside the letters */
+.mask { position: absolute; inset: 0; background: #000; mix-blend-mode: multiply; display: flex; align-items: center; justify-content: center; opacity: 0; }
+.mask span { font: 400 520px "Anton", sans-serif; color: #fff; text-transform: uppercase; white-space: nowrap; line-height: .85; letter-spacing: -6px; }
+/* after the turn: white letters with a soft shadow on top of the footage */
+.over { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; }
+.over span { font: 400 360px "Anton", sans-serif; color: #fff; text-transform: uppercase; white-space: nowrap; letter-spacing: -4px; text-shadow: 0 20px 60px rgba(0,0,0,.6); }
+.over.key span { color: var(--accent); }
+.kin.low { font: 800 64px "Poppins", sans-serif; color: #fff; text-shadow: 0 0 20px rgba(0,0,0,.9); }
+.kin.low .k { color: var(--accent); }
+#title { position: absolute; inset: 0; opacity: 0; z-index: 45; }
+#title .m { position: absolute; inset: 0; background: #000; mix-blend-mode: multiply; display: flex; align-items: center; justify-content: center; }
+#title .t1 { font: 400 300px "Anton", sans-serif; color: #fff; text-transform: uppercase; white-space: nowrap; letter-spacing: -4px; }
+#title .t2 { position: absolute; left: 0; right: 0; bottom: 120px; text-align: center; font: 800 52px "Poppins", sans-serif; color: #fff; letter-spacing: 14px; text-transform: uppercase; }
+.xp-fill { background: var(--accent); }

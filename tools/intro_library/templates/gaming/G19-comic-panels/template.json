@@ -1,0 +1,18 @@
+{
+  "id": "G19",
+  "name": "Comic Panels",
+  "blurb": "A comic-book page: halftone colour fields behind every scene inside thick black panel borders, a yellow narration caption box top-left carrying each line's key words like a comic narrator, action bursts on the hits; flash cuts; the title is the cover splash with a POW burst.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "turn",
+      "reveal",
+      "go"
+    ],
+    "max": 7,
+    "maxlen": 6
+  },
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": []
+}

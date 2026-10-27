@@ -1,0 +1,18 @@
+{
+ "_note": "Claude fills this in with you from SETUP QUESTIONS.md, saves it as setup/answers.json, then runs: python configure.py",
+ "studio_name": "Creator Studio",
+ "projects_root": "D:/Video Projects",
+ "gaming_root": "D:/Video Projects/Gaming",
+ "music_root": "D:/Music",
+ "recordings": "C:/Users/YOU/Videos",
+ "vo_folder": "C:/Users/YOU/Documents/Voiceovers",
+ "drive_root": "G:/My Drive",
+ "drive_finished": "G:/My Drive/Finished videos",
+ "drive_raw": "G:/My Drive/Raw Videos",
+ "website": "",
+ "channels": [
+  {"name": "My Tech Channel", "types": ["review"], "per_week": 2, "fillers": "heavy"},
+  {"name": "My App Codes Channel", "types": ["phone"], "per_week": 3},
+  {"name": "My Gaming Channel", "types": ["gaming"], "per_week": 1}
+ ]
+}

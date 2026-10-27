@@ -1,0 +1,18 @@
+{
+  "id": "G08",
+  "name": "Loot Cave",
+  "blurb": "A dark cave of stone and ore with flickering torchlight behind every scene; a rarity banner along the bottom climbs COMMON -> UNCOMMON -> RARE -> EPIC -> LEGENDARY as the lines go on (colour shifting each step); pixel-wipe cuts; title shines as LEGENDARY loot.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "turn",
+      "reveal",
+      "go"
+    ],
+    "max": 7,
+    "maxlen": 6
+  },
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": []
+}

@@ -1,0 +1,20 @@
+#bg { position: absolute; inset: 0; background: linear-gradient(135deg, #e9e4dc, #cfc7ba); }
+#persp { position: absolute; inset: 0; perspective: 2000px; }
+#cover { position: absolute; left: 560px; top: 40px; width: 800px; height: 1000px; background: #111; overflow: hidden; box-shadow: 30px 40px 80px rgba(0,0,0,.4); transform-origin: 0% 50%; }
+#cover .photo { position: absolute; inset: 0; }
+#cover .photo .slot video { object-position: 50% 30%; }
+#cover .mast { position: absolute; left: 0; right: 0; top: 10px; text-align: center; font: 900 220px "Playfair", serif; color: #fff; letter-spacing: -6px; line-height: 1;
+  mix-blend-mode: difference; z-index: 3; }
+#cover .lines { position: absolute; inset: 0; z-index: 4; }
+.cl { position: absolute; width: 330px; font: 800 38px "Inter", sans-serif; color: #fff; line-height: 1.05; text-transform: uppercase; text-shadow: 0 2px 10px rgba(0,0,0,.6); opacity: 0; }
+.cl em { display: block; font: italic 700 64px "Playfair", serif; color: var(--accent); text-transform: none; }
+#cover .badge { position: absolute; right: 40px; top: 300px; width: 180px; height: 180px; border-radius: 50%; background: #e0201b; color: #fff; font: 900 26px "Inter", sans-serif;
+  display: flex; align-items: center; justify-content: center; transform: rotate(14deg); z-index: 5; opacity: 0; letter-spacing: 1px; }
+#cover .bar { position: absolute; right: 40px; bottom: 40px; width: 150px; height: 90px; background: #fff repeating-linear-gradient(90deg, #000 0 4px, transparent 4px 7px, #000 7px 9px, transparent 9px 14px); z-index: 5; border: 8px solid #fff; }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; opacity: 0; z-index: 45; background: #111; }
+#title .t0 { font: 800 36px "Inter", sans-serif; color: var(--accent); letter-spacing: 16px; }
+#title .t1 { font: 900 170px "Playfair", serif; color: #fff; white-space: nowrap; letter-spacing: -4px; }
+#title .t2 { font: italic 600 60px "Playfair", serif; color: #d9d2c6; }
+.xp-lab { color: #111; text-shadow: none; }
+.xp-bar { border-color: #111; }
+.xp-fill { background: #111; }

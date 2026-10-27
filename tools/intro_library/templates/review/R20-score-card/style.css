@@ -1,0 +1,25 @@
+#bg { position: absolute; inset: 0; background: linear-gradient(120deg, #0b1d3a, #102a55 50%, #0b1d3a); }
+#bg::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(120deg, rgba(255,255,255,.035) 0 30px, transparent 30px 60px); }
+#tv { position: absolute; left: 60px; top: 80px; width: 1120px; height: 760px; border-radius: 14px; overflow: hidden; background: #000; box-shadow: 0 0 0 6px #e9eef7, 0 30px 70px rgba(0,0,0,.5); opacity: 0; }
+#tv .in { position: absolute; inset: 0; }
+#tv .bug { position: absolute; left: 24px; top: 22px; background: #e8172c; color: #fff; font: 900 30px "BarlowC", sans-serif; padding: 4px 16px; z-index: 3; letter-spacing: 2px; }
+#card { position: absolute; left: 1230px; top: 80px; width: 630px; height: 760px; background: #f4f6fb; border-radius: 14px; overflow: hidden; opacity: 0; box-shadow: 0 30px 70px rgba(0,0,0,.5); }
+#card .hd { background: #e8172c; color: #fff; font: 900 italic 52px "BarlowC", sans-serif; padding: 18px 30px; letter-spacing: 2px; }
+#card .rows { padding: 20px 30px; display: flex; flex-direction: column; gap: 22px; }
+.row { opacity: 0; }
+.row .nm { display: flex; justify-content: space-between; font: 800 40px "BarlowC", sans-serif; color: #0b1d3a; text-transform: uppercase; }
+.row .nm b { color: #e8172c; }
+.row .bar { height: 22px; background: #d7deeb; border-radius: 11px; overflow: hidden; margin-top: 6px; }
+.row .bar i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #e8172c, #ff7a45); transform-origin: 0 50%; }
+#card .ov { position: absolute; left: 0; right: 0; bottom: 0; height: 140px; background: #0b1d3a; display: flex; align-items: center; justify-content: space-between; padding: 0 34px;
+  font: 900 italic 60px "BarlowC", sans-serif; color: #fff; }
+#card .ov b { font-size: 100px; color: #ffcc33; }
+#ticker { position: absolute; left: 0; right: 0; bottom: 70px; height: 90px; background: #e8172c; overflow: hidden; opacity: 0; }
+#ticker .tk { position: absolute; left: 0; top: 0; height: 90px; display: flex; align-items: center; gap: 70px; white-space: nowrap; font: 900 italic 54px "BarlowC", sans-serif; color: #fff; text-transform: uppercase; }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; opacity: 0; z-index: 45; background: #0b1d3a; }
+#title .big { font: 900 italic 260px "BarlowC", sans-serif; color: #ffcc33; line-height: .9; }
+#title .big .of { font-size: 120px; color: #fff; }
+#title .t1 { font: 900 italic 130px "BarlowC", sans-serif; color: #fff; text-transform: uppercase; white-space: nowrap; }
+#title .t2 { font: 800 44px "BarlowC", sans-serif; color: #fff; background: #e8172c; padding: 6px 30px; letter-spacing: 6px; text-transform: uppercase; }
+.xp { top: 20px; }
+.xp-fill { background: #ffcc33; }

@@ -1,0 +1,28 @@
+{
+ "id": "R12",
+ "name": "Magazine Cover",
+ "blurb": "A glossy fashion-magazine cover: the B-roll is the cover photo, a huge serif masthead sits behind it, and every line adds a cover line in the corners (key words in the accent colour); on the turn the page turns to the next issue with a new cover shot; a barcode and an 'EXCLUSIVE' badge; the title becomes the cover story.",
+ "status": "off",
+ "footage": {
+  "roles": [
+   "hook",
+   "problem",
+   "turn",
+   "reveal",
+   "watch"
+  ],
+  "every": 1,
+  "max": 16,
+  "maxlen": 5.0
+ },
+ "hold": 2.0,
+ "sfx": [
+  {
+   "sfx": "click",
+   "t": "turn",
+   "vol": 0.14,
+   "d": 0.3
+  }
+ ],
+ "off_why": "s25 ultra 2026-10-23: a narrow portrait cover on a beige backdrop, 'white bars on the side ... we make 16:9 landscape videos, never an intro that narrow again'"
+}

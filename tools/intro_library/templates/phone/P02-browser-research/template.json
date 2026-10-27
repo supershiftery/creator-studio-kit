@@ -1,0 +1,46 @@
+{
+  "id": "P02",
+  "name": "Browser Research",
+  "blurb": "The 'screens' look (from the approved Shein intro): the whole intro happens inside a browser window - a URL bar types '<app> promo codes' as the frame, tabs pile up along the top on each line, and every line is its own literal scene inside the page, with your own cam and phone clips; the title loads like the final page.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "reveal",
+      "watch"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0,
+    "_why": "watch line gets a clip, the short turn line keeps its designed beat (dhgate coupons 2026-10-22: 4 s still word on 'watch to the end', 32% near-still)"
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "key",
+      "t": 0.3,
+      "vol": 0.12,
+      "d": 0.9
+    },
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.2,
+      "d": 0.3
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}

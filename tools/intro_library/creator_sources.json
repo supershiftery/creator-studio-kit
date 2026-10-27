@@ -1,0 +1,35 @@
+{
+ "why": "creator_clips.py: intro lines about OTHER creators/videos show real clips of them (user, ultimate dhgate free reselling spreadsheet 2026-10-23). topics = known TikTok handles per topic word (checked to post on-topic); own = the user's channels, never shown; never = blacklisted.",
+ "topics": {
+  "resell": [
+   "kasperresells",
+   "piaresell",
+   "piaresells"
+  ]
+ },
+ "own": [
+  "{{REVIEW_CHANNEL}}reviews",
+  "not{{REVIEW_CHANNEL}}",
+  "shiftreviews",
+  "studiomc",
+  "studio",
+  "studioreviews",
+  "{{REVIEW_CHANNEL}}1to1",
+  "{{REVIEW_CHANNEL}}hauls",
+  "{{REVIEW_CHANNEL}}resells",
+  "{{REVIEW_CHANNEL}}reseells",
+  "{{REVIEW_CHANNEL}}finds",
+  "{{REVIEW_CHANNEL}}kicks",
+  "agent{{REVIEW_CHANNEL}}",
+  "{{REVIEW_CHANNEL}}profit",
+  "tylerreviews"
+ ],
+ "never": [
+  "blocked-channel-example"
+ ],
+ "own_contains": [
+  "{{REVIEW_CHANNEL}}",
+  "studio"
+ ],
+ "_own_why": "his own channels never appear in an intro: not as creator clips, not in a filmed YouTube/TikTok search (dhgae prada glasses 2026-10-26: our own video ranked #1 in the 'best prada sunglasses dhgate' scroll right after 'these influencers are lying to you'). own = exact names (lowercase, letters+digits), own_contains = any name containing it."
+}

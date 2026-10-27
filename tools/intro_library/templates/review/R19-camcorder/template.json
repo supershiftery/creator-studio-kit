@@ -1,0 +1,9 @@
+{
+  "id": "R19",
+  "name": "Camcorder Tape",
+  "blurb": "Home-video camcorder look: the B-roll plays full-frame through a viewfinder HUD (blinking REC dot, running tape counter, battery, focus brackets), with VHS tracking wobble, chroma bleed and scanlines; captions in a chunky VCR font; on the turn the tape fast-forwards (>> with rolling bars) into the colour reveal; the title is the tape label on screen. No dates anywhere, only the tape counter.",
+  "status": "ready",
+  "footage": {"roles": ["hook", "problem", "turn", "reveal", "watch"], "every": 1, "max": 16, "maxlen": 5.0, "extend_last": true},
+  "hold": 2.0,
+  "sfx": [{"sfx": "glitch", "t": "turn", "off": -0.35, "vol": 0.12, "d": 0.4}]
+}

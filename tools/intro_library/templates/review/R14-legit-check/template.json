@@ -1,0 +1,9 @@
+{
+  "id": "R14",
+  "name": "Legit Check Scanner",
+  "blurb": "A forensic scanner HUD: B-roll sits in a targeting frame with a scan line sweeping and corner brackets; each line adds a checklist item (STITCHING, TAG, ZIPPER... from the key words) that ticks or crosses; a REAL vs FAKE needle swings and hovers on '?'; on the turn the HUD turns green and the reveal clips get 'MATCH' readouts; title is the verdict screen.",
+  "status": "ready",
+  "footage": {"roles": ["hook", "problem", "turn", "reveal", "watch"], "every": 1, "max": 16, "maxlen": 5.0},
+  "hold": 2.0,
+  "sfx": [{"sfx": "key", "t": 0.3, "vol": 0.1, "d": 0.9}, {"sfx": "ping", "t": "turn", "vol": 0.14, "d": 0.6}]
+}

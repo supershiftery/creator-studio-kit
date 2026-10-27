@@ -1,0 +1,18 @@
+{
+  "id": "G02",
+  "name": "Case File",
+  "blurb": "Detective case-file world (the approved Realms look): ink-purple room, a flashlight cone sweeping behind every scene, film grain; an EVIDENCE tag top-left numbers each line; flash cuts; CASE OPEN stamp, then the 3D pixel title.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "turn",
+      "reveal",
+      "go"
+    ],
+    "max": 7,
+    "maxlen": 6
+  },
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": []
+}

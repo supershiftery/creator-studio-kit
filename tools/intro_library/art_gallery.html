@@ -1,0 +1,192 @@
+<title>Intro Library</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: a screening-room reel. Featured cut on top, then one wall of cards per channel, each card a clip + a verdict strip. */
+:root {
+  --bg: #121315; --panel: #1b1d21; --panel2: #23262b; --ink: #eceae4; --mute: #9b988f; --line: #2e3137;
+  --rev: #f2b544; --pho: #ff7a5c; --gam: #7fe0a7; --keep: #6fdc8c; --tweak: #f2b544; --drop: #ff6b6b;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif; --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--body); margin: 0; }
+.wrap { max-width: 1440px; margin: 0 auto; padding-block: 28px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 18px; border-bottom: 1px solid var(--line); padding-bottom: 18px; }
+h1 { font: 800 clamp(34px, 5vw, 56px)/1 var(--display); margin: 0; letter-spacing: -0.02em; text-wrap: balance; }
+.sub { color: var(--mute); margin: 8px 0 0; max-width: 62ch; }
+.tally { display: flex; gap: 10px; flex-wrap: wrap; }
+.tally div { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; min-width: 128px; }
+.tally b { display: block; font: 800 26px/1.1 var(--display); font-variant-numeric: tabular-nums; }
+.tally span { font: 500 11px var(--mono); color: var(--mute); letter-spacing: .08em; text-transform: uppercase; }
+.feat { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 22px; margin: 26px 0 10px; align-items: center; }
+.feat video { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; display: block; }
+.feat h2 { font: 800 30px/1.1 var(--display); margin: 6px 0 10px; }
+.eyebrow { font: 500 11px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--rev); }
+.feat p { color: var(--mute); margin: 0 0 10px; }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 0; border-bottom: 1px solid var(--line); margin-top: 18px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.chip { font: 600 13px var(--body); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip:focus-visible, .vb:focus-visible, textarea:focus-visible { outline: 2px solid var(--rev); outline-offset: 2px; }
+.spacer { flex: 1; }
+section { margin-top: 30px; }
+section h3 { display: flex; gap: 12px; align-items: baseline; font: 800 24px/1.2 var(--display); margin: 0 0 4px; }
+section h3 small { font: 500 12px var(--mono); color: var(--mute); }
+section .demo { color: var(--mute); margin: 0 0 14px; font-size: 14px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.card video { width: 100%; aspect-ratio: 16/9; display: block; background: #000; }
+.meta { padding: 12px 14px 4px; display: flex; gap: 10px; align-items: center; }
+.id { font: 500 12px var(--mono); padding: 2px 8px; border-radius: 6px; color: #111; }
+.t-review .id { background: var(--rev); } .t-phone .id { background: var(--pho); } .t-gaming .id { background: var(--gam); }
+.meta h4 { margin: 0; font: 700 18px/1.2 var(--display); flex: 1; min-width: 0; }
+.meta .dur { font: 500 12px var(--mono); color: var(--mute); font-variant-numeric: tabular-nums; }
+.blurb { color: var(--mute); font-size: 13.5px; margin: 4px 14px 10px; }
+.verdict { margin-top: auto; border-top: 1px solid var(--line); padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 8px; }
+.vrow { display: flex; gap: 6px; }
+.vb { flex: 1; font: 600 13px var(--body); background: var(--panel2); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 7px 0; cursor: pointer; }
+.vb[data-v="keep"][aria-pressed="true"] { background: var(--keep); color: #0d1a10; border-color: var(--keep); }
+.vb[data-v="tweak"][aria-pressed="true"] { background: var(--tweak); color: #1d1405; border-color: var(--tweak); }
+.vb[data-v="drop"][aria-pressed="true"] { background: var(--drop); color: #220808; border-color: var(--drop); }
+textarea { width: 100%; box-sizing: border-box; min-height: 40px; resize: vertical; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font: 13.5px var(--body); }
+.saved { font: 500 11px var(--mono); color: var(--mute); min-height: 14px; }
+.note-off { font-size: 13px; color: var(--mute); }
+.empty { color: var(--mute); border: 1px dashed var(--line); border-radius: 12px; padding: 18px; }
+@media (max-width: 760px) { .feat { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Intro Library</h1>
+      <p class="sub">Round 4: all 59 templates rebuilt to the round 3 bar and re-rendered. New tonight: the first two seconds are sharp now (every intro used to open blurred), iPhone HDR clips play in normal colour, no template turns footage grey any more, phone intros show your clips on every clip line plus a new coupon scene, and gaming has a YouTube-style results scroll. Gaming demos have no gameplay yet, so their clip windows are empty. Mark each one Keep, Tweak or Drop.</p>
+    </div>
+    <div class="tally" id="tally"></div>
+  </header>
+
+  <div class="feat" id="feat">
+    <video src="moncler.mp4" controls preload="metadata" playsinline></video>
+    <div>
+      <div class="eyebrow">Round 3 · product review · rendered before tonight's fixes</div>
+      <h2>Moncler intro, v3</h2>
+      <p>Everything in colour now. Smoke only for the opening words and the title; every other line plays footage. The Honda Civic line plays a real Honda Civic video clip (free licence), Neiman Marcus is the real storefront photo (no free video of it exists), and "my computer" stays on your DHgate listing. Moncler and Palm Angels logos stamp in on their words. No emojis anywhere.</p>
+      <p>The Grid Notebook card below is the same intro in that style, also all colour.</p>
+    </div>
+  </div>
+
+  <div class="bar" role="toolbar" aria-label="Filter templates">
+    <button class="chip" data-f="all" aria-pressed="true">All</button>
+    <button class="chip" data-f="review" aria-pressed="false">Product review</button>
+    <button class="chip" data-f="phone" aria-pressed="false">Phone & app</button>
+    <button class="chip" data-f="gaming" aria-pressed="false">Gaming</button>
+    <span class="spacer"></span>
+    <button class="chip" data-u="todo" aria-pressed="false">Not reviewed yet</button>
+  </div>
+
+  <div id="walls"></div>
+</div>
+
+<script>
+const ITEMS = /*DATA*/[];
+const TYPES = /*TYPES*/{};
+const COUNTS = /*COUNTS*/{};
+const state = { f: "all", todo: false, verdicts: {} };
+try { const s = JSON.parse(localStorage.getItem("introlib-filter") || "{}"); if (s.f) state.f = s.f; state.todo = !!s.todo; } catch (e) {}
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let db = null, canWrite = false;
+
+function tally() {
+  const v = state.verdicts;
+  $("#tally").innerHTML = ["review", "phone", "gaming"].map((k) => {
+    const n = COUNTS[k] || 0, kept = ITEMS.filter((i) => i.type === k && (v[i.id] || {}).v === "keep").length;
+    return `<div><b>${n}<span style="font-size:14px;color:var(--mute)"> / 20</span></b><span>${esc(TYPES[k][0])}${kept ? " · " + kept + " kept" : ""}</span></div>`;
+  }).join("");
+}
+
+function render() {
+  const walls = $("#walls");
+  walls.innerHTML = "";
+  ["review", "phone", "gaming"].forEach((k) => {
+    if (state.f !== "all" && state.f !== k) return;
+    let list = ITEMS.filter((i) => i.type === k);
+    if (state.todo) list = list.filter((i) => !(state.verdicts[i.id] || {}).v);
+    const sec = document.createElement("section");
+    sec.innerHTML = `<h3>${esc(TYPES[k][0])} <small>${esc(TYPES[k][1])} · ${COUNTS[k] || 0} built</small></h3><p class="demo">${esc(TYPES[k][2])}</p>`;
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    if (!list.length) grid.innerHTML = `<div class="empty">${state.todo ? "Everything here has a verdict." : "Still rendering, check back soon."}</div>`;
+    list.forEach((i) => grid.appendChild(card(i)));
+    sec.appendChild(grid);
+    walls.appendChild(sec);
+  });
+  tally();
+}
+
+function card(i) {
+  const v = state.verdicts[i.id] || {};
+  const c = document.createElement("article");
+  c.className = "card t-" + i.type;
+  c.id = "card-" + i.id;
+  c.innerHTML = `<video src="previews/${i.id}.mp4" poster="posters/${i.id}.jpg" controls preload="none" playsinline></video>
+    <div class="meta"><span class="id">${esc(i.id)}</span><h4>${esc(i.name)}</h4><span class="dur">${i.dur ? i.dur.toFixed(1) + " s" : ""}</span></div>
+    <p class="blurb">${esc(i.blurb)}</p>
+    <div class="verdict">${db && canWrite !== false ? `
+      <div class="vrow">${["keep", "tweak", "drop"].map((x) => `<button class="vb" data-v="${x}" aria-pressed="${v.v === x}">${x[0].toUpperCase() + x.slice(1)}</button>`).join("")}</div>
+      <textarea id="note-${esc(i.id)}" placeholder="What to change (optional)">${esc(v.note || "")}</textarea><div class="saved"></div>`
+      : `<div class="note-off">Open this page signed in to leave a verdict.</div>`}</div>`;
+  c.querySelectorAll(".vb").forEach((b) => b.addEventListener("click", () => save(i.id, { v: v.v === b.dataset.v ? "" : b.dataset.v }, c)));
+  const ta = c.querySelector("textarea");
+  if (ta) ta.addEventListener("change", () => save(i.id, { note: ta.value.slice(0, 1000) }, c));
+  return c;
+}
+
+async function save(id, patch, c) {
+  const cur = Object.assign({}, state.verdicts[id] || {}, patch, { at: new Date().toISOString() });
+  state.verdicts[id] = cur;
+  c.querySelectorAll(".vb").forEach((b) => b.setAttribute("aria-pressed", String(cur.v === b.dataset.v)));
+  const s = c.querySelector(".saved");
+  try { await db.collection("verdicts").doc(id).set(cur); s.textContent = "Saved"; }
+  catch (e) { s.textContent = e && e.code === "not_granted" ? "You can view this page but not leave verdicts." : "Not saved. Try again in a moment."; }
+  tally();
+}
+
+document.querySelectorAll(".chip[data-f]").forEach((b) => {
+  b.setAttribute("aria-pressed", String(b.dataset.f === state.f));
+  b.addEventListener("click", () => {
+    state.f = b.dataset.f;
+    document.querySelectorAll(".chip[data-f]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    try { localStorage.setItem("introlib-filter", JSON.stringify({ f: state.f, todo: state.todo })); } catch (e) {}
+    render();
+  });
+});
+const todoBtn = $(".chip[data-u]");
+todoBtn.setAttribute("aria-pressed", String(state.todo));
+todoBtn.addEventListener("click", () => {
+  state.todo = !state.todo;
+  todoBtn.setAttribute("aria-pressed", String(state.todo));
+  try { localStorage.setItem("introlib-filter", JSON.stringify({ f: state.f, todo: state.todo })); } catch (e) {}
+  render();
+});
+// only one preview plays at a time
+document.addEventListener("play", (e) => document.querySelectorAll("video").forEach((v) => v !== e.target && v.pause()), true);
+
+render();
+(async () => {
+  try { db = await (window.claude && window.claude.use ? window.claude.use("db") : null); } catch (e) { db = null; }
+  try { const user = await (window.claude && window.claude.use ? window.claude.use("user") : null); if (user && user.can) { const w = user.can("data.write"); canWrite = w === null ? true : w; } else canWrite = true; } catch (e) { canWrite = true; }
+  if (!db) return;
+  db.collection("verdicts").onSnapshot((snap) => {
+    const next = {};
+    snap.docs.forEach((d) => (next[d.id] = d.data() || {}));
+    const focused = document.activeElement && document.activeElement.tagName === "TEXTAREA";
+    state.verdicts = next;
+    if (!focused) render(); else tally();
+  }, () => {});
+  render();
+})();
+</script>

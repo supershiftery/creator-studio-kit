@@ -1,0 +1,18 @@
+{
+  "id": "G06",
+  "name": "Arcade Cabinet",
+  "blurb": "Every scene plays on a curved CRT arcade screen inside a cabinet bezel with glare and scanlines; a 1UP / HI-SCORE counter climbs on every line, problem lines flash GAME OVER lives lost, glitch cuts between scenes; INSERT COIN blinks, then the title as the game's logo.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "turn",
+      "reveal",
+      "go"
+    ],
+    "max": 7,
+    "maxlen": 6
+  },
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": []
+}

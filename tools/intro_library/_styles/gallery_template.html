@@ -1,0 +1,331 @@
+<title>Intro Style Bay</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an edit bay. Each style is a clip on a 4-track timeline (hook / problem / turn / payoff); verdict buttons sit like a reviewer's marker. */
+:root{
+  --bg:#eef1f5; --panel:#ffffff; --ink:#18202b; --muted:#5b6676; --line:#d5dbe3;
+  --hook:#2f6fd6; --prob:#c2484a; --turn:#c98a12; --pay:#2a8f5b; --accent:#2f6fd6;
+  --chip:#e6ebf2; --keep:#2a8f5b; --tweak:#c98a12; --drop:#c2484a;
+  --f-disp:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12161d; --panel:#1a2029; --ink:#e7ecf3; --muted:#9aa6b6; --line:#2c3542;
+  --hook:#6a9ff0; --prob:#e57a7b; --turn:#e8b347; --pay:#5cc48f; --accent:#6a9ff0; --chip:#232b37;
+  --keep:#5cc48f; --tweak:#e8b347; --drop:#e57a7b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161d; --panel:#1a2029; --ink:#e7ecf3; --muted:#9aa6b6; --line:#2c3542;
+  --hook:#6a9ff0; --prob:#e57a7b; --turn:#e8b347; --pay:#5cc48f; --accent:#6a9ff0; --chip:#232b37;
+  --keep:#5cc48f; --tweak:#e8b347; --drop:#e57a7b; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font-family:var(--f-disp);font-weight:800;font-size:clamp(40px,7vw,72px);line-height:.95;letter-spacing:.01em;margin:0;text-transform:uppercase;text-wrap:balance}
+.lede{max-width:68ch;color:var(--muted);margin:12px 0 0}
+.lede b{color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:18px 0 0;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:22px;height:8px;border-radius:2px;display:inline-block}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;margin-top:22px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.tab,.flt{font:500 14px var(--f-body);border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 14px;border-radius:999px;cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.flt{font-size:12px;padding:5px 11px}
+.flt[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.tab:focus-visible,.flt:focus-visible,.v:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tally{margin-left:auto;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.layer{margin:18px 0 6px;padding:12px 14px;border-left:3px solid var(--accent);background:var(--panel);font-size:14px;color:var(--muted)}
+.layer b{color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-top:16px}
+@media (max-width:420px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card[data-v="keep"]{border-color:var(--keep)}.card[data-v="tweak"]{border-color:var(--tweak)}.card[data-v="drop"]{opacity:.55}
+.top{display:flex;align-items:baseline;gap:10px}
+.id{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.name{font-family:var(--f-disp);font-weight:800;font-size:28px;line-height:1;text-transform:uppercase;letter-spacing:.01em;margin:0}
+.tier{margin-left:auto;font:500 11px var(--f-mono);text-transform:uppercase;letter-spacing:.08em;padding:2px 8px;border-radius:4px;background:var(--chip);color:var(--muted);white-space:nowrap}
+.tier.safe{color:var(--pay)}.tier.fresh{color:var(--hook)}.tier.bold{color:var(--prob)}
+.idea{margin:0}
+.tl{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;position:relative}
+.beat{border-radius:6px;padding:8px 8px 9px;font-size:12.5px;line-height:1.35;background:var(--chip);border-top:4px solid;min-width:0}
+.beat i{display:block;font:500 10px var(--f-mono);font-style:normal;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.b0{border-color:var(--hook)}.b0 i{color:var(--hook)}.b1{border-color:var(--prob)}.b1 i{color:var(--prob)}
+.b2{border-color:var(--turn)}.b2 i{color:var(--turn)}.b3{border-color:var(--pay)}.b3 i{color:var(--pay)}
+@media (max-width:520px){.tl{grid-template-columns:1fr 1fr}}
+.head{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--ink);left:0;opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:no-preference){.card:hover .head{opacity:.7;animation:play 3.2s linear infinite}}
+@keyframes play{from{left:0}to{left:100%}}
+.sig{font-size:14px;margin:0}
+.sig b{font:500 10px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--turn);display:block}
+.fits{display:flex;flex-wrap:wrap;gap:5px}
+.fits span{font-size:11.5px;background:var(--chip);color:var(--muted);padding:2px 8px;border-radius:999px}
+.assets{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.assets b{font:500 10px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--hook);margin-right:2px}
+.assets span{font-size:12px;border:1px solid var(--line);padding:1px 8px;border-radius:4px}
+.assets span.new{border-style:dashed;color:var(--muted)}
+.assets span.new::after{content:" · new";font:10px var(--f-mono)}
+.finding{margin:22px 0 0;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.finding{grid-template-columns:1fr}}
+.finding .txt{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.finding h2{font-family:var(--f-disp);font-weight:800;font-size:30px;text-transform:uppercase;margin:0 0 6px;line-height:1}
+.finding p{margin:6px 0;font-size:14px}
+.mix{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:13px}
+.mix table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.mix th{font:500 10px var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}
+.mix td{padding:5px 6px;border-bottom:1px solid var(--line)}
+.mix td.n{text-align:right;font-family:var(--f-mono)}
+.mix .barc{position:relative;height:8px;background:var(--chip);border-radius:2px;min-width:60px}
+.mix .barc i{position:absolute;left:0;top:0;bottom:0;background:var(--prob);border-radius:2px}
+.mix tr.best .barc i{background:var(--pay)}
+.menu{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.menu h2{font-family:var(--f-disp);font-weight:800;font-size:30px;text-transform:uppercase;margin:0 0 8px}
+.menu ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px 16px;font-size:13.5px}
+.menu li{min-width:0}.menu li b{display:block}.menu li span{color:var(--muted)}
+.menu li.new b::after{content:" · to build";font:500 10px var(--f-mono);color:var(--turn)}
+.menu li.blocked b::after{content:" · blocked";font:500 10px var(--f-mono);color:var(--prob)}
+.assets span.blocked{text-decoration:line-through;color:var(--muted)}
+.tests{margin-top:26px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+.tests h2{font-family:var(--f-disp);font-weight:800;font-size:34px;text-transform:uppercase;margin:0;line-height:1}
+.pair{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.pair h3{margin:0;font-size:17px}
+.pair .look{margin:0;font-size:14px;color:var(--muted);max-width:80ch}
+.vids{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:760px){.vids{grid-template-columns:1fr}}
+.vids figure{margin:0;min-width:0}
+.vids video{width:100%;aspect-ratio:16/9;background:#000;border-radius:8px;display:block}
+.vids figcaption{font:500 11px var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:5px}
+.vids figcaption.new{color:var(--pay)}
+.pick{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pick .v[data-k="new"][aria-pressed="true"]{background:var(--keep);border-color:var(--keep);color:var(--panel)}
+.pick .v[data-k="orig"][aria-pressed="true"]{background:var(--tweak);border-color:var(--tweak);color:var(--panel)}
+.pick .v[data-k="work"][aria-pressed="true"]{background:var(--drop);border-color:var(--drop);color:var(--panel)}
+details{font-size:13.5px;color:var(--muted)}
+summary{cursor:pointer;color:var(--ink);font-weight:500}
+dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:8px 0 0}
+dt{font:500 10px var(--f-mono);text-transform:uppercase;letter-spacing:.08em;padding-top:3px}
+dd{margin:0;min-width:0}
+dd.g{color:var(--prob)}
+.vrow{display:flex;gap:6px;align-items:center;margin-top:auto;padding-top:6px;border-top:1px dashed var(--line)}
+.v{font:500 13px var(--f-body);border:1px solid var(--line);background:transparent;color:var(--ink);padding:5px 12px;border-radius:6px;cursor:pointer}
+.v[data-k="keep"][aria-pressed="true"]{background:var(--keep);border-color:var(--keep);color:var(--panel)}
+.v[data-k="tweak"][aria-pressed="true"]{background:var(--tweak);border-color:var(--tweak);color:var(--panel)}
+.v[data-k="drop"][aria-pressed="true"]{background:var(--drop);border-color:var(--drop);color:var(--panel)}
+.v:disabled{opacity:.45;cursor:default}
+.saved{font:12px var(--f-mono);color:var(--muted);margin-left:auto}
+textarea{width:100%;box-sizing:border-box;font:13px var(--f-body);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:7px;resize:vertical;min-height:38px}
+.rules{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.rules{grid-template-columns:1fr}}
+.rules section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;min-width:0}
+.rules h2{font-family:var(--f-disp);font-weight:800;font-size:30px;text-transform:uppercase;margin:0 0 8px}
+.rules ul{margin:0;padding-left:18px;font-size:14px}
+.rules li{margin:3px 0}
+.yes h2{color:var(--pay)}.no h2{color:var(--prob)}
+.note{font-size:13px;color:var(--muted);margin-top:10px}
+</style>
+
+<div class="wrap">
+  <h1>Intro Style Bay</h1>
+  <p class="lede">80 voiceover intro styles, <b>20 for each video type</b>. Each one is an editing idea, not a theme skin: the type's approved text layer stays the same, and what changes is how the story is told plus <b>one signature moment</b> that only that video could have. Every style was checked against the intro notes you've given before. Mark each one <b>Keep</b>, <b>Tweak</b> or <b>Drop</b> and I'll build the ones you keep first.</p>
+  <div class="legend">
+    <span><i class="sw" style="background:var(--hook)"></i>hook</span>
+    <span><i class="sw" style="background:var(--prob)"></i>problem</span>
+    <span><i class="sw" style="background:var(--turn)"></i>turn ("in today's video")</span>
+    <span><i class="sw" style="background:var(--pay)"></i>payoff</span>
+    <span>· safe = built from approved intros · fresh = new, inside the rules · bold = test render first</span>
+  </div>
+
+  <section class="tests" aria-label="Test intros">
+    <h2>Start here: 3 test intros</h2>
+    <p class="note">Each pair is your approved intro next to the same intro rebuilt with the new outside sources. Same voiceover and music. Tap play on both, then pick one.</p>
+    <div id="tests"></div>
+  </section>
+
+  <div class="finding">
+    <div class="txt">
+      <h2>Why approved intros still fall short</h2>
+      <p>I measured every intro you've judged. Pace and smoothness are already close to the best one. The real difference is <b>how many different kinds of source get pulled in</b>.</p>
+      <p>The one you called perfect (the reselling spreadsheet) used 4 kinds of source and only 22% of its shots were your own product. The "decent" ones mostly lean on 2 kinds and 70-100% product footage. That's exactly where you said "too much of the watch" and "too much of the phone".</p>
+      <p>New rule for every intro: <b>4+ kinds of source, product footage at most half</b>, and an outside asset about every 2 lines. The self-check now warns when an intro falls under that.</p>
+    </div>
+    <div class="mix" aria-label="Product footage share per judged intro">
+      <table>
+        <thead><tr><th>Intro</th><th>Kinds</th><th>Your product</th><th></th></tr></thead>
+        <tbody id="mixrows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="menu">
+    <h2>The asset menu</h2>
+    <ul id="menu"></ul>
+  </div>
+
+  <div class="bar" role="toolbar" aria-label="Filter styles">
+    <div id="tabs" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    <div id="flts" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    <span class="tally" id="tally">Votes load when you open this in Claude</span>
+  </div>
+  <div class="layer" id="layer"></div>
+  <div class="grid" id="grid"></div>
+
+  <div class="rules">
+    <section class="yes"><h2>What gets approved</h2><ul>
+      <li>Every shot shows the literal thing he says (product, brand, site, person, place)</li>
+      <li>His own footage first, then real pages, real photos, then stock that acts out the word</li>
+      <li>Full-frame footage; cards and paper only as a 1-2 page accent</li>
+      <li>A new real source every ~1.5-2 s, never the same clip twice</li>
+      <li>Shots land ON the word (dissolve starts early), smooth sub-pixel glides at 60 fps</li>
+      <li>Problem → turn → payoff; Minecraft drops on the turn and ends on a title slam</li>
+      <li>Story sounds tied to his words, quiet and varied</li>
+      <li>Ends 0.3 s after the last word, straight into "hey guys"</li>
+    </ul></section>
+    <section class="no"><h2>What gets rejected</h2><ul>
+      <li>Cartoon FX (burst, fire, smoke, swirl), emojis, memes, ransom-note or comic text</li>
+      <li>Flashes and light leaks in phone intros, colour-panel wipes, risers, 808s</li>
+      <li>Black, white or empty frames; narrow intros with bars; small cards on a dark wall</li>
+      <li>Holds over 3.5 s, repeats, 4+ web pages, too much of the product</li>
+      <li>Wrong-context pictures, random stock people, the muted talking cam, his link page</li>
+      <li>Numbers he didn't say, readable codes, dates, highlighted filler words</li>
+      <li>Too busy: pops on every word, random zooms, shaky camera, jumpy clips</li>
+    </ul></section>
+  </div>
+  <p class="note">Full rulebook: {{KIT}}/tools\intro_library\INTRO_RULES.md · catalog: STYLES.md · data: _styles\styles.json</p>
+</div>
+
+<script>
+const D = /*__DATA__*/null;
+const BEAT = ["hook","problem","turn","payoff"];
+const state = {type:"minecraft", tier:"all", votes:{}};
+try{ const t = localStorage.getItem("isb-type"); if(t && D.types[t]) state.type = t; }catch(e){}
+const h = (tag, cls, txt) => { const e = document.createElement(tag); if(cls) e.className = cls; if(txt!=null) e.textContent = txt; return e; };
+let db = null, canWrite = true;
+
+function tabs(){
+  const t = document.getElementById("tabs"); t.textContent = "";
+  for(const [k,v] of Object.entries(D.types)){
+    const b = h("button","tab",v.label); b.type="button"; b.setAttribute("aria-pressed", k===state.type);
+    b.onclick = () => { state.type = k; try{localStorage.setItem("isb-type",k)}catch(e){} render(); };
+    t.append(b);
+  }
+  const f = document.getElementById("flts"); f.textContent = "";
+  for(const k of ["all","safe","fresh","bold","unvoted"]){
+    const b = h("button","flt",k); b.type="button"; b.setAttribute("aria-pressed", k===state.tier);
+    b.onclick = () => { state.tier = k; render(); }; f.append(b);
+  }
+}
+
+function card(s){
+  const c = h("article","card"); c.id = s.id; const v = state.votes[s.id]; if(v) c.dataset.v = v.verdict;
+  const top = h("div","top"); top.append(h("span","id",s.id), h("h3","name",s.name), h("span","tier "+s.tier,s.tier)); c.append(top);
+  c.append(h("p","idea",s.idea));
+  const tl = h("div","tl"); s.beats.forEach((b,i)=>{ const d = h("div","beat b"+i); d.append(h("i",null,BEAT[i]), document.createTextNode(b)); tl.append(d); });
+  tl.append(h("span","head")); c.append(tl);
+  const sig = h("p","sig"); sig.append(h("b",null,"Signature moment"), document.createTextNode(s.signature)); c.append(sig);
+  const as = h("div","assets"); as.append(h("b",null,"Brings in"));
+  (s.assets||[]).forEach(a=>{ const A = D.assets[a]; const t = h("span", A.status==="built" ? null : A.status, A.label); t.title = A.how; as.append(t); });
+  c.append(as);
+  const fits = h("div","fits"); s.fits.forEach(x=>fits.append(h("span",null,x))); c.append(fits);
+  const det = h("details"); det.append(h("summary",null,"How it's built"));
+  const dl = h("dl"); [["Footage",s.footage],["Motion",s.motion],["Sound",s.sound],["Guard",s.guard]].forEach(([k,val])=>{ dl.append(h("dt",null,k)); const dd=h("dd",k==="Guard"?"g":null,val); dl.append(dd); });
+  det.append(dl); c.append(det);
+  const note = h("textarea"); note.id = "note-"+s.id; note.placeholder = "Note (optional): what to change"; note.value = v?.note || "";
+  note.setAttribute("aria-label","Note for "+s.name);
+  const row = h("div","vrow"); const saved = h("span","saved", v ? "saved" : "");
+  for(const k of ["keep","tweak","drop"]){
+    const b = h("button","v",k[0].toUpperCase()+k.slice(1)); b.type="button"; b.dataset.k=k; b.setAttribute("aria-pressed", v?.verdict===k);
+    b.disabled = !db || !canWrite;
+    b.onclick = () => save(s.id, k, note.value, saved);
+    row.append(b);
+  }
+  row.append(saved);
+  note.onblur = () => { const cur = state.votes[s.id]; if(db && canWrite && cur && cur.note !== note.value) save(s.id, cur.verdict, note.value, saved); };
+  c.append(note, row);
+  return c;
+}
+
+async function save(id, verdict, note, el){
+  el.textContent = "saving…";
+  try{ await db.doc("verdicts/"+id).set({verdict, note: note||"", type: id.replace(/\d+$/,""), at: new Date().toISOString()}); el.textContent = "saved"; }
+  catch(e){ el.textContent = e && e.code==="invalid_argument" ? "read-only" : "not saved, try again"; if(e && e.code==="invalid_argument"){ canWrite=false; render(); } }
+}
+
+function render(){
+  tabs();
+  const ty = D.types[state.type];
+  const L = document.getElementById("layer"); L.textContent = ""; L.append(h("b",null,"Stays the same in every "+ty.label+" intro: "), document.createTextNode(ty.layer));
+  const g = document.getElementById("grid"); g.textContent = "";
+  D.styles.filter(s=>s.type===state.type).filter(s=> state.tier==="all" || (state.tier==="unvoted" ? !state.votes[s.id] : s.tier===state.tier)).forEach(s=>g.append(card(s)));
+  tally();
+}
+function tally(){
+  const vs = Object.values(state.votes); if(!db){ return; }
+  const n = k => vs.filter(v=>v.verdict===k).length;
+  document.getElementById("tally").textContent = `${vs.length}/80 voted · ${n("keep")} keep · ${n("tweak")} tweak · ${n("drop")} drop`;
+}
+const TESTS = [
+  {id:"sp5der", title:"1 · Sp5der hoodie (product review)", a:"/_blob/02bd55bf8647197e460d14d6092c06c9", b:"/_blob/4e7f01bdae7a054f475f63e30f756009",
+   look:"New: an Atlanta map pushes in around 0:10, and a wall of other creators' Sp5der videos lands on \"everyone\" around 0:17. Your own product footage went from 36% to 28% of the shots."},
+  {id:"shein", title:"2 · Shein promo codes (phone)", a:"/_blob/9cd0efb2d9aee9c5c516102443ba22bb", b:"/_blob/8532a1364aadc206e84d34c0f0acc304",
+   look:"New: a wall of real Shein coupon videos lands on \"a lot of content creators are gatekeeping it\" (about 0:03-0:06). The new version uses today's P21 phone style, so the look differs from the older original too."},
+  {id:"servers", title:"3 · Top 10 Servers (Minecraft, KV style)", a:"/_blob/bc8c1aad580c482aa6472fafa3fe8f91", b:"/_blob/6edd00e29f4b8dbb20a4550e937013da",
+   look:"New: \"many different servers\" plays over a soft, gliding wall of real Bedrock server thumbnails (0:00-0:02). Everything after 0:02 is identical to v7."}];
+const testVotes = {};
+function renderTests(){
+  const box = document.getElementById("tests"); box.textContent = "";
+  TESTS.forEach(t => {
+    const p = h("div","pair"); p.append(h("h3",null,t.title), h("p","look",t.look));
+    const v = h("div","vids");
+    [["a","Original (approved)",""],["b","New test","new"]].forEach(([k,lab,cls]) => {
+      const f = h("figure"); const vid = document.createElement("video"); vid.src = t[k]; vid.controls = true; vid.preload = "metadata"; vid.playsInline = true;
+      vid.setAttribute("aria-label", t.title + " " + lab); f.append(vid, h("figcaption",cls,lab)); v.append(f);
+    });
+    p.append(v);
+    const cur = testVotes[t.id] || {};
+    const row = h("div","pick"); const saved = h("span","saved", cur.pick ? "saved" : "");
+    const note = h("textarea"); note.id = "tnote-"+t.id; note.placeholder = "Notes (optional): what's off, timestamps"; note.value = cur.note || "";
+    note.setAttribute("aria-label","Notes on "+t.title);
+    [["new","New is better"],["orig","Original is better"],["work","Needs work"]].forEach(([k,lab]) => {
+      const b = h("button","v",lab); b.type="button"; b.dataset.k=k; b.setAttribute("aria-pressed", cur.pick===k); b.disabled = !db || !canWrite;
+      b.onclick = () => saveTest(t.id, k, note.value, saved); row.append(b);
+    });
+    row.append(saved);
+    note.onblur = () => { const c = testVotes[t.id]; if(db && canWrite && c && c.note !== note.value) saveTest(t.id, c.pick, note.value, saved); };
+    p.append(note, row); box.append(p);
+  });
+}
+async function saveTest(id, pick, note, el){
+  el.textContent = "saving…";
+  try{ await db.doc("tests/"+id).set({pick, note: note||"", at: new Date().toISOString()}); el.textContent = "saved"; }
+  catch(e){ el.textContent = "not saved, try again"; }
+}
+renderTests();
+const MIX = [["Reselling spreadsheet (perfect)",4,22,1],["Sp5der hoodie",4,36,1],["Asics",3,14,0],["Jordan 3",2,44,0],["Prada cups",2,55,0],["LV trainer",3,73,0],["Yeezy slides",2,74,0],["Rick Owens",2,76,0],["Cartier (too much watch)",2,83,0],["Amiri jeans",2,86,0],["S25 Ultra (too much phone)",1,100,0]];
+const mr = document.getElementById("mixrows");
+MIX.forEach(([n,k,o,best])=>{ const tr = h("tr", best?"best":null); tr.append(h("td",null,n), h("td","n",String(k)), h("td","n",o+"%"));
+  const td = h("td"); const bc = h("div","barc"); const i = h("i"); i.style.width = o+"%"; bc.append(i); td.append(bc); tr.append(td); mr.append(tr); });
+const menu = document.getElementById("menu");
+Object.values(D.assets).forEach(a=>{ const li = h("li", a.status==="built"?null:a.status); li.append(h("b",null,a.label), h("span",null,a.how)); menu.append(li); });
+render();
+
+(async () => {
+  try{
+    db = await claude.use("db");
+    const user = await claude.use("user");
+    if(user){ const w = await user.can("data.write"); if(w === false) canWrite = false; }
+    if(!db){ document.getElementById("tally").textContent = "Voting needs the page open in Claude while signed in"; return; }
+    render(); renderTests();
+    db.collection("tests").onSnapshot(snap => {
+      snap.docs.forEach(d => { testVotes[d.id] = d.data(); });
+      const focused = document.activeElement && document.activeElement.tagName === "TEXTAREA";
+      if(!focused) renderTests();
+    }, () => {});
+    db.collection("verdicts").onSnapshot(snap => {
+      const v = {}; snap.docs.forEach(d => { v[d.id] = d.data(); }); state.votes = v;
+      const focused = document.activeElement && document.activeElement.tagName === "TEXTAREA";
+      if(!focused) render(); else tally();
+    }, () => { document.getElementById("tally").textContent = "Votes unavailable right now"; });
+  }catch(e){ document.getElementById("tally").textContent = "Voting needs the page open in Claude"; }
+})();
+</script>

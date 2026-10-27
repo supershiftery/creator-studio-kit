@@ -1,0 +1,9 @@
+{
+  "id": "R10",
+  "name": "Shipping Route",
+  "blurb": "Dark-mode tracking map: a dotted route arcs across the ocean from the warehouse to your door while a parcel icon flies it; each line is a tracking-status pin (ORDER PLACED, SHIPPED, IN CUSTOMS...) with the key word; a big B-roll window docks to the side; on the turn the box lands, flaps open and the reveal plays out of it; title on the shipping label.",
+  "status": "ready",
+  "footage": {"roles": ["hook", "problem", "turn", "reveal", "watch"], "every": 1, "max": 16, "maxlen": 5.0},
+  "hold": 2.0,
+  "sfx": [{"sfx": "notify", "t": "turn", "vol": 0.12, "d": 0.6}]
+}

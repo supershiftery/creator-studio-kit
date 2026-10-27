@@ -1,0 +1,24 @@
+#bg { position: absolute; inset: 0; background: linear-gradient(135deg, #e8ecf3, #c9d2e2); }
+#dev { position: absolute; inset: 0; }
+.hdr { position: absolute; left: 0; right: 0; top: 0; height: 170px; background: rgba(248,248,250,.96); border-bottom: 1px solid #ddd; z-index: 4;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 16px; gap: 6px; font: 600 26px "Inter", sans-serif; color: #111; }
+.hdr .av { width: 74px; height: 74px; border-radius: 50%; background: linear-gradient(135deg, #8f9bb3, #5f6b85); display: flex; align-items: center; justify-content: center; font: 38px "Emoji"; }
+.thread { position: absolute; left: 0; right: 0; top: 170px; bottom: 0; padding: 0 28px; }
+.feed { position: absolute; left: 28px; right: 28px; bottom: 40px; display: flex; flex-direction: column; gap: 14px; }
+.b { max-width: 470px; padding: 18px 26px; border-radius: 34px; font: 500 34px "Inter", sans-serif; line-height: 1.25; opacity: 0; }
+.b.me { align-self: flex-end; background: #0a84ff; color: #fff; border-bottom-right-radius: 10px; }
+.b.them { align-self: flex-start; background: #e5e5ea; color: #111; border-bottom-left-radius: 10px; }
+.b b { font-weight: 800; }
+.b.pic { padding: 8px; background: #0a84ff; width: 420px; height: 270px; }
+.b.pic .in { position: relative; width: 100%; height: 100%; border-radius: 26px; overflow: hidden; }
+.dots { align-self: flex-start; background: #e5e5ea; border-radius: 30px; padding: 22px 26px; display: flex; gap: 10px; opacity: 0; }
+.dots i { width: 16px; height: 16px; border-radius: 50%; background: #999; }
+.kin.chat { font: 800 112px "Poppins", sans-serif; color: #111; }
+.kin.chat .k { color: #0a84ff; }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; opacity: 0; z-index: 45; background: #0a84ff; }
+#title .pin { font: 700 40px "Inter", sans-serif; color: #fff; opacity: .9; }
+#title .t1 { font: 900 160px "Inter", sans-serif; color: #fff; text-transform: uppercase; white-space: nowrap; letter-spacing: -4px; }
+#title .t2 { font: 600 52px "Inter", sans-serif; color: #0a84ff; background: #fff; padding: 12px 40px; border-radius: 40px; }
+.xp-lab { color: #111; text-shadow: none; }
+.xp-bar { border-color: #111; }
+.xp-fill { background: #0a84ff; }

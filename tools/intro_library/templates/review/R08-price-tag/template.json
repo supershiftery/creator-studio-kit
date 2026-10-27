@@ -1,0 +1,10 @@
+{
+  "id": "R08",
+  "name": "Swinging Price Tag",
+  "blurb": "A luxury cardboard price tag swings on a string in a spotlight over a blurred B-roll backdrop; problem lines write the retail price and brand on it; on the turn a red marker slashes the price and the tag flips to the DHgate side with '??'; key words hang off the string as smaller tags; the tag lands on the title.",
+  "status": "off",
+  "off_why": "ultimate dhgate free reselling spreadsheet 2026-10-23: 'too boring, nothing is really moving, this template is a little iffy, there's no clips'. The B-roll sits blurred behind a big tag, and the tag showed a made-up $1,500 retail price.",
+  "footage": {"roles": ["hook", "problem", "turn", "reveal", "watch"], "every": 1, "max": 16, "maxlen": 5.0},
+  "hold": 2.0,
+  "sfx": [{"sfx": "click", "t": "turn", "vol": 0.15, "d": 0.3}]
+}

@@ -1,0 +1,21 @@
+#bg { position: absolute; inset: 0; background: linear-gradient(135deg, #2b2d31, #121316); }
+#bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 70% 40%, rgba(255,255,255,.07), transparent 60%); }
+#frame { position: absolute; left: 760px; top: 110px; width: 1060px; height: 760px; border-radius: 18px; overflow: hidden; background: #000; box-shadow: 0 40px 90px rgba(0,0,0,.6); opacity: 0; }
+#frame .in { position: absolute; inset: 0; }
+.rc { position: absolute; left: 110px; top: -20px; width: 560px; height: 0; overflow: hidden; background: #fbfbf7; color: #1a1a1a; font: 400 34px "SpaceMono", monospace;
+  padding: 0 34px; box-shadow: 0 20px 50px rgba(0,0,0,.5); -webkit-mask-image: linear-gradient(#000 calc(100% - 14px), transparent); }
+.rc .hd { text-align: center; font-size: 30px; padding: 40px 0 20px; border-bottom: 3px dashed #999; letter-spacing: 3px; }
+.rc .it { display: flex; justify-content: space-between; padding: 12px 0; opacity: 0; }
+.rc .it span:first-child { max-width: 330px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.rc .tot { display: flex; justify-content: space-between; border-top: 3px dashed #999; padding: 22px 0; font-size: 46px; font-weight: 700; opacity: 0; }
+#r1 .tot b { color: #d11; }
+#r2 .tot b { color: #0a9a44; }
+#stamp { position: absolute; left: 140px; top: 700px; font: 400 76px "Anton", sans-serif; color: #d11; border: 9px solid #d11; padding: 4px 22px; border-radius: 10px; opacity: 0;
+  letter-spacing: 3px; mix-blend-mode: multiply; z-index: 30; }
+.kin.mono { font: 800 92px "Poppins", sans-serif; color: #fff; text-shadow: 0 0 24px rgba(0,0,0,.9), 0 4px 0 rgba(0,0,0,.4); }
+.kin.mono .k.brand, .kin.mono .k.pos { color: var(--accent); }
+.kin.mono .money, .kin.mono .neg { color: #ff5757; }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; opacity: 0; z-index: 45; background: #fbfbf7; }
+#title .t1 { font: 700 150px "SpaceMono", monospace; color: #111; text-transform: uppercase; white-space: nowrap; letter-spacing: -4px; }
+#title .t2 { font: 400 60px "Anton", sans-serif; color: #fff; background: #d11; padding: 6px 34px; letter-spacing: 4px; text-transform: uppercase; }
+.xp-fill { background: #0a9a44; }

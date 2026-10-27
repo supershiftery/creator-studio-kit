@@ -1,0 +1,11 @@
+{
+  "name": "kv-pop",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.8.180 preview",
+    "check": "npx --yes hyperframes@0.8.180 check",
+    "render": "npx --yes hyperframes@0.8.180 render",
+    "publish": "npx --yes hyperframes@0.8.180 publish"
+  }
+}

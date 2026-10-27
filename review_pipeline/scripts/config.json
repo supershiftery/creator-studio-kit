@@ -1,0 +1,757 @@
+{
+ "output": {
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "audio_bitrate": "192k",
+  "loudness_lufs": -14,
+  "preview_height": 540,
+  "max_boost_db": 4,
+  "note": "loudness_lufs is the target, but the volume is raised at most max_boost_db and never lowered",
+  "fade_seconds": 0.5
+ },
+ "camera": {
+  "turn_sign": -1,
+  "note": "halves are detected from raw/camera.mp4 size; turn_sign -1 = negative yaw means turned toward the side camera"
+ },
+ "audio_mix": {
+  "enabled": true,
+  "window_seconds": 0.5,
+  "drop_below_db": 14,
+  "floor_db": -48,
+  "min_seconds": 1.5,
+  "merge_gap_seconds": 2.0,
+  "pad_seconds": 0.4,
+  "hide_facecam": true,
+  "hide_block": true,
+  "swap_block": true,
+  "hide_block_min_seconds": 8.0,
+  "hide_merge_gap_seconds": 8.0,
+  "hide_min_seconds": 3.0,
+  "boost_when_no_second_track": true,
+  "boost_cap_db": 12,
+  "dji_gain_match": true,
+  "dji_gain_cap_db": 15,
+  "note": "two-mic swap: when camera.mp4 has a 2nd audio track (DJI clip-on), hard-cut to it wherever the main mic (track 1) sits drop_below_db under its median (never above floor_db) for at least min_seconds. No crossfade â€” it's a new section (try-on). Gling exports keep only one track: then the low parts are boosted (cap boost_cap_db) instead of swapped. hide_facecam hides the face circle during away segments (merged with hide_merge_gap_seconds, min hide_min_seconds). Original kept as raw/camera_original.mp4, ranges in work/audio_mix.json.",
+  "boost_min_seconds": 8.0,
+  "hide_block_min_rightcam": 0.15,
+  "pad_speech_db": 6.0,
+  "gap_away": true,
+  "gap_window_seconds": 3.0,
+  "gap_margin_db": 8.0,
+  "gap_condenser_drop_db": 10.0,
+  "gap_min_seconds": 3.0,
+  "gap_merge_seconds": 8.0
+ },
+ "pacing": {
+  "enabled": true,
+  "silence_min_seconds": 0.6,
+  "silence_keep_seconds": 0.2,
+  "retake_match_words": 4,
+  "head_pad_seconds": 0.3,
+  "tail_pad_seconds": 0.5
+ },
+ "angles": {
+  "analysis_fps": 5,
+  "turn_degrees": 25,
+  "min_turn_seconds": 1.5,
+  "min_shot_seconds": 2.0,
+  "release_degrees": 10,
+  "release_seconds": 3.0
+ },
+ "face_cam": {
+  "hide_on_turn": true,
+  "hide_when_side": true,
+  "hide_from_cues": [
+   "another angle"
+  ],
+  "hide_from_cues_note": "when he says one of these phrases (e.g. 'here's another angle'), the face circle is removed from that moment until the end of the section (i.e. until the showcase)",
+  "diameter_px": 360,
+  "margin_px": 40,
+  "border_px": 8,
+  "border_color": "white",
+  "shadow": true,
+  "shadow_offset_px": 6,
+  "shadow_blur_px": 14,
+  "shadow_opacity": 0.55,
+  "face_zoom": 0.8
+ },
+ "subscribe": {
+  "word": "subscribe",
+  "lead_seconds": 0.2,
+  "min_gap_seconds": 10,
+  "match": "subscrib",
+  "scale": 0.8,
+  "center_y": 880,
+  "bell_db": -6
+ },
+ "face_full": {
+  "enabled": true,
+  "sections": [
+   "review",
+   "showcase"
+  ],
+  "cues": [
+   "on my face",
+   "on my head",
+   "on the face",
+   "what they look like on",
+   "what it looks like on",
+   "how they look on",
+   "look like on"
+  ],
+  "min_gap_seconds": 20,
+  "min_hold_seconds": 2.0,
+  "max_hold_seconds": 5.0,
+  "note": "when he says 'here they are on my face' etc., cut to full-frame Camera A (like the intro) for the sentence instead of just the circle"
+ },
+ "music": {
+  "folder": "~/Downloads",
+  "folders": [
+   "{{MUSIC_ROOT}}/Type Beats",
+   "~/Downloads"
+  ],
+  "match": "type beat",
+  "extensions": [
+   ".mp3",
+   ".wav",
+   ".m4a"
+  ],
+  "fade_in_seconds": 1,
+  "fade_out_seconds": 3,
+  "idle_db": {
+   "intro": -12,
+   "review": -14,
+   "showcase": -14,
+   "outro": -12
+  },
+  "duck_threshold": 0.03,
+  "duck_ratio": 3,
+  "duck_attack_ms": 5,
+  "bed_limit": 0.5,
+  "bed_note": "bed_limit: peak limiter on every beat (linear, 0.5 = -6 dBFS) and a 5 ms duck attack (was 20): a clipped impact in the beat popped through the duck under his voice (best sp5der hoodie 2026-10-23, 6:30)",
+  "duck_release_ms": 350,
+  "note": "every beat is loudness-matched to the voice first, so idle_db is the music level relative to the voice; ducking takes roughly another 8 dB off while you talk"
+ },
+ "render": {
+  "nvenc": [
+   "-c:v",
+   "h264_nvenc",
+   "-preset",
+   "p5",
+   "-rc",
+   "vbr",
+   "-cq",
+   "20",
+   "-b:v",
+   "0",
+   "-maxrate",
+   "25M",
+   "-bufsize",
+   "50M"
+  ],
+  "videotoolbox": [
+   "-c:v",
+   "h264_videotoolbox",
+   "-q:v",
+   "65"
+  ],
+  "fallback": [
+   "-c:v",
+   "libx264",
+   "-preset",
+   "fast",
+   "-crf",
+   "20"
+  ],
+  "true_peak": -1.0
+ },
+ "whisper": {
+  "model": "small.en",
+  "language": "en"
+ },
+ "sections": {
+  "names": [
+   "intro",
+   "review",
+   "showcase",
+   "outro"
+  ],
+  "fallback_showcase_cues": [
+   "where to buy",
+   "head over",
+   "spreadsheet",
+   "link down",
+   "description",
+   "where you can actually find",
+   "where you can find",
+   "find these"
+  ],
+  "cue_window_seconds": 30,
+  "min_run_seconds": 3,
+  "showcase_min_screen_seconds": 10.0,
+  "outro_cues": [
+   "pretty much it for today",
+   "thats it for today",
+   "thats all for today",
+   "thats gonna be it for today"
+  ],
+  "outro_note": "No side angle at the end: the outro starts at the LAST sign-off sentence (walks back over but/anyways/guys/that's). dhgate jordan 3 2026-10-23."
+ },
+ "markers": {
+  "phrase": "next section",
+  "expected_count": 3,
+  "pad_seconds": 0.5
+ },
+ "zooms": {
+  "enabled": true,
+  "cursor_fps": 10,
+  "cursor_max_box": 60,
+  "face_sections": [
+   "intro",
+   "outro"
+  ],
+  "face_zoom": 1.18,
+  "face_ease_seconds": 0.5,
+  "face_min_gap_seconds": 5,
+  "face_max_hold_seconds": 4,
+  "face_min_hold_seconds": 1.5,
+  "face_cues": [
+   "honestly",
+   "definitely",
+   "highly recommend",
+   "super excited",
+   "trust me",
+   "out of 10",
+   "best",
+   "subscrib",
+   "transparent",
+   "personally",
+   "recommend",
+   "enjoyed",
+   "bye"
+  ],
+  "face_every_seconds": 9,
+  "screen_sections": [
+   "showcase"
+  ],
+  "screen_zoom": 1.6,
+  "screen_ease_seconds": 0.45,
+  "screen_min_gap_seconds": 14,
+  "screen_max_hold_seconds": 4.5,
+  "screen_min_hold_seconds": 2.5,
+  "screen_cues": [
+   "right here",
+   "over here",
+   "click on",
+   "click here",
+   "simply click",
+   "this one",
+   "see it",
+   "on the side",
+   "looking like this",
+   "on here"
+  ],
+  "note": "set enabled to false to turn all zooms off",
+  "face_center": [
+   0.5,
+   0.45
+  ],
+  "screen_settle_seconds": 2.5,
+  "screen_min_moves": 3,
+  "side": {
+   "enabled": true,
+   "min_seconds": 4.0,
+   "hold_seconds": 6.0,
+   "gap_seconds": 3.0,
+   "ease_seconds": 1.5,
+   "zooms": [
+    1.08,
+    1.06
+   ],
+   "centres": [
+    [
+     0.5,
+     0.45
+    ],
+    [
+     0.52,
+     0.45
+    ]
+   ],
+   "note": "subtle eased push-in/pull-out on the full-frame side angle (right half = side, no screen), never across a cut"
+  },
+  "topics": {
+   "enabled": true,
+   "min_gap_seconds": 10.0,
+   "min_hold_seconds": 3.5,
+   "max_hold_seconds": 6.0,
+   "ease_seconds": 0.9,
+   "fill": 0.8,
+   "min_zoom": 1.3,
+   "max_zoom": 1.6,
+   "cues": {
+    "size": [
+     "in terms of sizing",
+     "true to size",
+     "the sizing",
+     "sizing",
+     "the sizes",
+     "size chart",
+     "what size"
+    ],
+    "bulk": [
+     "bulk buying",
+     "bulk discount",
+     "bulk",
+     "buy multiple",
+     "wholesale",
+     "per piece"
+    ]
+   },
+   "note": "screen recording: when he talks sizes / bulk tiers, OCR the page and zoom onto that panel (cached in work/topic_zooms.json)"
+  },
+  "spoken": {
+   "ease_seconds": 0.9,
+   "max_zoom": 1.5,
+   "note": "watch spreadsheet 2026-10-24: 'keyframing feels choppy' -> slower ease, less zoom; zoom_filter is sub-pixel now"
+  }
+ },
+ "broll": {
+  "enabled": true,
+  "sections": [
+   "review"
+  ],
+  "max_slots": 10,
+  "min_seconds": 5.0,
+  "max_seconds": 10.0,
+  "min_gap_seconds": 8,
+  "max_speed": 2.0,
+  "min_speed": 0.5,
+  "fade_seconds": 0.3,
+  "push_in": 1.06,
+  "grade": "eq=contrast=1.06:saturation=1.15:brightness=0.01,unsharp=5:5:0.4",
+  "note": "B-roll clips are always muted and play full screen. Slots: per pair/product (split on product_transitions), one per kind in kind_order, 5-10 s each. Clips match by slot number, then by kind/colour words in the file name, then in order. Lengths are measured in the finished video (cut footage doesn't count); phrases must be in kept footage; sprinkle_kinds get a slot at a sentence start even when no phrase calls for them.",
+  "max_per_pair": 3,
+  "product_transitions": [
+   "next up",
+   "next one",
+   "the next shoe",
+   "the last one",
+   "last one",
+   "last shoe",
+   "our first shoe",
+   "first shoe",
+   "second shoe",
+   "third shoe",
+   "moving on",
+   "the second one",
+   "the third one",
+   "lastly",
+   "last but not least",
+   "and finally",
+   "finally",
+   "check out the higher end",
+   "here's the higher end",
+   "heres the higher end",
+   "here is the higher end",
+   "check out the more expensive",
+   "check out the cheaper",
+   "check out the other",
+   "the other pair",
+   "the second pair",
+   "the next pair"
+  ],
+  "colours": [
+   "red",
+   "white",
+   "black",
+   "blue",
+   "pink",
+   "green",
+   "yellow",
+   "grey",
+   "gray",
+   "brown",
+   "beige",
+   "cream",
+   "purple",
+   "orange",
+   "tan",
+   "navy",
+   "silver",
+   "gold"
+  ],
+  "kind_order": [
+   "feet",
+   "showcase",
+   "sole",
+   "box"
+  ],
+  "kinds": {
+   "feet": {
+    "shot": "on feet (walking / standing, 5-10 s)",
+    "name_word": "feet",
+    "phrases": [
+     "what they look like on",
+     "what it looks like on",
+     "heres what they look like on",
+     "here's what it looks like on",
+     "looks like on",
+     "on feet",
+     "on foot",
+     "on my feet",
+     "on the feet",
+     "showing them off",
+     "show them off",
+     "showing it off",
+     "try them on",
+     "trying them on",
+     "wearing them",
+     "wearing these",
+     "put them on",
+     "such a comfortable",
+     "very comfortable",
+     "so comfortable"
+    ],
+    "file_words": [
+     "feet",
+     "foot",
+     "onfeet",
+     "wearing",
+     "worn",
+     "walk",
+     "walking",
+     "fit",
+     "ontheway"
+    ]
+   },
+   "showcase": {
+    "shot": "close-up / turntable spin",
+    "name_word": "spin",
+    "phrases": [
+     "on the turntable",
+     "the turntable",
+     "turntable",
+     "so shiny",
+     "very spiky",
+     "here's the shoe",
+     "here is the shoe",
+     "this thing is",
+     "reminds you of",
+     "take a look at this",
+     "this colorway",
+     "the colorway",
+     "the spikes",
+     "high quality",
+     "looks like this",
+     "such a clean",
+     "clean design"
+    ],
+    "file_words": [
+     "spin",
+     "turntable",
+     "rotate",
+     "rotating",
+     "360",
+     "closeup",
+     "close",
+     "showcase",
+     "detail",
+     "details"
+    ]
+   },
+   "sole": {
+    "shot": "the sole / bottom",
+    "name_word": "sole",
+    "phrases": [
+     "look at the bottom",
+     "the bottom",
+     "the sole",
+     "the soles",
+     "the outsole",
+     "red bottom"
+    ],
+    "file_words": [
+     "sole",
+     "soles",
+     "bottom",
+     "bottoms",
+     "outsole"
+    ]
+   },
+   "box": {
+    "shot": "the box / packaging",
+    "name_word": "box",
+    "phrases": [
+     "double box",
+     "the box",
+     "packaging",
+     "the boxes"
+    ],
+    "file_words": [
+     "box",
+     "boxes",
+     "packaging",
+     "package"
+    ]
+   }
+  },
+  "colour_part_words": [
+   "bottom",
+   "bottoms",
+   "backing",
+   "sole",
+   "soles",
+   "laces",
+   "lace",
+   "heel",
+   "tab",
+   "tongue",
+   "stitching",
+   "logo",
+   "box",
+   "bag",
+   "dust",
+   "writing",
+   "outsole",
+   "insole",
+   "soul"
+  ],
+  "sprinkle_kinds": [
+   "feet",
+   "showcase"
+  ],
+  "snap_to_cut_seconds": 1.5,
+  "product_words": [
+   "box",
+   "presentation",
+   "quality",
+   "detail",
+   "details",
+   "craftsmanship"
+  ],
+  "leftover_sections": [
+   "review",
+   "showcase"
+  ],
+  "open_cues": [
+   "open this up",
+   "open it up",
+   "open them up",
+   "open up the box",
+   "open the box",
+   "open this box",
+   "pull this pull tab",
+   "pull the pull tab",
+   "pull this tab",
+   "pull the tab",
+   "take them out",
+   "take it out",
+   "here's what you're gonna be getting",
+   "here is what you are going to be getting",
+   "here's what you're going to be getting",
+   "open it",
+   "open these",
+   "open them",
+   "here's the shoe itself",
+   "the shoe itself"
+  ],
+  "open_note": "No B-roll of a product before its box is opened (first kept open_cue in that product's part; 'unbox...' counts too). Box shots are exempt. lv trainer 2026-10-23.",
+  "max_insert_seconds": 30,
+  "topics": {
+   "_note": "s25 ultra 2026-10-23: a clip ABOUT a topic (label or its own words = clip_words) only goes over a line where he says one of `said` (a camera test before he talks about the camera, setup screens before the phone is on, were wrong).",
+   "camera": {
+    "clip_words": [
+     "camera",
+     "cameras",
+     "front facing",
+     "selfie",
+     "lens",
+     "lenses"
+    ],
+    "said": [
+     "camera",
+     "cameras",
+     "lens",
+     "lenses",
+     "photo",
+     "photos",
+     "pictures",
+     "selfie"
+    ]
+   },
+   "apps": {
+    "clip_words": [
+     "app store",
+     "play store",
+     "google play",
+     "app",
+     "apps",
+     "installing"
+    ],
+    "said": [
+     "app",
+     "apps",
+     "play store",
+     "app store",
+     "google play",
+     "download",
+     "downloading",
+     "install"
+    ]
+   },
+   "setup": {
+    "clip_words": [
+     "setup",
+     "set up",
+     "welcome",
+     "terms",
+     "agreement",
+     "agreements",
+     "legal"
+    ],
+    "said": [
+     "set up",
+     "setup",
+     "agreement",
+     "agreements",
+     "terms",
+     "welcome",
+     "turned on",
+     "turn this on",
+     "turn it on"
+    ]
+   },
+   "audio": {
+    "clip_words": [
+     "audio quality",
+     "speaker",
+     "speakers",
+     "sound quality"
+    ],
+    "said": [
+     "audio",
+     "speaker",
+     "speakers",
+     "sound",
+     "volume"
+    ]
+   }
+  }
+ },
+ "price": {
+  "enabled": true,
+  "sections": [
+   "review",
+   "showcase"
+  ],
+  "lead_seconds": 0.1,
+  "hold_seconds": 2.6,
+  "min_gap_seconds": 8,
+  "context_words": 5,
+  "context_keys": [
+   "price",
+   "cost",
+   "costs",
+   "pay",
+   "paid",
+   "spend",
+   "spent",
+   "dollars",
+   "bucks"
+  ],
+  "fonts": [
+   "C:/Windows/Fonts/seguibl.ttf",
+   "C:/Windows/Fonts/ariblk.ttf",
+   "/System/Library/Fonts/Supplemental/Arial Black.ttf"
+  ],
+  "font_size": 190,
+  "color": "0x3DFF7A",
+  "outline_color": "0x06341A",
+  "outline_px": 12,
+  "center": [
+   0.5,
+   0.66
+  ],
+  "cash_db": -14,
+  "note": "sound: 'chime' (payment chime) or 'register' (cha-ching). Drop your own assets/cash.wav to override both.",
+  "max_per_video": 1,
+  "sound": "rotate",
+  "context_words_before": 3,
+  "context_keys_before": [
+   "cost",
+   "costs",
+   "price",
+   "priced",
+   "pay",
+   "paid",
+   "spend",
+   "spent",
+   "around"
+  ]
+ },
+ "voice_eq": {
+  "enabled": true,
+  "target_low_db": -5.5,
+  "target_high_db": -16.0,
+  "low_hz": 250,
+  "high_hz": 3500,
+  "max_cut_db": 4.0,
+  "max_boost_db": 5.0,
+  "tolerance_db": 1.0,
+  "note": "tone-match the voice to his earlier recordings (raw voice of Supreme/alo/chanel/lubitans: bass -5.0..-5.9, presence -14.4..-17.2 dB vs the full voice). dhgate asics 2026-10-22 'sounds muffled' measured -3.5/-20.7. Measured on the kept speech, corrected only beyond tolerance, capped"
+ },
+ "voice_comp": {
+  "enabled": true,
+  "threshold_db": -26,
+  "ratio": 3,
+  "attack_ms": 10,
+  "release_ms": 300,
+  "makeup_db": 2,
+  "note": "gentle voice leveler before the music duck: evens take-to-take level jumps at cuts (dhgate asics 2026-10-22 1:06 'audio got much louder' after a cut). Loudness target/+4 dB cap still applies after it."
+ },
+ "transitions": {
+  "enabled": true,
+  "seconds": 0.35,
+  "seconds_note": "0.5 -> 0.35 (reselling spring 2026-10-25: 'almost like a 1 second gap' at every product slide)",
+  "sfx": "{{KIT}}/tools/intro_library/kit/sfx/whoosh-short.mp3",
+  "sfx_db": -8,
+  "snap_seconds": 12,
+  "showcase_reach_seconds": 180,
+  "note": "s25 ultra 2026-10-23: a slide + whoosh + the new beat on its own at every section change (on a cut); the intro joins the same way (join.py --slide)"
+ },
+ "math": {
+  "enabled": true,
+  "hold_seconds": 3.4,
+  "font_size": 150,
+  "min_gap_seconds": 8,
+  "max_per_video": 4,
+  "note": "spoken math ('four times twelve') pops up as '$4 x 12 = $48' (dhgate cologne spread 2026-10-25)"
+ },
+ "named_broll": {
+  "brand_lists": true
+ },
+ "countdown": {
+  "enabled": true,
+  "min_gap_seconds": 45,
+  "snap_seconds": 8,
+  "card_seconds": 3.0,
+  "note": "top-N videos (title 'top 5 ...' or raw/countdown.json): a slide + whoosh, a number card (#5..#1, BONUS) and its own beat per item; countdown.py (top 5 reselling products spring 2026-10-25)"
+ },
+ "joins": {
+  "_why": "air kept at every join, seconds (maison mahara 2026-10-26: 0.12+0.2 read as too much spacing)",
+  "air_before": 0.08,
+  "air_after": 0.14
+ },
+ "greeting": {
+  "_why": "talking-intro greeting (channel study 2026-10-26); avatar like his editors",
+  "enabled": true,
+  "within_seconds": 25,
+  "avatar_center": [
+   0.71,
+   0.48
+  ],
+  "avatar_sound_db": -14
+ }
+}

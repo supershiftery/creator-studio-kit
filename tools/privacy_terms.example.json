@@ -1,0 +1,6 @@
+{
+ "addresses": [],
+ "names": [],
+ "phones": [],
+ "_note": "LOCAL ONLY. Your home address(es), real name and phone number as they appear on screen. privacy_ocr.py blurs them in every phone/screen render and the final sweep fails the render if one is readable. Never share this file."
+}

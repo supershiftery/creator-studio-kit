@@ -1,0 +1,18 @@
+{
+  "id": "G17",
+  "name": "The Vote",
+  "blurb": "An election-night mob-vote world: purple stage behind every scene; a live vote bar across the bottom - FEATURED vs UNDERRATED - with the featured side winning through the problem half, then the underdog surging on every reveal line; whip cuts; the title is the result announcement.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "turn",
+      "reveal",
+      "go"
+    ],
+    "max": 7,
+    "maxlen": 6
+  },
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": []
+}

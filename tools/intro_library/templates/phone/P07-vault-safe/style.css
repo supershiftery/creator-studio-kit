@@ -1,0 +1,15 @@
+:root { --p-ink:#fff;--p-card:#fff;--t-ink:#2a1800;--t-pill:#2a1800;--t-pill-ink:#ffe29a; }
+#bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,#2a2d33,#0b0c0e 70%)}
+#bg .gold{position:absolute;inset:0;box-shadow:inset 0 0 200px 40px rgba(255,190,60,.55);opacity:0}
+#frame .kp{position:absolute;right:40px;top:40px;width:300px;padding:16px;background:#111;border:4px solid #444;border-radius:16px;display:flex;flex-direction:column;align-items:center}
+#frame .kp .s{font:400 54px VT323,monospace;color:#ff3b3b}
+#frame .kp .c{font:400 40px VT323,monospace;color:#8cff9e;letter-spacing:6px}
+#title{background:radial-gradient(circle,#ffd56b,#b36b00 80%)}
+
+.dir .scene { z-index: 10; }
+#frame { position: absolute; inset: 0; z-index: 50; pointer-events: none; }
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 34px; opacity: 0; z-index: 46; }
+#title .row { display: flex; align-items: center; gap: 40px; }
+#title .t1 { font: 400 190px "Anton", sans-serif; color: var(--t-ink); text-transform: uppercase; white-space: nowrap; text-shadow: 0 12px 40px rgba(0,0,0,.35); }
+#title .pill { font: 800 46px "Poppins", sans-serif; color: var(--t-pill-ink); background: var(--t-pill); padding: 14px 44px; border-radius: 60px; letter-spacing: 2px; }
+.xp-fill { background: var(--accent); }

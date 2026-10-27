@@ -1,0 +1,261 @@
+{
+ "_note": "Soft game OSTs vetted (medium.en vocal scan) on the Top 5 Realms video, 2026-10-20. offset = seconds to skip at the start; dur = ffprobe seconds. theme: pokemon tracks are only used for Pokémon sections. 2026-10-22: expansion for the Top 10 Servers video (one track per section): every added track had 0 words in the medium.en vocal scan. REJECTED by the scan: Undella Town extended (voice outro at 584 s), Fire Emblem Engage Solm Map & Battle (voice at 338 s). Add more tracks here after scanning them (no vocals, no producer tags, never Minecraft's own soundtrack).",
+ "general": [
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Nintendo\\Mii of a Kind OST   Wii Party.mp3",
+   "offset": 0,
+   "mood": "intro",
+   "dur": 91.3
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Zelda\\Zelda- Skyward Sword Music - Skyloft.mp3",
+   "offset": 4,
+   "mood": "sky",
+   "dur": 190.3
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Sonic\\Windmill Isle (Night) - Sonic Unleashed [OST].mp3",
+   "offset": 2,
+   "mood": "upbeat",
+   "dur": 173.5
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Zelda\\Zelda- Skyward Sword Music - Faron Woods.mp3",
+   "offset": 4,
+   "mood": "forest",
+   "dur": 202.3
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game & Anime Beats\\Tae Retro “Hidden Palace Zone” OFFICIAL INSTRUMENTAL.mp3",
+   "offset": 4,
+   "mood": "beat",
+   "dur": 141.1
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Sonic\\Apotos (Night) - Sonic Unleashed [OST].mp3",
+   "offset": 3,
+   "mood": "calm",
+   "dur": 181.3
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Nintendo\\Training Menu - Wii Fit Soundtrack.mp3",
+   "offset": 3,
+   "mood": "outro",
+   "dur": 149.0
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Sonic\\Chun-Nan Night - Sonic Unleashed Music Extended.mp3",
+   "offset": 0,
+   "mood": "calm",
+   "dur": 1799.2
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Sonic\\Cool Edge (Night) - Sonic Unleashed [OST].mp3",
+   "offset": 0,
+   "mood": "night",
+   "dur": 161.4
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Sonic\\Gaia Manuscripts - Sonic Unleashed [OST].mp3",
+   "offset": 0,
+   "mood": "calm",
+   "dur": 83.5
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Nintendo\\DS Delfino Square - Mario Kart Wii.mp3",
+   "offset": 0,
+   "mood": "upbeat",
+   "dur": 153.0
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Nintendo\\Wario's Gold Mine - Mario Kart Wii (1).mp3",
+   "offset": 0,
+   "mood": "upbeat",
+   "dur": 166.0
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Nintendo\\Super Smash Bros. Brawl - DKC - The Lake Theme.mp3",
+   "offset": 0,
+   "mood": "calm",
+   "dur": 233.3
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Nintendo\\Wii Party Soundtrack 021 - Balance Boat (Intermediate).mp3",
+   "offset": 0,
+   "mood": "bouncy",
+   "dur": 98.8
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Zelda\\Zelda- Ocarina of Time Music - Lost Woods.mp3",
+   "offset": 0,
+   "mood": "forest",
+   "dur": 75.3
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Zelda\\Wing Ceremony - The Legend of Zelda- Skyward Sword.mp3",
+   "offset": 0,
+   "mood": "sky",
+   "dur": 128.3
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Zelda\\Follow Fi - The Legend of Zelda- Skyward Sword.mp3",
+   "offset": 0,
+   "mood": "calm",
+   "dur": 187.1
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Fire Emblem\\Tokyo Mirage Sessions  FE OST - Shibuya.mp3",
+   "offset": 0,
+   "mood": "beat",
+   "dur": 357.1
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Other Games\\Fortnite OST - Main Menu.mp3",
+   "offset": 0,
+   "mood": "upbeat",
+   "dur": 169.7
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Phoenix Wright\\Phoenix Wright Ace Attorney OST - Maya Fey ~ Turnabout Sisters Theme 2001.mp3",
+   "offset": 0,
+   "mood": "bouncy",
+   "dur": 165.0
+  }
+ ],
+ "pokemon": [
+  {
+   "track": "{{MUSIC_ROOT}}\\Pokemon\\Gen 5 - Unova\\Accumula Town  Remastered ♫♪ FURRET WALK MUSIC REMASTERED.mp3",
+   "offset": 2,
+   "dur": 246.7
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Pokemon\\Gen 6 - Kalos\\Laverre City - PokÃ©mon X & Y Music Extended.mp3",
+   "offset": 1,
+   "mood": "calm",
+   "dur": 1799.2
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Pokemon\\Spin-offs & Other\\OST - Pokémon Legends Arceus - Lake Theme.mp3",
+   "offset": 0,
+   "mood": "calm",
+   "dur": 983.9
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Pokemon\\Gen 4 - Sinnoh\\Route 201 (Day)  Remastered ► Pokémon Brilliant Diamond & Shining Pearl.mp3",
+   "offset": 0,
+   "mood": "upbeat",
+   "dur": 66.1
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Pokemon\\Gen 4 - Sinnoh\\Lake Verity  Remastered ► Pokémon Brilliant Diamond & Shining Pearl.mp3",
+   "offset": 0,
+   "mood": "calm",
+   "dur": 196.7
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Pokemon\\Gen 4 - Sinnoh\\Jubilife City (Night Time)  Remastered ► Pokémon Diamond & Pearl.mp3",
+   "offset": 0,
+   "mood": "calm",
+   "dur": 367.9
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Pokemon\\Gen 4 - Sinnoh\\Pokémon Diamond & Pearl - Route 209 (Day).mp3",
+   "offset": 0,
+   "mood": "upbeat",
+   "dur": 420.2
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Pokemon\\Gen 5 - Unova\\PokÃ©mon Black & White - Castelia City.mp3",
+   "offset": 0,
+   "mood": "city",
+   "dur": 420.5
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Pokemon\\Spin-offs & Other\\Field (Late Night) - Pokémon Legends  Arceus (Gamerip).mp3",
+   "offset": 0,
+   "mood": "calm",
+   "dur": 148.0
+  }
+ ],
+ "intro": {
+  "track": "{{MUSIC_ROOT}}\\Game Music\\Nintendo\\Mii of a Kind OST   Wii Party.mp3",
+  "offset": 0,
+  "dur": 91.3
+ },
+ "outro": {
+  "track": "{{MUSIC_ROOT}}\\Game Music\\Nintendo\\Training Menu - Wii Fit Soundtrack.mp3",
+  "offset": 3,
+  "dur": 149.0
+ },
+ "shorts": [
+  {
+   "track": "{{MUSIC_ROOT}}\\Game & Anime Beats\\Natsu Fuji - Ultra Shooters.mp3",
+   "offset": 0,
+   "mood": "hype",
+   "dur": 238.2
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game & Anime Beats\\Starfox - Armada [Matt Houston Remix].mp3",
+   "offset": 2,
+   "mood": "hype",
+   "dur": 143.2
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game & Anime Beats\\Smash Cypher - Mute City [Produced By OmarCameUp].mp3",
+   "offset": 2,
+   "mood": "beat",
+   "dur": 106.8
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game & Anime Beats\\[FREE] Mario Kart DS   Rainbow road type beat.mp3",
+   "offset": 2,
+   "mood": "beat",
+   "dur": 105.0
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game & Anime Beats\\Natsu Fuji - Bowsette s Theme (Official Audio).mp3",
+   "offset": 2,
+   "mood": "hype",
+   "dur": 145.8
+  }
+ ],
+ "suspense": [
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Phoenix Wright\\Pursuit ~ Cornered Phoenix Wright Ace Attorney Music Extended [Music OST][Original Soundtrack].mp3",
+   "offset": 2,
+   "mood": "tension",
+   "dur": 1799.0
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Nintendo\\Airship - Fast - New Super Mario Bros. Wii Music Extended.mp3",
+   "offset": 0,
+   "mood": "tension",
+   "dur": 929.3
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Zelda\\Black Tornado - The Legend of Zelda- Skyward Sword.mp3",
+   "offset": 0,
+   "mood": "tension",
+   "dur": 51.1
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Sonic\\Tornado Defense (1st Battle) - Sonic Unleashed [OST].mp3",
+   "offset": 0,
+   "mood": "tension",
+   "dur": 107.6
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Other Games\\Nightmare King (Hollow Knight  The Grimm Troupe).mp3",
+   "offset": 0,
+   "mood": "tension",
+   "dur": 332.3
+  },
+  {
+   "track": "{{MUSIC_ROOT}}\\Game Music\\Other Games\\Fortnite OST - Combat II.mp3",
+   "offset": 0,
+   "mood": "tension",
+   "dur": 53.8
+  }
+ ],
+ "_shorts_note": "Shorts pool (2026-10-21): higher-energy instrumental game beats (top add-on Shorts ride slowed phonk/trap sounds). All five passed vocal_scan_medium (0 words). REJECTED by the scan: Castlevania Bloody Tears remix (vocal chop at 0-26 s), Sonic Movie 2 Bare Hands (voice tag at 174 s), Fountain of Dreams remix (voice at 120 s)."
+}

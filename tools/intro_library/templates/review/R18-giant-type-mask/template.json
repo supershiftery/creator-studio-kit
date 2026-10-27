@@ -1,0 +1,29 @@
+{
+ "id": "R18",
+ "name": "Giant Type Mask",
+ "blurb": "Bold and loud: every line's key word fills the whole frame in giant heavy type and the B-roll plays INSIDE the letters (black around them), then the word punches out to reveal the clip full-frame; small caption chunks tick along the bottom; the turn inverts to white letters on the footage; the title is the final giant word, masked over the last shot.",
+ "status": "off",
+ "footage": {
+  "roles": [
+   "hook",
+   "problem",
+   "turn",
+   "reveal",
+   "watch"
+  ],
+  "every": 1,
+  "max": 16,
+  "maxlen": 5.0,
+  "extend_last": true
+ },
+ "hold": 2.1,
+ "sfx": [
+  {
+   "sfx": "click",
+   "t": "turn",
+   "vol": 0.15,
+   "d": 0.3
+  }
+ ],
+ "off_why": "top 5 products to resell in winter 2024, 2026-10-24: \"I don't like that text effect over MAINSTREAM ... a very weird effect, we never did this before\". Footage inside giant letters on black."
+}

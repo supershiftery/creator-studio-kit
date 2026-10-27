@@ -1,0 +1,18 @@
+{
+  "id": "G13",
+  "name": "Speedrun Splits",
+  "blurb": "A speedrun overlay: every scene runs under a LiveSplit-style timer panel on the right; each line is a split - red (behind) through the problem half, gold (best segment) after the turn - with the big run timer counting; whip cuts; the title is the 'NEW PERSONAL BEST' screen.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "turn",
+      "reveal",
+      "go"
+    ],
+    "max": 7,
+    "maxlen": 6
+  },
+  "slot_label": "GAMEPLAY GOES HERE",
+  "hold": 1.9,
+  "sfx": []
+}

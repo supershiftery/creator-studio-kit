@@ -1,0 +1,39 @@
+{
+  "id": "P18",
+  "name": "Swiss Blocks",
+  "blurb": "A Swiss-poster world: hard colour blocks behind every scene slide and resize on each cut (black/white/red in the problem half, the app colour after the turn), with a giant line number in the corner block; each line is a literal scene with your clips on top; the title is the final block layout.",
+  "status": "ready",
+  "footage": {
+    "roles": [
+      "hook",
+      "problem",
+      "turn",
+      "reveal"
+    ],
+    "every": 2,
+    "max": 6,
+    "maxlen": 5.0
+  },
+  "hold": 1.8,
+  "tail": 0.7,
+  "sfx": [
+    {
+      "sfx": "click",
+      "t": "turn",
+      "vol": 0.2,
+      "d": 0.3
+    },
+    {
+      "sfx": "click",
+      "t": "end0.6",
+      "vol": 0.18,
+      "d": 0.3
+    },
+    {
+      "sfx": "ping",
+      "t": "end0.45",
+      "vol": 0.14,
+      "d": 0.6
+    }
+  ]
+}
