@@ -26,6 +26,8 @@ def wipe_for(doc, project=None):
     dragon or Pokémon add-on video): a transparent MOV named *transition* in <project>/Graphics (not in _replaced/_test
     folders) is used automatically. Recipe: {{KIT}}/assets/Graphics/HyperFrames/_templates/transitions/README.md"""
     s = (doc.get("settings") or {}).get("wipe")
+    if str(s).lower() in ("off", "none"):   # no section transition (a custom video type that isn't a Top-N list, my_style)
+        return ""
     if s and os.path.exists(s):
         return str(s)
     if project:

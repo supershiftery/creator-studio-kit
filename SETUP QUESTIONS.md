@@ -4,6 +4,9 @@ Claude asks you these during setup, a few at a time with click-buttons. You can 
 paste your answers in. Skip anything you're not sure about: there are sensible defaults, and you can change any
 answer later. Change the answers file, run `python configure.py` again, and the studio updates.
 
+The Studio's setup window (it opens the first time the Studio starts; Settings → Setup runs it again) already asks
+the folders (13–14), captions (16), the music search (18) and your channel name, so Claude skips those.
+
 ## A. You and your channels
 1. What should your studio app be called? (It shows in the window title.)
 2. List every channel you make videos for. For each one: its name, the type of video (phone/app tutorial, product review,
@@ -31,7 +34,9 @@ answer later. Change the answers file, run `python configure.py` again, and the 
 15. Filler words: cut lightly (um/uh only) or heavily (also "and yeah", "so yeah", lone "alright"/"ya")?
 16. Captions on long videos: none (keyword graphics instead), or burned-in subtitles?
 17. Face cam: full webcam with the screen as picture-in-picture, a corner cam over the screen, or no cam?
-18. Music: type beats, lo-fi, game soundtracks, cinematic, or none? Do you already have a music folder?
+18. Music: type beats, lo-fi, game soundtracks, cinematic, or none? Shall I look for the music already on your PC and sort it
+    into a mood library for you? (Recommended. Your files stay where they are; tracks with vocals or producer tags are left out.)
+    Is there a folder I should also look in, or one I should skip?
 19. Sound effects: minimal (soft swooshes on transitions), medium, or high-energy?
 20. Intros: motion-graphic intros from your voiceover (recommended), a short title card, or no intro?
 21. Pacing: relaxed (natural pauses) or tight (every pause trimmed between sentences)?

@@ -22,6 +22,9 @@ class _Recipe:
             return f
 
         def call(doc, *a, **k):
+            if name == "job_steps":   # a custom video type (my_style): its style + learned rules go into the project first
+                import mystyle
+                mystyle.sync(doc)
             out = (getattr(trim, name) if trim.on(doc) else f)(doc, *a, **k)
             if name == "job_steps":
                 env = flags(doc)
@@ -38,6 +41,9 @@ class _Recipe:
                 for st in out:
                     st["env"] = {**(st.get("env") or {}), **env}
                 out = with_captions(doc, (a[0] if a else k.get("action")), out)
+                if (doc.get("settings") or {}).get("my_type"):   # a custom type's opening / ending / logo (my_style)
+                    import mystyle
+                    out = mystyle.with_bookends(doc, (a[0] if a else k.get("action")), out, _QC_IDS)
             return out
         return call
 
@@ -70,6 +76,9 @@ def flags(doc):
     # the AI take review is frozen after draft 1 (take_review.py, 2026-10-22); settings.take_review = "fresh" re-asks
     if s.get("take_review") == "fresh":
         env["TAKE_REVIEW"] = "fresh"
+    if s.get("my_type"):   # a custom video type: claude_brain puts the type's playbook + learned rules first (my_style)
+        import mystyle
+        env.update(mystyle.env(doc))
     return env
 
 

@@ -30,6 +30,10 @@ import external  # noqa: E402
 import speech  # noqa: E402
 import detect  # noqa: E402
 import kit_update  # noqa: E402
+import music_setup  # noqa: E402
+import edit_stats  # noqa: E402
+import setup_wizard  # noqa: E402
+import mystyle  # noqa: E402
 import remote  # noqa: E402
 import schedule  # noqa: E402
 from recipes import RECIPES, common, one_take  # noqa: E402
@@ -121,9 +125,10 @@ def project_view(doc, full=False):
     v["yt_title"] = doc.get("yt_title", "")
     v["title_ideas"] = doc.get("title_ideas", [])
     v["shipped_on"] = doc.get("shipped_on", "")
-    tracker.auto_drive(doc)
-    if tracker.auto_thumb(doc):
-        doc = store.load(doc["id"])
+    if full:   # the list (Projects / Dashboard) gets these from the background sweep: Drive is slow (user 2026-10-29)
+        tracker.auto_drive(doc)
+        if tracker.auto_thumb(doc):
+            doc = store.load(doc["id"])
     v["stage"] = tracker.stage(doc)
     v["stage_manual"] = doc.get("stage_manual", "")
     v["published_on"] = doc.get("published_on", "")
@@ -196,7 +201,26 @@ def all_views():
 
 
 # ------------------------------------------------------------------ API
+_SWEEP = {"on": False}
+
+
+def _drive_sweep():
+    """Drive hand-off + Drive thumbnails for every project, once a minute in the background, so the Projects page never waits
+    on Google Drive (was 6-22 s per load). A change shows on the next refresh."""
+    while True:
+        try:
+            for d in store.all_projects():
+                tracker.auto_drive(d)
+                tracker.auto_thumb(d)
+        except Exception:  # noqa: a Drive hiccup never stops the sweep
+            traceback.print_exc()
+        time.sleep(60)
+
+
 def api_state(q, body):
+    if not _SWEEP["on"] and not os.environ.get("STUDIO_TEST"):   # a test copy on a spare port never writes project docs
+        _SWEEP["on"] = True
+        threading.Thread(target=_drive_sweep, name="drive-sweep", daemon=True).start()
     docs = store.all_projects()
     views = [project_view(d) for d in docs]
     # videos being worked on first (rendering, then the render line in order, then revisions), the rest by last update
@@ -246,6 +270,10 @@ def api_todo_push(q, body):
 def api_projects_create(q, body):
     title = (body.get("title") or "").strip()
     vtype = body.get("type")
+    if (body.get("settings") or {}).get("my_type") or str(vtype or "").startswith("my:"):   # a custom video type (my_style)
+        slug = (body.get("settings") or {}).get("my_type") or vtype[3:]
+        vtype, mine = mystyle.create_settings(slug)
+        body["settings"] = {**(body.get("settings") or {}), **mine}   # the type's style wins over New Project's default options
     if not title or vtype not in RECIPES:
         raise ApiError("title and a valid type are required")
     doc = store.create(title, vtype, body.get("channel", ""), body.get("due", ""))
@@ -331,6 +359,11 @@ def api_project_update(q, body):
     for k in ("title", "channel", "due", "stage_manual", "published_on", "thumb_brief", "shipped_on", "yt_title"):
         if k in body:
             doc[k] = body[k]
+    if body.get("type") and body["type"] != doc["type"]:   # Project details → Change video type (the next build starts over)
+        if body["type"] not in store.TYPES:
+            raise ApiError("unknown video type")
+        doc.setdefault("settings", {})["type_was"] = doc["type"]
+        doc["type"] = body["type"]
     if "links" in body:
         doc["links"].update(body["links"])
     if "settings" in body:
@@ -350,6 +383,48 @@ def api_project_update(q, body):
 
 
 APPROVED_CUTS = r"{{KIT}}/tools\approved_cuts.py"
+MUSIC_LOG = r"{{KIT}}/tools\_state\music_log.json"
+
+
+def music_used(doc):
+    """the tracks music_lib picked for this project's last build, by role ({"intro": [...], "main": [...]}): review / phone
+    builds don't put them in timeline_info, so the editor's Music panel reads the picker's own log"""
+    try:
+        home = os.path.normcase(os.path.abspath(doc.get("path") or ""))
+        for e in reversed(store.read_json(MUSIC_LOG, []) or []):
+            if os.path.normcase(os.path.abspath(e.get("project") or "")) == home:
+                return {k: [t for t in (v if isinstance(v, list) else [v]) if t] for k, v in (e.get("roles") or {}).items()}
+    except Exception:  # noqa: the panel just says the next build picks
+        pass
+    return {}
+
+
+def review_music(doc, offset):
+    """a review build's songs in DRAFT time, from its own report ("- Beats:" lines + "Segment transitions ... intro -> review at
+    0:27.5 ...", main-edit times) and the intro's intro_music.json: [{"part", "track", "s", "e"}] for the editor's Music row"""
+    try:
+        home = Path(doc.get("path") or "")
+        rep = home / "output" / "report.md"
+        if not rep.exists():
+            return []
+        text = rep.read_text(encoding="utf-8", errors="replace")
+        beats = re.findall(r"^\s*-\s*(Intro|Product review|Review|Showcase|Outro|Body|Main)\s*:\s*(.+?\.(?:mp3|wav|m4a|flac))\s*$", text, re.M | re.I)
+        if not beats:
+            return []
+        at = [media.parse_t(m) for m in re.findall(r"->\s*\w+\s+at\s+(\d+:\d+(?:\.\d+)?)", text)]
+        main_len = sum(abs(b - a) for a, b in (recipe(doc["type"]).timeline_info(doc).get("keep") or []))
+        bounds = [0.0] + at + [main_len]
+        out = []
+        im = store.read_json(home / "intro" / "build" / "intro_music.json", None)
+        if offset and isinstance(im, dict) and im.get("track"):
+            out.append({"part": "opening", "track": im["track"], "s": 0.0, "e": round(offset, 2)})
+        for i, (part, name) in enumerate(beats):
+            f = home / "work" / "music" / name.strip()
+            s, e = bounds[min(i, len(bounds) - 1)], bounds[min(i + 1, len(bounds) - 1)]
+            out.append({"part": part.lower(), "track": str(f) if f.exists() else name.strip(), "s": round(offset + s, 2), "e": round(offset + e, 2)})
+        return out
+    except Exception:  # noqa: the row just says the next draft picks
+        return []
 
 
 def save_answer_key(doc):
@@ -434,8 +509,62 @@ def api_project_slot_remove(q, body):
     return project_view(store.save(doc), full=True)
 
 
+def next_overnight():
+    """when tonight's batch starts (settings.overnight_at, default 01:00): later today, or now when the night has begun"""
+    from datetime import datetime, timedelta
+    hh, mm = (str(store.settings().get("overnight_at") or "01:00") + ":00").split(":")[:2]
+    now = datetime.now()
+    t = now.replace(hour=int(hh) % 24, minute=int(mm) % 60, second=0, microsecond=0)
+    if t <= now:
+        t = now if now.hour < 7 or now - t < timedelta(hours=6) else t + timedelta(days=1)   # already night: start now
+    return t.strftime("%Y-%m-%d %H:%M")
+
+
+def defer_build(doc, action, body):
+    """Queue page "When should videos be made?" (2026-10-29): the UI sends when = "now" | "tonight" | "YYYY-MM-DD HH:MM".
+    Anything but now goes on the schedule (schedule.py starts it; renders still go one at a time). No `when` = build now, so
+    the revision AI's own rebuilds and older buttons are never pushed to tonight."""
+    when = (body or {}).get("when")
+    if not when or when == "now":
+        return None
+    at = next_overnight() if when == "tonight" else str(when).replace("T", " ")[:16]
+    try:
+        time.strptime(at, "%Y-%m-%d %H:%M")
+    except ValueError:
+        raise ApiError("pick a date and time")
+    e = schedule.add(doc, at, schedule.me(), action)
+    return {"scheduled": e, "at": at, "mode": "scheduled"}
+
+
+def api_schedule_when(q, body):
+    """Queue page per-item When: {"id": schedule entry | "job": waiting job id, "when": "now" | "tonight" | "YYYY-MM-DD HH:MM"}"""
+    when = body.get("when") or "now"
+    if body.get("job"):
+        j = jobs.JOBS.get(body["job"])
+        if not j or j.status not in ("queued", "running"):
+            raise ApiError("that build is not waiting any more")
+        if when == "now":
+            jobs.move(j.id, "top")
+            return {"ok": True}
+        doc = store.load(j.project_id)
+        action = (j.title or "").split(": ")[-1] or "draft"
+        j.cancel()
+        return defer_build(doc, action if action in ("draft", "final", "intro", "revise") else "draft", {"when": when})
+    e = schedule.get(body.get("id"))
+    if not e or e.get("state") != "pending":
+        raise ApiError("that item is not waiting any more")
+    if when == "now":
+        e["at"] = time.strftime("%Y-%m-%d %H:%M")
+    else:
+        e["at"] = next_overnight() if when == "tonight" else str(when).replace("T", " ")[:16]
+    return {"item": schedule.upsert(e)}
+
+
 def api_project_run(q, body):
     doc = _doc(q)
+    d = defer_build(doc, body.get("action", "draft"), body) if body.get("action", "draft") in ("draft", "final", "intro") else None
+    if d:
+        return d
     if body.get("intro") == "rebuild":   # intro lock (2026-10-24): this build may re-make the intro
         doc["intro_rebuild"] = True
     # ...also when the revision run behind this build has an open note about the intro: a Claude Code chat calls this API
@@ -468,6 +597,10 @@ def auto_build(doc):
     # nothing = build now (on settings.machine, laptop first)
     at = (doc.get("settings") or {}).get("build_at")
     if at == "hold":
+        return None
+    if not at and store.settings().get("build_mode") == "overnight":   # Queue page: "Overnight" = new videos wait for tonight
+        if not any(e.get("project_id") == doc["id"] and e.get("state") == "pending" for e in schedule.load()):
+            schedule.add(doc, next_overnight(), schedule.me(), "draft")
         return None
     if at:
         try:
@@ -803,6 +936,10 @@ def api_project_notes(q, body):
         except Exception as e:  # noqa: sorting never blocks a note
             n["applies"], n["applies_why"] = "video", f"sorting failed ({type(e).__name__})"
         doc["notes"].append(n)
+        n.setdefault("nid", uuid.uuid4().hex[:6])
+        if (doc.get("settings") or {}).get("my_type"):   # the type learns it as a category rule (my_style, in the background)
+            mystyle.learn_async(dict(doc), dict(n))
+        mystyle.record_rule_note(doc, n)
         try:
             recipe(doc["type"]).apply_notes(doc)
         except Exception as e:  # noqa
@@ -1251,6 +1388,49 @@ def api_settings(q, body):
     return store.settings()
 
 
+# ------------------------------------------------------------------ render devices ("Add a device", user 2026-10-29: "it would
+# have to walk them through it"). A device = another PC with Studio on it that this one reaches over SSH (remote.py workers).
+DEVICE_KEY = Path.home() / ".ssh" / "studio_device"
+
+
+def api_devices_key(q, body):
+    """this PC's key for the walkthrough (made once, no passphrase) + what the other PC needs to know"""
+    if not DEVICE_KEY.exists():
+        DEVICE_KEY.parent.mkdir(exist_ok=True)
+        r = subprocess.run(["ssh-keygen", "-t", "ed25519", "-N", "", "-C", f"studio-{store.settings().get('machine_name') or 'pc'}",
+                            "-f", str(DEVICE_KEY)], capture_output=True, text=True, creationflags=media.CREATE_NO_WINDOW)
+        if r.returncode or not DEVICE_KEY.exists():
+            raise ApiError("Could not make this PC's key (is OpenSSH Client installed?) " + (r.stderr or "")[-200:])
+    pub = Path(str(DEVICE_KEY) + ".pub").read_text(encoding="utf-8").strip()
+    return {"pub": pub, "studio": str(store.HOME), "machine": store.settings().get("machine_name") or "Desktop",
+            "devices": [{"name": w["name"], "ssh": w["ssh"]} for w in remote.workers()]}
+
+
+def api_devices_add(q, body):
+    """test the connection to the other PC, then save it as a render device"""
+    name = re.sub(r"[^\w .-]", "", (body.get("name") or "").strip())[:30]
+    host = re.sub(r"[^\w.:-]", "", (body.get("host") or "").strip())
+    user = re.sub(r"[^\w.\\ -]", "", (body.get("user") or "").strip())
+    if not (name and host and user):
+        raise ApiError("Fill in the device name, its address and its Windows user name")
+    w = {"name": name, "ssh": f"{user}@{host}", "key": "~/.ssh/" + DEVICE_KEY.name, "root": store.HOME.drive + "\\"}
+    try:
+        remote._ssh(w, "echo ok", timeout=25)
+    except Exception as e:  # noqa
+        raise ApiError(f"Could not reach {host} as {user}: {str(e).rstrip('.')}. Check that both PCs are on and signed in to Tailscale, and that "
+                       "step 3 ran on the other PC as administrator.")
+    try:
+        found = "studio" in remote._ssh(w, f'if exist "{remote.LOCAL_API}" (echo studio) else (echo none)', timeout=25)
+    except Exception:  # noqa
+        found = False
+    if not found:
+        raise ApiError(f"Connected to {host}, but Studio is not at {store.HOME} on it. Install Studio there in the same folder (step 1).")
+    ws = [x for x in (store.settings().get("workers") or []) if x.get("name", "").lower() != name.lower()] + [w]
+    store.save_settings({"workers": ws})
+    remote.start()
+    return {"ok": True, "device": {"name": name, "ssh": w["ssh"]}}
+
+
 def api_browse(q, body):
     """Simple server-side file browser (for browser mode and the music picker)."""
     d = q.get("dir") or ""
@@ -1322,7 +1502,8 @@ def api_detect(q, body):
     pth = q.get("path", "")
     if not os.path.exists(pth):
         raise ApiError("not found")
-    return detect.detect(pth, fresh=q.get("fresh") == "1")
+    # quick=1: picture + file signals only (~1-2 s) so New Project can show a type at once; the full check follows
+    return detect.detect(pth, fresh=q.get("fresh") == "1", quick=q.get("quick") == "1")
 
 
 def api_recent_recordings(q, body):
@@ -1392,7 +1573,48 @@ def api_editor(q, body):
     src_info = media.probe(doc["source"]) if doc.get("source") else None
     return {"words": words, "keep": keep or [], "cuts": cut_list, "sections": info.get("sections") or [], "offset": info.get("offset", 0.0),
             "duration": (src_info or {}).get("duration", words[-1]["e"] if words else 0), "source": doc.get("source") or "",
-            "outputs": outs, "has_words": bool(words), "notes": doc.get("notes", []), "shorts": extras.list_shorts(doc)}
+            "outputs": outs, "has_words": bool(words), "notes": doc.get("notes", []), "shorts": extras.list_shorts(doc),
+            # timeline editor (2026-10-29): music the last build used, draft-time sections of haul/short builds, the slots'
+            # B-roll files and the project's caption/transition settings
+            "music": info.get("music") or (review_music(doc, info.get("offset", 0.0)) if doc["type"] == "review" else {}), "draft_sections": info.get("haul_sections") or [], "music_used": music_used(doc),
+            "broll_files": [f for f in (doc.get("slots") or {}).get("broll", []) or [] if isinstance(f, str)],
+            "settings": {k: (doc.get("settings") or {}).get(k) for k in ("captions", "wipe", "transition")}}
+
+
+def api_transitions(q, body):
+    """Section transitions the timeline editor offers: the HyperFrames transition renders + this project's own
+    Graphics\\*transition*.mov. Only the gaming pipeline puts wipes between sections today (settings.wipe)."""
+    doc = _doc(q) if q.get("id") else None
+    items, seen = [], set()
+
+    def add(p, where):
+        k = str(p).lower()
+        if k in seen:
+            return
+        seen.add(k)
+        items.append({"name": Path(p).stem.replace("-", " ").replace("_", " "), "path": str(p), "where": where})
+
+    auto = ""
+    try:
+        sys.path.insert(0, str(Path(__file__).parent / "gaming"))
+        import glib  # noqa: E402
+        hf = glib.ASSETS / "Graphics" / "HyperFrames"
+        if hf.is_dir():
+            for m in sorted(hf.glob("*/renders/*.mov")):
+                if re.search(r"transition|wipe", m.stem, re.I):
+                    add(m, "library")
+        if doc:
+            auto = glib.wipe_for({**doc, "settings": {k: v for k, v in (doc.get("settings") or {}).items() if k != "wipe"}}, doc.get("path"))
+    except Exception:  # noqa: the list still shows the project's own files
+        pass
+    if doc and doc.get("path"):
+        g = Path(doc["path"]) / "Graphics"
+        if g.is_dir():
+            for m in sorted(g.rglob("*.mov")):
+                if "transition" in m.stem.lower() and not any(x.lower().startswith("_") for x in m.relative_to(g).parts[:-1]):
+                    add(m, "this video")
+    return {"items": items, "auto": auto, "chosen": ((doc or {}).get("settings") or {}).get("wipe") or "",
+            "applies": (doc or {}).get("type") == "gaming"}
 
 
 def api_thumbnails(q, body):
@@ -1430,7 +1652,7 @@ def api_thumbnails_export(q, body):
 
 def api_music(q, body):
     root = Path(store.settings()["music_root"])
-    sub = q.get("sub") or "Game Music"
+    sub = q.get("sub") or (next((d.name for d in sorted(root.iterdir()) if d.is_dir() and not d.name.startswith("_")), "") if root.is_dir() else "")
     base = root / sub
     pool = store.read_json(common.GAMING / "music_pool.json", {}) or {}
     vetted = {t["track"].lower() for k in ("general", "pokemon", "shorts") for t in pool.get(k, [])}
@@ -1474,6 +1696,24 @@ def api_short_make(q, body):
 
 def api_shorts(q, body):
     return {"shorts": extras.list_shorts(_doc(q))}
+
+
+def _music_lib():
+    sys.path.insert(0, r"{{KIT}}/tools")
+    import music_lib
+    return music_lib
+
+
+def api_music_removed(q, body):
+    """songs he right-clicked out of the music picker (file names, lower case)"""
+    return {"removed": _music_lib().removed()}
+
+
+def api_music_remove(q, body):
+    """{path, undo?}: take a song out of the library / put it back (music_lib.remove; the file stays on disk)"""
+    if not body.get("path"):
+        raise ValueError("need a song")
+    return {"ok": True, "removed": _music_lib().remove(body["path"], undo=bool(body.get("undo")))}
 
 
 def api_music_scan(q, body):
@@ -1602,6 +1842,9 @@ def api_rebuild_notes(q, body):
     """The single "rebuild with notes" button. Exact notes are applied by the cutter as always; on phone projects, notes the
     app can't turn into a time range (plain words: "2:20 remove 'to'") are handed to revise.py (Opus) first."""
     doc = _doc(q)
+    d = defer_build(doc, "notes", body)   # Overnight / a picked time: the whole revision (AI + render) runs then
+    if d:
+        return d
     text_notes = [n for n in doc.get("notes", []) if n.get("kind") == "text" and not n.get("done")]
     if text_notes:
         # every revision in words goes to Claude (Opus 5.5, Claude Code CLI), who can change cuts, layout, graphics and the
@@ -1655,9 +1898,15 @@ def api_rebuild_notes(q, body):
             "short": "Use the short-edit skill. A vertical Short (1080x1920) runs the haul pipeline in SHORT mode (tools\\haul_render.py, "
                      "tools\\haul_normalise.py); cut/protect notes go through studio notes; captions = preset doug_v in tools\\captions.py.",
         }.get(doc["type"], "")
+        _mt = mystyle.type_of(doc)
+        if _mt:   # a custom video type (my_style): its playbook + learned rules come first; notes become rules of the type
+            how = (f"This is a '{_mt['name']}' video, the user's own video type built on this pipeline. Its playbook and the rules "
+                   f"learned from earlier notes are in {Path(doc['path']) / '_style' / 'rules.md'}: follow them. Fix RULE notes for "
+                   f"this type in the type's settings ({mystyle.TYPES / (_mt['slug'] + '.json')}, key \"rules\") or this project's "
+                   "settings, never in the shared pipeline code (an update replaces that code; my_style is kept). " + how)
         msg = ("Apply these revisions to the current draft of this project (times are in the draft the user watched, intro included"
                + (f"; the intro is {intro:.1f} s" if intro is not None else "") + "). Read each one as an editor would, fix the cause, "
-               "not just the symptom. First read {{KIT}}/tools\\EDIT_RULES.md (every past note as rules; run its section I before you report). Each note is marked ONE VIDEO or RULE (note sorting, user 2026-10-26: some notes turned into shared rules messed up the whole system). ONE VIDEO = a preference or a rare moment: fix it ONLY for this project (raw\\config.json overrides any key of the skill config.json, e.g. joins.air_before / greeting.avatar_center; raw\\studio_extra.json cuts / keeps; raw\\extra_keeps.json; raw\\broll.json; studio.json settings) and NEVER edit the shared pipeline code for it. RULE = he said always / never / again or it came up on another video: build it into the shared pipeline as narrowly as the case allows, add it to the skill + EDIT_RULES.md, and after your build run python \"{{KIT}}/tools\\regress\\rule_gate.py\" check \"<the note>\" in the background (it replays every approved video + every past note and waits for builds). If it FAILS, the change broke an approved video: narrow it or move it into this project's raw\\config.json, then check again; say what the gate said in your report.\n"
+               "not just the symptom. First read {{KIT}}/tools\\EDIT_RULES.md (every past note as rules; run its section I before you report). Each note is marked ONE VIDEO or RULE (note sorting, user 2026-10-26: some notes turned into shared rules messed up the whole system). ONE VIDEO = a preference or a rare moment: fix it ONLY for this project (raw\\config.json overrides any key of the skill config.json, e.g. joins.air_before / greeting.avatar_center; raw\\studio_extra.json cuts / keeps; raw\\extra_keeps.json; raw\\broll.json; studio.json settings) and NEVER edit the shared pipeline code for it. RULE = he said always / never / again or it came up on another video: build it into the shared pipeline as narrowly as the case allows, add it to the skill + EDIT_RULES.md, and once your build is done and checked, QUEUE the rule gate: POST /api/rule-gate with {\"why\": \"<the note>\", \"pid\": \"" + doc["id"] + "\"}. Do NOT run rule_gate.py yourself and do NOT wait for it (speed, user 2026-10-29: the Mon Clear revision sat ~50 min in the gate after the draft was ready): it replays every approved video + every past note as a Studio background job and messages the user the verdict itself. It only decides whether the laptop gets the new code, never the draft. In your report say the gate is queued and that the laptop keeps the old code until it passes.\n"
                + "\n".join(lines) + "\n\n" + how +
                (f" EVERY revision in this batch is inside the intro (the first {only_intro:.1f} s): change only the intro (his shot "
                 "picks go in studio.json settings.intro_pins, see build_intro.apply_pins; the intro tools are in "
@@ -1804,6 +2053,9 @@ ROUTES = {
     ("GET", "state"): api_state,
     ("GET", "kit/update"): kit_update.api_check,
     ("POST", "kit/update/apply"): kit_update.api_apply,
+    ("GET", "stats"): edit_stats.api_get,
+    ("POST", "stats/set"): edit_stats.api_set,
+    ("POST", "stats/delete"): edit_stats.api_delete,
     ("GET", "hub"): api_hub,
     ("GET", "todo"): api_todo,
     ("GET", "todo/lists"): api_todo_lists,
@@ -1833,6 +2085,8 @@ ROUTES = {
     ("POST", "project/short"): api_short_make,
     ("POST", "project/cards"): api_cards_render,
     ("POST", "music/scan"): api_music_scan,
+    ("GET", "music/removed"): api_music_removed,
+    ("POST", "music/remove"): api_music_remove,
     ("GET", "search"): api_search,
     ("POST", "project/write-description"): api_write_description,
     ("POST", "project/titles"): api_titles,
@@ -1853,6 +2107,7 @@ ROUTES = {
     ("GET", "machines"): api_machines,
     ("GET", "schedule"): lambda q, body: schedule.view(),
     ("POST", "project/schedule"): api_project_schedule,
+    ("POST", "schedule/when"): api_schedule_when,
     ("POST", "schedule/cancel"): lambda q, body: {"item": schedule.cancel(body.get("id")), "schedule": schedule.view()},
     ("POST", "schedule/mirror"): lambda q, body: {"item": schedule.upsert(body)},   # the other machine's copy of an entry
     ("POST", "peer/jobs"): lambda q, body: (remote.set_peer(body.get("name"), body.get("jobs")), {"ok": True})[1],
@@ -1868,18 +2123,51 @@ ROUTES = {
     ("POST", "job/move"): api_job_move,
     ("GET", "settings"): api_settings,
     ("POST", "settings"): api_settings,
+    ("GET", "devices/key"): api_devices_key,
+    ("POST", "devices/add"): api_devices_add,
     ("GET", "browse"): api_browse,
     ("GET", "recent"): api_recent_recordings,
     ("POST", "recent/rename"): api_rename_recording,
     ("GET", "probe"): api_probe,
     ("GET", "detect"): api_detect,
     ("GET", "editor"): api_editor,
+    ("GET", "transitions"): api_transitions,
     ("GET", "thumbnails"): api_thumbnails,
     ("POST", "thumbnails/export"): api_thumbnails_export,
     ("GET", "music"): api_music,
     ("POST", "open"): api_open,
     ("POST", "clipboard"): api_clipboard,
 }
+ROUTES.update(music_setup.ROUTES)   # kit: Set up your music
+ROUTES.update(setup_wizard.ROUTES)   # kit: first-run setup wizard (app/setup_wizard.py)
+ROUTES.update(mystyle.ROUTES)   # My video types (my_style: custom types, learned rules, the New video type wizard)
+# Export to a video editor (tools/nle_export.py, 2026-10-29): the current cut as Premiere / Resolve XML, FCPXML, EDL or OTIO
+sys.path.insert(0, str(Path(__file__).parent / "tools"))
+import nle_export  # noqa: E402
+
+
+def _nle(fn):
+    def call(q, body):
+        try:
+            return fn(q, body)
+        except (ValueError, FileNotFoundError) as e:   # "no cut yet", "CapCut can't open it": said as it is
+            raise ApiError(str(e))
+    return call
+
+
+ROUTES.update({k: _nle(fn) for k, fn in nle_export.ROUTES.items()})
+# Caption fixes (tools/caption_fixes.py, 2026-10-29): the editor's typo fixes + undo of the AI typo pass, and the words /
+# caption groups each captioned video showed (project/captions)
+import caption_fixes  # noqa: E402
+ROUTES.update({k: _nle(fn) for k, fn in caption_fixes.ROUTES.items()})
+# Rule gate as a background job (app/gate_bg.py, 2026-10-29): the revision reports the draft first, the gate runs after
+import gate_bg  # noqa: E402
+ROUTES.update({k: _nle(fn) for k, fn in gate_bg.ROUTES.items()})
+# Intro text fixes (tools/intro_text.py, 2026-10-29): double-click the intro's words in the Editor / Watch player, retype
+# them; the intro re-renders with the new words (same shots, no AI plan) now or with the next draft
+import intro_text  # noqa: E402
+ROUTES.update({k: _nle(fn) for k, fn in intro_text.ROUTES.items()})
+intro_text.BUILD = lambda doc: start_build(doc, "intro", machine="here")
 
 
 
@@ -1889,11 +2177,13 @@ ROUTES = {
 # (the user shares this PC with her Tailscale account); Tailscale Serve adds Tailscale-User-Login to every request.
 # No header = this PC itself (the app window) = the owner. settings.owner_logins / settings.assistants =
 # [{"name": "...", "login": "her tailscale login", "telegram": <chat id>}].
-ASSISTANT_GET = {"state", "project", "jobs", "job", "machines", "schedule", "project/revisions", "chat"}
+ASSISTANT_GET = {"state", "project", "jobs", "job", "machines", "schedule", "project/revisions", "chat", "project/caption-fix", "project/captions", "project/intro-text"}
 # uploads (user 2026-10-27: "I want her to do the title plus publishing on her own"): type the title + Publish, re-check claims
 # no uploads (2026-10-27, user: "she can do the title from the YouTube studio ... I just wanted her to have edit access so
 # she can actually edit the video"): titles + publishing happen in YouTube Studio, the final say is his
-ASSISTANT_POST = {"project/notes", "project/phone-send", "project/rebuild-notes", "project/run", "project/update", "transcribe"}
+ASSISTANT_POST = {"project/notes", "project/phone-send", "project/rebuild-notes", "project/run", "project/update", "transcribe",
+                  "project/caption-fix",   # caption typo fixes from the editor (2026-10-29)
+                  "project/intro-text"}    # ...and the intro's words
 
 
 def who(headers):

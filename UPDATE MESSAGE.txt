@@ -1,10 +1,15 @@
-Yo, new version of the studio kit is attached (version 2). Lots of upgrades: haul + vertical Short video types, a render queue, captions, a smarter music picker that uses your whole music folder by mood, new intro templates with a quality check, cleaner cuts on reviews, zooms on screen recordings, a privacy blur scan, and a new look.
+Yo, version 4 of the studio kit is out. Big ones: a Filmora-style editor with a timeline (double-click a caption or the intro's words to change them), Train your style (teach it your own editing style from your videos), 8 new caption styles, export your cut to Premiere / Resolve / Final Cut, music setup that finds and sorts the music already on your PC, new Haul and Short video types, and lots of cleaner cuts.
 
-You DON'T have to set it up again. To update:
+You DON'T have to set anything up again. Don't run SETUP.cmd: your folders, channels, settings and projects all stay.
+
+To update (easiest):
+1. Open the Studio. Click "Update available" in the sidebar, or go to Settings -> Updates -> Update now.
+2. It closes, updates and opens again by itself.
+
+If you don't see the button:
 1. Close the Studio.
 2. Unzip "Creator Studio Kit.zip" into your Downloads (NOT over your current kit).
-3. Open the new folder and double-click UPDATE.cmd. It finds your kit, backs it up and updates it. Your settings, channels, codes and projects stay.
-4. Open Claude Code in your normal kit folder and paste what's in UPDATE PROMPT.md. Claude finishes it off and test-builds a video.
-5. Delete the folder in Downloads.
+3. Open the new folder and double-click UPDATE.cmd. It finds your kit, backs it up and updates it.
+4. Delete the folder in Downloads.
 
-Every update from now on works the same way.
+Optional: if you or Claude changed any kit files yourselves, open Claude Code in your kit folder and paste what's in UPDATE PROMPT.md. Claude puts your changes back on top of the new version.

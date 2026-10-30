@@ -469,9 +469,13 @@ if cap_style:
     if not SHORT and oc and oc > intro_e + 1 and out_len - oc > 1:
         spans.append(("outro", oc, out_len))
     head, dlg, said = None, [], []
+    cap_all, cap_shown, cap_changes = [], [], []   # for <project>/captions.json (the editor draws + fixes captions from it)
     for name, a0, a1 in spans:
         ws = [x for x in stretch_words(a0, a1, name) if a0 - 0.05 <= x["s"] < a1 - 0.05]
-        ass = CAPS.build_ass(ws, W_CAP, H_CAP, cap_style)
+        ws, ch = CAPS.CF.apply(ws, doc, say=say)   # AI typo pass + the editor's manual fixes (tools/caption_fixes.py)
+        cap_all += ws
+        cap_changes += ch
+        ass = CAPS.build_ass(ws, W_CAP, H_CAP, cap_style, shown=cap_shown)
         lines = ass.splitlines()
         k = next(i for i, ln in enumerate(lines) if ln.startswith("Dialogue:")) if any(ln.startswith("Dialogue:") for ln in lines) else len(lines)
         head = head or lines[:k]
@@ -484,6 +488,7 @@ if cap_style:
                 ln = ",".join(parts)
                 dlg.append(ln)
         said.append(f"{name} {a0 // 60:.0f}:{a0 % 60:04.1f}-{a1 // 60:.0f}:{a1 % 60:04.1f} ({len(ws)} words)")
+    CAPS.CF.record(proj, out.name, cap_all, cap_shown, cap_changes, cap_style)
     if SHORT and S.get("short_hook") is not False and EW and head:
         # hook headline: 3-6 words naming what the Short is about, top of the frame for the first ~3 s, one keyword yellow.
         # settings.short_hook = "text" overrides it ("*word*" marks the keyword), false turns it off.

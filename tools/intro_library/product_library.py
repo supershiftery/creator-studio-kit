@@ -115,7 +115,7 @@ def moments(path, name, n_times=8, cells=None):
     STATE.mkdir(exist_ok=True)
     cf = STATE / "product_moments.json"
     cache = json.loads(cf.read_text(encoding="utf-8")) if cf.exists() else {}
-    key = f"{path}|{canon(name)}" + ("|cells:" + ",".join(f"{t}{c}" for t, c in cells) if cells else "")   # "airpod 4's" and "airpod 4" are one product: one look, one answer
+    key = f"{path}|{canon(name)}|nogear" + ("|cells:" + ",".join(f"{t}{c}" for t, c in cells) if cells else "")   # "airpod 4's" and "airpod 4" are one product: one look, one answer
     if key in cache:
         return [tuple(x) for x in cache[key]]
     try:
@@ -148,7 +148,9 @@ def moments(path, name, n_times=8, cells=None):
                   f"where a {name} is clearly shown as the subject: held up to the camera, worn, unboxed, or sitting on a desk or "
                   f"turntable in close-up. NOT frames that are mostly a person talking to the camera (even while wearing it: a muted "
                   f"talking shot looks like lip-sync), NOT computer screens or "
-                  f"web pages, NOT empty rooms, NOT a different product. Answer with ONLY JSON like {{\"show\": [2, 5]}}.")
+                  f"web pages, NOT empty rooms, NOT a different product, NOT frames where his recording gear shows: a small "
+                  f"white action camera / camera on a tripod, clamp or stand in the shot (Best Mon Clear On DHG 2026-10-29: "
+                  f"\"you never want to show the white camera there\"). Answer with ONLY JSON like {{\"show\": [2, 5]}}.")
         try:
             j = claude_brain.ask("product_moments", prompt, images=[str(sheet)])
         except Exception:

@@ -220,8 +220,14 @@ def rename_project(pid, title, rename_folder=True):
         new_path = old_path.parent / safe_name(title)
         if new_path.exists() and new_path.resolve() != old_path.resolve():
             raise ValueError(f"a folder called {new_path.name} already exists")
-        if new_path != old_path:
-            os.rename(old_path, new_path)
+        if new_path.name != old_path.name:
+            if new_path == old_path:   # only the capitals changed: Windows paths compare equal, so step through a temp name
+                tmp = old_path.with_name(old_path.name + ".renaming")
+                os.rename(old_path, tmp)
+                old_path_tmp = tmp
+            else:
+                old_path_tmp = old_path
+            os.rename(old_path_tmp, new_path)
             renamed.append((str(old_path), str(new_path)))
             set_path(pid, new_path)
             doc = _swap_prefix(doc, str(old_path), str(new_path))

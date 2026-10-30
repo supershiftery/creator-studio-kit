@@ -1973,7 +1973,7 @@ def plan_key(kind, tid, vo, title, footage, music, extra, pics, direct):
     foot = open(footage, encoding="utf-8").read() if isinstance(footage, str) and os.path.exists(footage) else json.dumps(footage)
     code = [os.path.getmtime(os.path.join(HERE, f)) for f in ("build_intro.py", "director.py", "pics.py", "director_rules.md")
             if os.path.exists(os.path.join(HERE, f))]
-    ex = {k: v for k, v in (extra or {}).items() if k != "auto_pins"}
+    ex = {k: v for k, v in (extra or {}).items() if k not in ("auto_pins", "text_fixes")}   # his text fixes never re-plan
     st = os.stat(vo)
     return hashlib.md5(json.dumps([kind, tid, os.path.abspath(vo), st.st_size, st.st_mtime, title, foot, music, ex, pics, direct, code],
                                   sort_keys=True, default=str).encode()).hexdigest()
@@ -2278,7 +2278,12 @@ def _finish(kind, cfg, t, tcfg, vo, title, out, sub, footage, music, accent, see
         I["mg"] = list(I.get("mg") or []) + editor_graphics(L, W, [(g["t"], g["e"]) for g in I.get("mg") or []])
         I["fx"] = fx_plan(L, beats, dur, I["mg"])
     if extra:
-        I.update({k: v for k, v in extra.items() if k != "app"})   # app is resolved above
+        I.update({k: v for k, v in extra.items() if k not in ("app", "text_fixes")})   # app is resolved above
+    # his intro text fixes (Studio double-click, text_fixes.py): the unfixed data is kept for later fixes / undo
+    import text_fixes
+    open(os.path.join(out, "intro_data.json"), "w", encoding="utf-8").write(json.dumps(I))
+    I, _hits = text_fixes.apply(I, (extra or {}).get("text_fixes"))
+    open(os.path.join(out, "text_fixes.json"), "w", encoding="utf-8").write(json.dumps((extra or {}).get("text_fixes") or []))
     fonts ="".join(f'@font-face{{font-family:"{f}";src:url("assets/fonts/{n}.ttf") format("truetype");font-weight:{w};font-style:{s};}}\n' for f, n, w, s in FONTS)
     rd = lambda f: open(os.path.join(t["dir"], f), encoding="utf-8").read() if os.path.exists(os.path.join(t["dir"], f)) else ""
     body = rd("body.html")

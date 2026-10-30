@@ -1837,6 +1837,53 @@ def pick_encoder(cfg):
     return "libx264", rc["fallback"]
 
 
+def side_scene_bridge(side_runs, rows, kept, cam, work, max_gap=20.0, max_mad=22.0):
+    """Side-camera runs whose gap is the SAME picture are one side shot (Best Mon Clear On DHG 2026-10-29, 1:43: hood up,
+    the side camera lost his face for 7.8 s, the rows read "product" and the circle came on over the side camera of him,
+    "it should never be on this right camera angle"). Each gap (<= max_gap s, kept footage, no screen rows) is sampled
+    every 1 s on the right half at 64x36 grey and compared with the side frames on both sides of it: mean abs diff
+    <= max_mad everywhere = the same OBS scene (same scene 6-15, the desk scene 40-50 in that room). Cached in
+    work/side_scene.json. RG_OFF=sidescene."""
+    if "sidescene" in os.environ.get("RG_OFF", "") or len(side_runs) < 2:
+        return side_runs, []
+    f = work / "side_scene.json"
+    cache = load_json(f, {}) or {}
+
+    def grey(t):
+        raw = subprocess.run(["ffmpeg", "-v", "error", "-ss", f"{t:.2f}", "-i", str(cam), "-frames:v", "1", "-vf",
+                              "crop=iw/2:ih:iw/2:0,scale=64:36,format=gray", "-f", "rawvideo", "-"],
+                             capture_output=True).stdout
+        return np.frombuffer(raw, np.uint8).astype(np.float32) if len(raw) == 64 * 36 else None
+
+    out, bridged = [side_runs[0]], []
+    for a, b in side_runs[1:]:
+        pa, pb = out[-1]
+        gap = a - pb
+        ok = False
+        if 0 < gap <= max_gap and any(ka < a and pb < kb for ka, kb in kept) \
+                and not any(pb < r["t"] < a and r.get("right") == "screen" for r in rows):
+            key = f"{pb:.1f}-{a:.1f}"
+            if key not in cache:
+                refs = [x for x in (grey(pb), grey(a)) if x is not None]
+                mads = []
+                for t in np.arange(pb + 0.5, a, 1.0):
+                    g = grey(float(t))
+                    if g is None or not refs:
+                        mads = None
+                        break
+                    mads.append(float(min(np.abs(g - r).mean() for r in refs)))
+                cache[key] = mads
+            mads = cache[key]
+            ok = bool(mads) and max(mads) <= max_mad
+        if ok:
+            out[-1] = (pa, b)
+            bridged.append((pb, a))
+        else:
+            out.append((a, b))
+    save_json(f, cache)
+    return out, bridged
+
+
 def edge_margins(cam, W, H, duration, work, checks, n=14, look=24, pad=2):
     """Foreign strips at the edges of each half, measured (ultimate dhgate free reselling spreadsheet 2026-10-23, 1:58: "my
     video is like pixels off on the right ... you don't see that blue on the side ... an editor would have cropped that
@@ -3137,6 +3184,13 @@ def main():
                 merged_side[-1] = (merged_side[-1][0], b)
             else:
                 merged_side.append((a, b))
+        # longer gaps where the right camera still shows the SAME side picture (hood up, face hidden) hold the side shot too
+        merged_side, scene_br = side_scene_bridge(merged_side, rows, kept, cam, work,
+                                                  cfg["face_cam"].get("side_scene_bridge_seconds", 20.0),
+                                                  cfg["face_cam"].get("side_scene_max_diff", 22.0))
+        if scene_br:
+            checks.append("Side camera held through face-detector gaps (same side picture, no circle): "
+                          + ", ".join(f"{fmt(a)}-{fmt(b)}" for a, b in scene_br) + " (source).")
         side_runs = [(a, b + 0.2) for a, b in merged_side if b - a >= 1.0]   # the run lasts until the next row
         pip_ranges = subtract(pip_ranges, side_runs)   # side angle on screen = no circle, in every section
     # raw/extra_side.json: source ranges that must show the RIGHT (side) camera full, no circle (top 5 reselling products

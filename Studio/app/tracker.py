@@ -119,6 +119,30 @@ def _norm_name(x):
     return re.sub(r"[^a-z0-9]", "", re.sub(r"\bfinal\b", "", x))
 
 
+_DRIVE_INDEX = {"at": 0, "root": None, "chans": {}}   # one listing of the Drive channel folders, shared by every project
+
+
+def _drive_index(root, max_age=90):
+    """{channel folder: [its sub-folders]}. Google Drive (G:) answers each stat slowly: every project used to walk the whole
+    tree twice per refresh (113 walks, 15 s on the first Projects load, 2026-10-29). Now one walk, reused for 90 s."""
+    now = time.time()
+    if _DRIVE_INDEX["root"] == root and now - _DRIVE_INDEX["at"] < max_age:
+        return _DRIVE_INDEX["chans"]
+    chans = {}
+    try:
+        if root.is_dir():
+            for c in root.iterdir():
+                try:
+                    if c.is_dir():
+                        chans[c] = [d for d in c.iterdir() if d.is_dir()]
+                except OSError:
+                    pass
+    except OSError:
+        pass
+    _DRIVE_INDEX.update(at=now, root=root, chans=chans)
+    return chans
+
+
 def drive_folder(doc):
     """The project's Drive hand-off folder: an existing folder with the same name in ANY channel folder wins (the
     bot and the watcher sometimes file a video under a different channel, or as '<name> FINAL'); else <channel>/<title>."""
@@ -128,17 +152,11 @@ def drive_folder(doc):
     root = Path(s["drive_root"])
     base = root / sub
     wants = {_norm_name(store.safe_name(doc["title"])), _norm_name(Path(doc["path"]).name)}
-    if root.is_dir():
-        chans = [base] + [d for d in root.iterdir() if d.is_dir() and d != base]
-        for c in chans:
-            if not c.is_dir():
-                continue
-            try:
-                for d in c.iterdir():
-                    if d.is_dir() and _norm_name(d.name) in wants:
-                        return d
-            except OSError:
-                pass
+    idx = _drive_index(root)
+    for c in [base] + [c for c in idx if c != base]:
+        for d in idx.get(c, []):
+            if _norm_name(d.name) in wants:
+                return d
     return base / store.safe_name(doc["title"])
 
 

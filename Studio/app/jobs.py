@@ -529,6 +529,10 @@ class Job:
         except Exception as e:  # noqa
             self.status, self.error = "failed", str(e)
             self.write(f"!! {e}")
+        # a failed / cancelled build stops its background steps too (the review intro waits for the edit's render)
+        for sid in list(self.bg):
+            self._kill(self.bg.pop(sid)[0])
+            self.step_status[sid] = "cancelled"
         self._give_gpu()
         with QCOND:
             if self.id in QUEUE:

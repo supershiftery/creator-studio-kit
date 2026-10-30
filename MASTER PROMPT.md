@@ -19,14 +19,25 @@ Read these in order and give me a 10-line summary of what the kit can do:
 4. `tools/CHECKING.md` (how every render gets checked)
 Files still contain `{{TOKENS}}` until setup runs. That is expected.
 
-## Phase 1: Install
+## Phase 1: Install, then the Studio's setup window
 - Run `setup/install.ps1` (Python 3.12, FFmpeg, Node, Git, the Python packages, Playwright Chromium, HyperFrames, Whisper models).
-  Fix anything that fails, and tell me in plain words what you fixed.
+  Fix anything that fails, and tell me in plain words what you fixed. (If I double-clicked `SETUP.cmd`, this already ran.)
+- **Then start the Studio** (`Studio/Studio.cmd`) and tell me: "The Studio window is open with a setup window. Click through it
+  (about 3 minutes), then come back here." Don't ask me the questions it asks. The setup window, one question per screen:
+  checks FFmpeg / Node / Claude Code / my Claude sign-in (each with a fix button), asks where my recordings save, where projects
+  go, where my music library is (and can find + sort my music), the captions default and an optional channel name. It writes
+  `setup/answers.json`, runs `configure.py` itself and saves `"setup_done": true` in `Studio/data/settings.json`. Its code:
+  `Studio/app/setup_wizard.py` + `Studio/ui/setup_wizard.js`; I can re-open it any time from Settings → Setup.
+- When I say I'm done, check `Studio/data/settings.json` has `"setup_done": true`, then read it and `setup/answers.json` so you
+  know my folders, captions default and channel. (If the wizard's "Open Claude" button started you, it's done already.)
 - Make sure Claude Code is signed in on this PC and `claude` runs from a plain terminal (install the CLI too if I only have the
   desktop app): the Revisions tab AND the AI director (`tools/claude_brain.py`: intro shot plan, picture check, B-roll labels,
   QC flag review) call the `claude` CLI on my own plan. Test it: `python tools/claude_brain.py` must print `{'ok': True}`.
 
 ## Phase 2: Interview me, then configure
+- **Skip what the setup window already answered**: my folders (questions 13–14), captions (16), the music search (18: it runs
+  from the Studio, see `<music library>/_setup/`) and my channel name. `configure.py` already ran; when you add answers, keep
+  the wizard's ones in `setup/answers.json` and run it again.
 - Ask me the questions in `SETUP QUESTIONS.md`, **3–4 at a time, as clickable buttons** (AskUserQuestion) wherever there are clear
   options. Skip anything you can detect yourself (GPU with `nvidia-smi`, drives and free space, installed apps, my Videos folder,
   the resolution and layout of a recording I point you to). Show me what you detected and let me correct it.
@@ -42,11 +53,26 @@ Files still contain `{{TOKENS}}` until setup runs. That is expected.
   - **Video types I don't make:** hide them in the app (Studio/app/store.py `TYPES`) instead of deleting code. If I don't make
     Minecraft content, leave `tools/minecraft` alone and switch off the parts of the gaming pipeline that need it
     (the Director B-roll detector in `tools/minecraft/modpipe/brollmap.py`).
-  - **Music:** build my library under my music folder (Type Beats / Lo-Fi / Game Music / Shorts). Scan every track for vocals
-    and producer tags (faster-whisper `medium.en`, `vad_filter=False`, highpass 200 Hz; >20 words or any "prod by/beatstars" = reject
-    into `_rejected`). Rebuild `Studio/app/gaming/music_pool.json` from MY clean tracks. Fix any hard-coded default track paths
-    (search the code for `.mp3` under `{{MUSIC_ROOT}}`-style paths that don't exist on my PC) so they point at tracks I own.
-    Never download music without asking me. I need to own or have a licence for every track.
+  - **Music (don't skip it):** the setup window already started this if I left its music box ticked (check
+    `<my music folder>/_setup/progress.json`; if it's done, go to step 4). Otherwise set up my music library with `tools/music_kit.py`,
+    automatically, without asking me to pick folders or tracks:
+    1. `python tools/music_kit.py find` (add `--place "<folder>"` for any folder I named). It looks in Music, Downloads, Desktop,
+       Videos, OneDrive and music-named folders at the top of my other drives, and skips system/app sounds, sound effects,
+       online-only cloud files and anything under 60 s.
+    2. (No review step.) Only leave a folder out if I already told you it isn't music I can use (`--skip`).
+    3. `python tools/music_kit.py organise --all [--skip "<folder>" ...]` (or `--sel <file with a JSON list of paths>`). It
+       hard-links (or copies, `--copy`) each clean track into `<my music folder>/<mood>/` (chill, upbeat, hype, dark, cinematic,
+       lo-fi), decided from the audio. My originals are never moved or deleted. Every track gets the vocal / producer-tag scan
+       (Whisper `medium.en`, no VAD, 200 Hz highpass; more than 4 words, any spoken line of 4+ words or any tag like
+       "BeatStars" / "prod by" = left out). It waits while a Studio build renders.
+    4. Read `<my music folder>/_setup/report.md` and tell me: tracks per mood, what was left out and why. If a clean beat was left
+       out by mistake, add part of its name to `allow` in `<my music folder>/_music_overrides.json` and run organise again.
+    The Studio does the same from its "Set up your music" card (Projects, while the library is empty) and Settings → Music.
+    I can right-click any song in a song picker to change its mood (moves it to that mood folder) or remove it from the library
+    for good (`_music_overrides.json` "block" + "removed"; Settings → Music → Removed tracks puts it back).
+    Then fix any hard-coded default track paths (search the code for `.mp3` under `{{MUSIC_ROOT}}`-style paths that don't
+    exist on my PC) so they point at tracks I own, and rebuild `Studio/app/gaming/music_pool.json` from my clean tracks if I
+    make gaming videos. Never download music without asking me. I need to own or have a licence for every track.
   - **Privacy:** if anything private can show on screen, have ME type it into `tools/privacy_terms.json` (local only). Never echo
     it back in chat, notes or memory.
   - **Promo/referral codes** (phone videos): put mine in `tools/phone_edit/codes.json`. Add apps I cover to `tools/phone_edit/apps.json`.

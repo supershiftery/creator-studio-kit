@@ -44,9 +44,13 @@ const EXT = { video: ".mp4,.mov,.mkv,.m4v,.avi", audio: ".wav,.mp3,.m4a,.flac", 
 function browseModal({ kind = "any", multiple = true, dirsOnly = false, start = "" } = {}) {
   return new Promise(resolve => {
     let dir = start, sel = new Set();
-    const m = modal(`<h2>${dirsOnly ? "Choose a folder" : "Choose file" + (multiple ? "s" : "")}</h2>
+    const html = `<h2>${dirsOnly ? "Choose a folder" : "Choose file" + (multiple ? "s" : "")}</h2>
       <div class="browser"><div class="crumbs"></div><div class="files"></div>
-      <div class="row"><span class="muted small grow" id="bsel"></span><button id="bcancel">Cancel</button><button class="primary" id="bok">Choose</button></div></div>`, "wide");
+      <div class="row"><span class="muted small grow" id="bsel"></span><button id="bcancel">Cancel</button><button class="primary" id="bok">Choose</button></div></div>`;
+    // over another pop-up (New Project's "Add video") it opens on its own layer: it used to replace New Project (user 2026-10-29)
+    const layer = $("#modal-root").firstElementChild ? document.createElement("div") : null;
+    if (layer) { layer.className = "devwiz"; layer.innerHTML = `<div class="modal wide">${html}</div>`; document.body.appendChild(layer); }
+    const m = layer ? layer.firstElementChild : modal(html, "wide"), close = () => layer ? layer.remove() : closeModal();
     const files = $(".files", m), crumbs = $(".crumbs", m);
     async function load(d) {
       dir = d;
@@ -67,8 +71,8 @@ function browseModal({ kind = "any", multiple = true, dirsOnly = false, start = 
         };
       });
     }
-    function done() { closeModal(); resolve([...(sel.size ? sel : (dirsOnly && dir ? new Set([dir]) : new Set()))]); }
-    $("#bok", m).onclick = done; $("#bcancel", m).onclick = () => { closeModal(); resolve([]); };
+    function done() { close(); resolve([...(sel.size ? sel : (dirsOnly && dir ? new Set([dir]) : new Set()))]); }
+    $("#bok", m).onclick = done; $("#bcancel", m).onclick = () => { close(); resolve([]); };
     load(start);
   });
 }
@@ -107,6 +111,15 @@ function openProject(pid) {
 function wireCommon() {
   $$("[data-open]").forEach(el => el.onclick = e => { e.stopPropagation(); openProject(el.dataset.open); });
   $$("[data-nav]").forEach(el => el.onclick = () => nav(el.dataset.nav));
+  lazyThumbs();
+}
+// card pictures (data-bg) load only once they are on screen (user 2026-10-29: Projects took a long time to open)
+const THUMB_IO = "IntersectionObserver" in window ? new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return; const el = e.target; THUMB_IO.unobserve(el);
+  el.style.backgroundImage = `url('${el.dataset.bg}')`; el.removeAttribute("data-bg");
+}), { rootMargin: "300px" }) : null;
+function lazyThumbs() {
+  $$("[data-bg]").forEach(el => THUMB_IO ? THUMB_IO.observe(el) : (el.style.backgroundImage = `url('${el.dataset.bg}')`));
 }
 function renderSideJobs() {
   // one row per video (user 2026-10-26: a laptop build showed twice, as "revision in progress", next to test projects):
@@ -189,9 +202,9 @@ function viewQueue() {
 // ---------------------------------------------------------------- dashboard
 function pcard(p) {
   const done = Object.values(p.checklist).filter(Boolean).length, total = Object.keys(p.checklist).length;
-  const thumb = p.thumb ? `url('${thumbUrl(p.thumb, p.thumb_crop)}')` : "";
+  // the picture loads when the card scrolls into view (lazyThumbs): 58 cards used to ask for 58 frames at once
   return `<div class="pcard" data-open="${p.id}">
-    <div class="th" style="background-image:${thumb}">
+    <div class="th" ${p.thumb ? `data-bg="${esc(thumbUrl(p.thumb, p.thumb_crop))}"` : ""}>
       <span class="pill type-${p.type} ty">${esc(S.state.types[p.type].icon)} ${esc(p.type_label)}</span>
       ${p.activity ? `<span class="pill act act-${p.activity.state} stg">${esc(p.activity.label)}</span>` : `<span class="pill st-${p.stage} stg">${esc(S.state.stage_labels[p.stage])}</span>`}
       ${p.due ? `<span class="due ${p.due < S.state.tracker.today && p.stage !== "published" ? "bad" : ""}">due ${esc(p.due)}</span>` : ""}
@@ -704,6 +717,7 @@ function wireProject(p, tab) {
   if (tab === "review") {
     const v = $("#p-video");
     $("#p-out") && ($("#p-out").onchange = e => { if (v) { v.src = mediaUrl(e.target.value); v.load(); } });
+    typeof watchFixWire === "function" && watchFixWire(p);   // double-click: captions + intro words (app10)
     const MARK = S.mark || (S.mark = {});
     const setRange = () => { if (MARK.a == null) return; const b = MARK.b != null && MARK.b > MARK.a ? MARK.b : null; const i = $("#p-note"); const rest = i.value.replace(/^\s*(cut|protect|broll|b-roll)?\s*\d+:\d{2}(\.\d)?(\s*-\s*\d+:\d{2}(\.\d)?)?\s*/i, ""); const verb = (i.value.match(/^\s*(cut|protect|broll|b-roll)/i) || [, "cut"])[1]; i.value = `${verb} ${fmtT2(MARK.a)}${b != null ? "-" + fmtT2(b) : ""} ${rest}`.trimEnd() + " "; i.dispatchEvent(new Event("input")); i.focus(); };
     $("#p-in").onclick = () => { const v = $("#p-video"); if (!v) return; MARK.a = v.currentTime; MARK.b = null; setRange(); toast("Start marked at " + fmtT2(MARK.a) + ": now play to the end and press Mark end", "ok"); };
@@ -766,11 +780,11 @@ function wireSections(p) {
   $$("[data-music-clear]").forEach(b => b.onclick = async () => { const m = { ...(p.settings.music || {}) }; delete m[b.dataset.musicClear]; S.project = await api("project/update?id=" + p.id, { settings: { music: m } }); renderProject(); });
 }
 async function musicPicker(p, section) {
-  let sub = "Game Music";
+  let sub = "";
   const m = modal(`<h2>Music for ${esc(section)}</h2><div class="row" style="margin-bottom:8px"><select id="m-sub"></select><input id="m-q" class="grow" placeholder="filter…"><span class="muted small">★ = vetted (no vocals / tags)</span></div><div class="files" style="max-height:60vh;overflow:auto;border:1px solid var(--line);border-radius:8px" id="m-list"></div>
     <div class="row" style="margin-top:8px"><label class="small muted">start at (s) <input id="m-off" type="number" value="0" style="width:80px"></label><span class="grow"></span><button id="m-cancel">Cancel</button></div>`, "wide");
   async function load() {
-    const r = await api("music?sub=" + enc(sub));
+    const r = await api("music?sub=" + enc(sub)); sub = r.sub;
     $("#m-sub", m).innerHTML = r.folders.map(f => `<option ${f === sub ? "selected" : ""}>${esc(f)}</option>`).join("");
     const q = ($("#m-q", m).value || "").toLowerCase();
     $("#m-list", m).innerHTML = r.items.filter(i => !q || i.name.toLowerCase().includes(q)).map(i => `<div class="fe" data-p="${esc(i.path)}" style="grid-template-columns:22px 1fr 200px 120px"><span title="${esc(i.scan || "")}">${i.vetted ? "★" : i.scan === "vocal" ? "🚫" : i.scan === "tag" ? "⚠" : "♪"}</span><span>${esc(i.name)}${i.scan ? ` <span class="tiny muted">(${esc(i.scan)}${i.words != null ? ", " + i.words + " words" : ""})</span>` : ""}</span><span class="dt">${esc(i.folder)}</span><span><button class="sm" data-play="${esc(i.path)}" title="preview">▶</button><button class="sm" data-scan="${esc(i.path)}" title="Whisper scan for vocals / producer tags (medium model, ~1 min)">${i.scan ? "rescan" : "scan"}</button></span></div>`).join("") || `<div class="empty">nothing here</div>`;

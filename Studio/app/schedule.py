@@ -112,7 +112,14 @@ def _run(e, fallback):
     # "Both" picks laptop-or-desktop at start; anything else this machine decided to run runs HERE
     machine = "both" if e.get("machine") == "Both" and not fallback else "local"
     try:
-        job = server.start_build(doc, e.get("action", "draft"), machine=machine)
+        if e.get("action") == "notes":   # a revision batch put off until tonight (Queue page, 2026-10-29): send it now
+            out = server.api_rebuild_notes({"id": doc["id"]}, {})
+            if not out.get("job"):   # written changes went to the revision AI: it rebuilds; nothing for this entry to watch
+                e.update(state="done", ran_on=me(), started=store.now(), ended=store.now(), note="changes sent to the AI; it makes the draft")
+                return upsert(e)
+            job = server.jobs.JOBS.get(out["job"]["id"])
+        else:
+            job = server.start_build(doc, e.get("action", "draft"), machine=machine)
         e.update(state="started", ran_on=me(), job=job.id, started=store.now(), fallback=fallback,
                  note=(f"{e.get('machine')} was off, so {me()} built it" if fallback else ""))
     except Exception as err:  # a build already running for it: try again next tick

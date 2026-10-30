@@ -10,33 +10,52 @@ const GFX_TYPES = [["article", "Article highlight (3D)"]];
 // PRESETS, previews rendered by `captions.py --previews` into ui/captions/). A font not in app/fonts uses a look-alike.
 const CAP_STYLES = [["bold", "Bold pop (Hormozi) · Montserrat Black"], ["clean", "Clean subtitles · Montserrat Bold"], ["beast", "MrBeast style · Komika Axis"],
   ["boldfont", "The Bold Font · tall caps"], ["youtube", "YouTube CC box · Roboto"]];
+// 2026-10-29: picked from a grid of the preview PNGs (presets.json order); "low" styles sit at the bottom of the frame, so on
+// gaming projects they're greyed out (no bottom captions on Minecraft videos). CAP_STYLES = fallback when presets.json won't load.
 let CAP_META = null;
-fetch("captions/presets.json").then(r => r.json()).then(j => { CAP_META = Object.fromEntries(j.map(x => [x.key, x])); }).catch(() => {});
-function modeOptsHtml(st = {}, type = "gaming") {
+const CAP_READY = fetch("captions/presets.json").then(r => r.json()).then(j => { CAP_META = Object.fromEntries(j.filter(x => x.pick !== false).map(x => [x.key, x])); }).catch(() => {});
+// 2026-10-29 (testers: "there's a lot going on" on this screen): up front only what most videos need: where the captions go,
+// when it builds and on which device. Everything else sits behind "More options" (closed by default).
+const CAP_WHERE = [["all", "Whole video"], ["bookends", "Intro and ending only"], ["off", "No captions"]];   // same words as the editor's Captions tab
+// round 2 (user video 2026-10-29 13:43): plain words, "This computer", another computer = an advanced link, requests up top
+const machineName = n => n === (S.state?.machine || "Desktop") ? "This computer" : n;
+function modeOptsHtml(st = {}, type = "gaming", extraMore = "", extraTop = "") {
   const sp = st.trim_speed || 1, gx = st.graphics || {};
-  return `<div class="np-opts" id="mo">
-    <label class="mo-opt"><input type="checkbox" id="mo-screen" ${st.screen ? "checked" : ""}><span><b>Screen recording</b><small>no cam: full screen, trimmed, lo-fi bed (ticked automatically for a plain 16:9 capture)</small></span></label>
-    <label class="mo-opt"><input type="checkbox" id="mo-trim" ${st.trim_only ? "checked" : ""}><span><b>Trim only</b><small>just cut the bad takes and silences: no intro, layout, graphics or music</small></span></label>
-    <label class="mo-opt" id="mo-speed-l"><span><b>Speed</b><small>of the trimmed video</small></span><select id="mo-speed">${[1, 1.1, 1.25, 1.5].map(v => `<option value="${v}" ${v === sp ? "selected" : ""}>${v}×</option>`).join("")}</select></label>
-    <label class="mo-opt" id="mo-music-l"><input type="checkbox" id="mo-music" ${st.music !== false ? "checked" : ""}><span><b>Music</b><small>background beats / game music</small></span><select id="mo-mstyle" title="screen recordings: one lo-fi loop, or phone-style beats that change by section (never looped)">${[["", "Lo-fi loop"], ["beats", "Phone beats"], ["chill", "Chill lo-fi by section"]].map(([v, t]) => `<option value="${v}" ${(st.music_style || "") === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
-    <label class="mo-opt" id="mo-priv-l"><input type="checkbox" id="mo-priv" ${st.privacy !== false ? "checked" : ""}><span><b>Privacy check</b><small id="mo-priv-s">blur addresses + phone numbers</small></span></label>
-    <label class="mo-opt" id="mo-claude-l"><input type="checkbox" id="mo-claude" ${st.claude !== false ? "checked" : ""}><span><b>AI director</b><small>Claude (your Claude Code sign-in) plans the intro shots, checks pictures, reviews QC flags (~1¢ a video)</small></span></label>
-    <label class="mo-opt mo-wide" id="mo-gfx-l"><input type="checkbox" id="mo-gfx" ${gx.on ? "checked" : ""}><span><b>Motion graphics</b><small id="mo-gfx-s">Claude finds a source and drops a 3D graphic in where it fits</small><select id="mo-gfx-type">${GFX_TYPES.map(([v, t]) => `<option value="${v}" ${(gx.type || "article") === v ? "selected" : ""}>${t}</option>`).join("")}</select></span></label>
-    <label class="mo-opt mo-wide" id="mo-gfx-url-l"><span><b>Article link</b><small>optional · empty = Claude searches the web</small><input id="mo-gfx-url" placeholder="https://…" value="${esc(gx.url || "")}"></span></label>
-    <label class="mo-opt mo-wide" id="mo-gfx-hl-l"><span><b>Highlight</b><small>optional · words to mark, split with |</small><input id="mo-gfx-hl" placeholder="touchscreen MacBook Pro | OLED displays" value="${esc((gx.highlight || []).join(" | "))}"></span></label>
-    <label class="mo-opt mo-req"><span><b>Special requests</b><small>anything you already know you want, for any part of the video. The AI applies it right after the first draft, before you get the message (one line per request; the intro AI reads it on the first build too)</small><textarea id="mo-req" rows="3" placeholder="intro: Grid Notebook style, title says ULTIMATE DHGATE SHEET&#10;#1 Mario server: Mario music under the whole section&#10;a nice motion graphic every time I say MC Realm Hub">${esc(st.requests || "")}</textarea></span></label>
-    <label class="mo-opt mo-wide mo-cap" id="mo-cap-l"><input type="checkbox" id="mo-cap" ${st.captions === true || (st.captions && st.captions.on) ? "checked" : ""}><span><b>Captions</b><small>burn subtitles into the draft + final (off = no captions, the default)</small><select id="mo-cap-style">${CAP_STYLES.map(([v, t]) => `<option value="${v}" ${((st.captions || {}).style || "bold") === v ? "selected" : ""}>${t}</option>`).join("")}</select><img id="mo-cap-img" class="mo-cap-img" alt=""><small id="mo-cap-font"></small></span></label>
-    ${(() => {   // first build: now / at a time / not yet, on which machine (2026-10-25: laptop first, schedule builds)
-      const ms = [...new Set([S.state?.machine || "Desktop", ...((S.state?.remote?.workers || []).map(w => w.name))])];
-      const cur = st.machine || S.state?.default_machine || "Laptop";
-      const ba = st.build_at && st.build_at !== "hold" ? st.build_at.replace(" ", "T") : "";
-      return `<label class="mo-opt mo-wide"><span><b>First build</b><small>now, at a time you pick, or not yet · revisions always build on their own</small>
-        <select id="mo-when"><option value="now" ${!st.build_at ? "selected" : ""}>Build now</option><option value="at" ${ba ? "selected" : ""}>Schedule at…</option><option value="hold" ${st.build_at === "hold" ? "selected" : ""}>Don't build yet</option></select>
-        <input type="datetime-local" id="mo-at" value="${ba}" style="${ba ? "" : "display:none"}">
-        <select id="mo-mach" ${ms.length < 2 ? 'style="display:none"' : ""} title="where it builds; the other machine takes over if this one is off">${[...ms, ...(ms.length > 1 ? ["Both"] : [])].map(n => `<option value="${esc(n)}" ${n.toLowerCase() === String(cur).toLowerCase() ? "selected" : ""}>${n === "Both" ? "Both (laptop first)" : esc(n)}</option>`).join("")}</select></span></label>`;
-    })()}
-    <label class="mo-opt mo-wide"><span><b>Filler words</b><small>auto = measured on each video · light = um / uh only · heavy = also "and yeah", "ya", "alright"</small><select id="mo-fill">${[["", "Channel default (else auto)"], ["auto", "Auto (measured from the video)"], ["light", "Light"], ["heavy", "Heavy"], ["off", "Off"]].map(([v, t]) => `<option value="${v}" ${(st.fillers || "") === v ? "selected" : ""}>${t}</option>`).join("")}</select></span></label>
-  </div>`;
+  const cap = st.captions, capOn = cap === true || (cap && cap.on), where = capOn ? ((cap && cap.where) || "all") : "off";
+  const build = (() => {   // first build: now / at a time / not yet, on which device (2026-10-25: laptop first, schedule builds)
+    const ms = [...new Set([S.state?.machine || "Desktop", ...((S.state?.remote?.workers || []).map(w => w.name))])];
+    const cur = st.machine || S.state?.default_machine || "Laptop";
+    const ba = st.build_at && st.build_at !== "hold" ? st.build_at.replace(" ", "T") : "";
+    return `<div class="mo-row"><span class="mo-lbl">Build</span>
+      <select id="mo-when" aria-label="When to build"><option value="now" ${!st.build_at ? "selected" : ""}>Now</option><option value="at" ${ba ? "selected" : ""}>At a time…</option><option value="hold" ${st.build_at === "hold" ? "selected" : ""}>Not yet</option></select>
+      <input type="datetime-local" id="mo-at" value="${ba}" style="${ba ? "" : "display:none"}" aria-label="Build at">
+      <span class="mo-lbl2">on</span><span class="mo-here" ${ms.length > 1 ? 'style="display:none"' : ""}>this computer</span><select id="mo-mach" aria-label="Device that builds it" title="the other device takes over if this one is off" ${ms.length < 2 ? 'style="display:none"' : ""}>${[...ms, ...(ms.length > 1 ? ["Both"] : [])].map(n => `<option value="${esc(n)}" ${n.toLowerCase() === String(cur).toLowerCase() ? "selected" : ""}>${n === "Both" ? "Both (first free)" : esc(machineName(n))}</option>`).join("")}</select>
+      <a class="mo-adv" id="mo-adddev" role="button" tabindex="0">Build on another computer (advanced)</a></div>`;
+  })();
+  return `<div class="mo-main" id="mo-main">
+    <div class="mo-row"><span class="mo-lbl">Captions</span>
+      <div class="seg" role="radiogroup" aria-label="Where captions go">${CAP_WHERE.map(([k, l]) => `<button type="button" role="radio" aria-checked="${where === k}" class="${where === k ? "on" : ""}" data-capwhere="${k}">${l}</button>`).join("")}</div>
+      <span class="mo-capnow" id="mo-capnow"></span><button type="button" class="sm" id="mo-caplook">Change look</button>
+      <input type="hidden" id="mo-cap-where" value="${where}"><input type="hidden" id="mo-cap-style" value="${esc((cap || {}).style || "bold")}"></div>
+    <div class="mo-capgrid" id="mo-capgrid" style="display:none"><div id="mo-cap-grid" class="cap-grid"></div><small id="mo-cap-font" class="muted tiny"></small></div>
+    ${extraTop}
+    <div class="mo-row mo-reqrow"><label class="mo-lbl" for="mo-req">Anything special?</label><textarea id="mo-req" rows="2" placeholder="optional, one per line, e.g. “title says ULTIMATE DHGATE SHEET” or “Mario music under #1”">${esc(st.requests || "")}</textarea></div>
+    ${build}
+  </div>
+  <details class="mo-more" id="mo-more"><summary>More options <span class="muted tiny">music, cutting, channel, due date…</span></summary>
+  ${extraMore}
+  <div class="np-opts" id="mo">
+    <label class="mo-opt" id="mo-music-l"><input type="checkbox" id="mo-music" ${st.music !== false ? "checked" : ""}><span><b>Background music</b><small>beats under your voice (game music on gaming videos)</small></span><select id="mo-mstyle" title="no-camera videos: one lo-fi loop, or beats that change by section">${[["", "Lo-fi loop"], ["beats", "Upbeat beats"], ["chill", "Chill, changes by section"]].map(([v, t]) => `<option value="${v}" ${(st.music_style || "") === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+    <label class="mo-opt"><input type="checkbox" id="mo-screen" ${st.screen ? "checked" : ""}><span><b>No camera</b><small>just your screen, shown full size (ticked by itself when there's no camera)</small></span></label>
+    <label class="mo-opt"><input type="checkbox" id="mo-trim" ${st.trim_only ? "checked" : ""}><span><b>Only cut mistakes</b><small>removes bad takes and pauses, adds nothing else</small></span></label>
+    <label class="mo-opt mo-stack" id="mo-speed-l"><span><b>Speed up</b><small>for "Only cut mistakes" and no-camera videos</small></span><select id="mo-speed">${[1, 1.1, 1.25, 1.5].map(v => `<option value="${v}" ${v === sp ? "selected" : ""}>${v === 1 ? "Normal speed" : v + "×"}</option>`).join("")}</select></label>
+    <label class="mo-opt" id="mo-priv-l"><input type="checkbox" id="mo-priv" ${st.privacy !== false ? "checked" : ""}><span><b>Hide private info</b><small id="mo-priv-s">blurs addresses and phone numbers</small></span></label>
+    <label class="mo-opt" id="mo-claude-l"><input type="checkbox" id="mo-claude" ${st.claude !== false ? "checked" : ""}><span><b>AI helper</b><small>AI picks the intro shots and checks the pictures (about 1¢ a video)</small></span></label>
+    <label class="mo-opt mo-stack"><span><b>Remove “um” and “uh”</b><small>filler words</small></span><select id="mo-fill">${[["", "Usual for this channel"], ["auto", "Automatic"], ["light", "Only um / uh"], ["heavy", "Also “and yeah”, “alright”"], ["off", "Keep them"]].map(([v, t]) => `<option value="${v}" ${(st.fillers || "") === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+    <label class="mo-opt mo-wide" id="mo-gfx-l"><input type="checkbox" id="mo-gfx" ${gx.on ? "checked" : ""}><span><b>Article graphic</b><small id="mo-gfx-s">AI finds a news article and shows it as a 3D card where it fits</small><select id="mo-gfx-type">${GFX_TYPES.map(([v, t]) => `<option value="${v}" ${(gx.type || "article") === v ? "selected" : ""}>${t}</option>`).join("")}</select></span></label>
+    <label class="mo-opt mo-wide" id="mo-gfx-url-l"><span><b>Article link</b><small>optional · empty = the AI searches the web</small><input id="mo-gfx-url" placeholder="https://…" value="${esc(gx.url || "")}"></span></label>
+    <label class="mo-opt mo-wide" id="mo-gfx-hl-l"><span><b>Words to highlight</b><small>optional · split with |</small><input id="mo-gfx-hl" placeholder="touchscreen MacBook Pro | OLED displays" value="${esc((gx.highlight || []).join(" | "))}"></span></label>
+  </div></details>`;
 }
 function wireModeOpts(m, getType) {
   const sync = () => {
@@ -48,31 +67,55 @@ function wireModeOpts(m, getType) {
     // privacy: phone edits blur the user's own details; screen recordings scan the kept parts for anyone's (2026-10-23)
     const privOk = screen || (phone && !trim);
     $("#mo-priv-l", m).classList.toggle("off", !privOk); $("#mo-priv", m).disabled = !privOk;
-    $("#mo-priv-s", m).textContent = screen ? "find + blur emails, phone, address, bank / card numbers" : phone ? "blur addresses + phone numbers" : "phone + screen recordings only";
+    $("#mo-priv-s", m).textContent = screen ? "blurs emails, phone, address, bank and card numbers" : phone ? "blurs addresses and phone numbers" : "for app and no-camera videos";
     // motion graphics: screen-recording edits for now (the renderer that lays them over is tools/trim_render.py)
     const gOk = screen, gOn = gOk && $("#mo-gfx", m).checked, art = $("#mo-gfx-type", m).value === "article";
     $("#mo-gfx-l", m).classList.toggle("off", !gOk); $("#mo-gfx", m).disabled = !gOk; $("#mo-gfx-type", m).disabled = !gOn;
-    $("#mo-gfx-s", m).textContent = gOk ? "Claude finds a source and drops a 3D graphic in where it fits" : "screen recordings only for now";
+    $("#mo-gfx-s", m).textContent = gOk ? "AI finds a news article and shows it as a 3D card where it fits" : "for no-camera videos";
     for (const id of ["#mo-gfx-url-l", "#mo-gfx-hl-l"]) $(id, m).style.display = gOn && art ? "" : "none";
+    capSync();   // the type decides which caption styles are greyed out
   };
-  const capSync = () => {   // captions: the style picker + preview only while ticked
-    const on = $("#mo-cap", m).checked, k = $("#mo-cap-style", m).value, meta = CAP_META && CAP_META[k];
-    for (const id of ["#mo-cap-style", "#mo-cap-img", "#mo-cap-font"]) $(id, m).style.display = on ? "" : "none";
-    $("#mo-cap-img", m).src = "captions/" + k + ".png";
-    $("#mo-cap-font", m).textContent = meta ? (meta.font === meta.wanted ? "font: " + meta.font : `shown in ${meta.font} until ${meta.wanted} is in app\fonts`) : "";
+  let lookOpen = false;
+  const capSync = () => {   // captions: where they go (3 buttons); the look shows as one name + "Change look" opens the grid
+    const where = $("#mo-cap-where", m).value, on = where !== "off", k = $("#mo-cap-style", m).value, meta = CAP_META && CAP_META[k], gaming = getType() === "gaming";
+    m.querySelectorAll("[data-capwhere]").forEach(b => { const sel = b.dataset.capwhere === where; b.classList.toggle("on", sel); b.setAttribute("aria-checked", sel); });
+    $("#mo-capnow", m).textContent = on ? "Look: " + String((meta && meta.label) || k).split(" · ")[0] : "";
+    $("#mo-caplook", m).style.display = on ? "" : "none";
+    $("#mo-capgrid", m).style.display = on && lookOpen ? "" : "none";
+    $("#mo-caplook", m).textContent = lookOpen ? "Done" : "Change look";
+    m.querySelectorAll("#mo-cap-grid .cap-tile").forEach(b => { b.classList.toggle("on", b.dataset.k === k); b.classList.toggle("low", gaming && b.dataset.low === "1"); });
+    $("#mo-cap-font", m).textContent = (meta ? (meta.font === meta.wanted ? "font: " + meta.font : `shown in ${meta.font} until ${meta.wanted} is in app/fonts`) : "")
+      + (gaming && meta && meta.low ? " · sits at the bottom: gaming videos skip bottom captions" : "");
   };
-  $("#mo-cap", m).onchange = capSync; $("#mo-cap-style", m).onchange = capSync; capSync();
+  const capGrid = () => {   // one tile per preview PNG
+    const list = CAP_META ? Object.values(CAP_META) : CAP_STYLES.map(([key, label]) => ({ key, label }));
+    $("#mo-cap-grid", m).innerHTML = list.map(x => `<button type="button" class="cap-tile" data-k="${esc(x.key)}" data-low="${x.low ? 1 : 0}" title="${esc(x.label)}"><img src="captions/${esc(x.key)}.png" alt=""><span>${esc(x.label.split(" · ")[0])}</span></button>`).join("");
+    m.querySelectorAll("#mo-cap-grid .cap-tile").forEach(b => b.onclick = e => { e.preventDefault(); $("#mo-cap-style", m).value = b.dataset.k; capSync(); });
+    capSync();
+  };
+  m.querySelectorAll("[data-capwhere]").forEach(b => b.onclick = () => { $("#mo-cap-where", m).value = b.dataset.capwhere; capSync(); });
+  $("#mo-caplook", m).onclick = () => { lookOpen = !lookOpen; capSync(); };
+  capGrid(); CAP_READY.then(capGrid);
   if ($("#mo-when", m)) $("#mo-when", m).onchange = () => {
     const at = $("#mo-when", m).value === "at", inp = $("#mo-at", m);
     inp.style.display = at ? "" : "none";
     if (at && !inp.value) { const d = new Date(Date.now() + 3600e3), p = n => String(n).padStart(2, "0"); inp.value = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:00`; }
   };
+  $("#mo-adddev", m).onkeydown = e => { if (e.key === "Enter") e.target.click(); };
+  $("#mo-adddev", m).onclick = () => addDeviceWizard(name => {   // the new device shows up in the "on" list right away
+    const sel = $("#mo-mach", m); if (!sel || [...sel.options].some(o => o.value === name)) return;
+    sel.style.display = ""; const here = $(".mo-here", m); if (here) here.style.display = "none";   // one PC had no picker (kit): now there are two
+    sel.insertBefore(new Option(machineName(name), name), [...sel.options].find(o => o.value === "Both") || null);
+    if (![...sel.options].some(o => o.value === "Both")) sel.add(new Option("Both (first free)", "Both"));
+    sel.value = name;
+  });
   $("#mo-trim", m).onchange = sync; $("#mo-screen", m).onchange = sync; $("#mo-gfx", m).onchange = sync; $("#mo-gfx-type", m).onchange = sync; sync();
   return sync;
 }
 function readModeOpts(m) {
+  const where = $("#mo-cap-where", m).value, style = $("#mo-cap-style", m).value;
   return { screen: $("#mo-screen", m).checked, trim_only: $("#mo-trim", m).checked, trim_speed: +$("#mo-speed", m).value, music: $("#mo-music", m).checked, privacy: $("#mo-priv", m).checked, claude: $("#mo-claude", m).checked, fillers: $("#mo-fill", m).value || null,
-    captions: { on: $("#mo-cap", m).checked, style: $("#mo-cap-style", m).value },
+    captions: where === "off" ? { on: false, style } : { on: true, style, where },
     requests: $("#mo-req", m).value.trim(), music_style: $("#mo-mstyle", m).value || null,
     graphics: { on: $("#mo-gfx", m).checked && $("#mo-screen", m).checked, type: $("#mo-gfx-type", m).value, url: $("#mo-gfx-url", m).value.trim() || null,
       highlight: $("#mo-gfx-hl", m).value.split("|").map(x => x.trim()).filter(Boolean) },
@@ -80,64 +123,144 @@ function readModeOpts(m) {
       build_at: $("#mo-when", m).value === "hold" ? "hold" : $("#mo-when", m).value === "at" && $("#mo-at", m).value ? $("#mo-at", m).value.replace("T", " ") : null } : {}) };
 }
 
+// ---------------------------------------------------------------- Add a device (user 2026-10-29: "an add device button for
+// rendering ... it would have to walk them through it"). Its own layer over whatever is open (New Project is a modal itself).
+// Steps: what it is -> Studio on the other PC -> Tailscale on both -> one admin command on the other PC -> name + test.
+function addDeviceWizard(onAdded) {
+  const el = document.createElement("div"); el.className = "devwiz"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Add a device");
+  document.body.appendChild(el);
+  let step = 0, info = null, kind = "Laptop";
+  const close = () => el.remove();
+  const cmd = () => info ? `Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0; Set-Service sshd -StartupType Automatic; Start-Service sshd; Add-Content -Force -Path "$env:ProgramData\\ssh\\administrators_authorized_keys" -Value '${info.pub}'; icacls "$env:ProgramData\\ssh\\administrators_authorized_keys" /inheritance:r /grant "Administrators:F" /grant "SYSTEM:F"` : "loading…";
+  const STEPS = [
+    () => `<h3>Add a device</h3><p>Another computer with Studio on it can build your videos while you keep working on this one. If it is off, this computer builds them instead.</p>
+      <p><b>What is the other computer?</b></p><div class="seg">${["Laptop", "Desktop", "Other PC"].map(k => `<button type="button" class="${k === kind ? "on" : ""}" data-kind="${k}">${k}</button>`).join("")}</div>
+      <p class="muted small">You need: the other computer (Windows), turned on and on the internet, and 10 minutes.</p>`,
+    () => `<h3>1 · Put Studio on the ${esc(kind.toLowerCase())}</h3><p>Install Studio on the ${esc(kind.toLowerCase())} the same way you did here, <b>in the same folder</b>:</p>
+      <div class="copyrow"><code>${esc(info ? info.studio : "…")}</code></div><p class="muted small">Open it once there so it can finish setting up, then come back here.</p>`,
+    () => `<h3>2 · Connect both computers with Tailscale</h3><p>Tailscale is a free app that lets your computers find each other safely, from anywhere.</p>
+      <ol><li>Install it on <b>this computer</b> and on the <b>${esc(kind.toLowerCase())}</b>: <a href="https://tailscale.com/download/windows" target="_blank" rel="noopener">tailscale.com/download</a></li>
+      <li>Sign in on both with the <b>same</b> account.</li><li>On the ${esc(kind.toLowerCase())}, click the Tailscale icon by the clock and note its <b>name</b> (for example <code>msi</code>) or its address (<code>100.x.x.x</code>).</li></ol>`,
+    () => `<h3>3 · Let this computer send it work</h3><p>On the <b>${esc(kind.toLowerCase())}</b>: open the Start menu, type <b>PowerShell</b>, right-click it and pick <b>Run as administrator</b>. Paste this and press Enter:</p>
+      <div class="copyrow"><textarea readonly rows="4" id="dw-cmd">${esc(cmd())}</textarea><button type="button" class="primary" id="dw-copy">Copy</button></div>
+      <p class="muted small">It turns on Windows' built-in remote login (OpenSSH) and lets only this computer in, with its own key. It takes about a minute.</p>`,
+    () => `<h3>4 · Name it and test</h3>
+      <div class="field"><label for="dw-name">Name it</label><input id="dw-name" value="${esc(kind === "Other PC" ? "" : kind)}" placeholder="Laptop"></div>
+      <div class="field"><label for="dw-host">Its Tailscale name or address (step 2)</label><input id="dw-host" placeholder="msi  or  100.x.y.z"></div>
+      <div class="field"><label for="dw-user">Its Windows user name</label><input id="dw-user" placeholder="the name you sign in to Windows with on it"></div>
+      <div id="dw-msg" class="small" role="status"></div>`,
+  ];
+  const draw = () => {
+    el.innerHTML = `<div class="devwiz-box"><div class="devwiz-steps">${STEPS.map((_, i) => `<i class="${i === step ? "on" : i < step ? "done" : ""}"></i>`).join("")}</div>
+      <div class="devwiz-body">${STEPS[step]()}</div>
+      <div class="row devwiz-foot"><button type="button" id="dw-x">Cancel</button><span class="grow"></span>${step ? `<button type="button" id="dw-back">Back</button>` : ""}
+      <button type="button" class="primary" id="dw-next">${step === STEPS.length - 1 ? "Test and add" : step ? "Done, next" : "Start"}</button></div></div>`;
+    $("#dw-x", el).onclick = close;
+    if ($("#dw-back", el)) $("#dw-back", el).onclick = () => { step--; draw(); };
+    el.querySelectorAll("[data-kind]").forEach(b => b.onclick = () => { kind = b.dataset.kind; draw(); });
+    if ($("#dw-copy", el)) $("#dw-copy", el).onclick = async () => { try { await navigator.clipboard.writeText(cmd()); } catch (e) { await api("clipboard", { text: cmd() }).catch(() => {}); } toast("Copied: paste it on the " + kind.toLowerCase(), "ok"); };
+    $("#dw-next", el).onclick = async () => {
+      if (step < STEPS.length - 1) { step++; draw(); return; }
+      const b = $("#dw-next", el), msg = $("#dw-msg", el); b.disabled = true; b.textContent = "Testing…"; msg.className = "small"; msg.textContent = "Connecting to it (up to 30 s)…";
+      try {
+        const r = await api("devices/add", { name: $("#dw-name", el).value, host: $("#dw-host", el).value, user: $("#dw-user", el).value });
+        toast(`${r.device.name} added: it can build your videos now`, "ok"); close(); refresh(true); if (onAdded) onAdded(r.device.name);
+      } catch (e) { msg.className = "small bad"; msg.textContent = e.message; b.disabled = false; b.textContent = "Test and add"; }
+    };
+    const first = el.querySelector(".devwiz-body input, .devwiz-body button, #dw-next"); if (first) first.focus();
+  };
+  el.onkeydown = e => { if (e.key === "Escape") { e.stopPropagation(); close(); } };
+  draw();
+  api("devices/key").then(r => { info = r; draw(); }).catch(e => toast(e.message, "bad"));
+}
+
 // ---------------------------------------------------------------- New project (ordered multi-select of recordings, VO list, B-roll list)
+// the type cards (approved mockup home screen, 2026-10-29) + the general type: a kit user's touchscreen-laptop talk came back
+// "don't know" and the old "gaming" default gave it Minecraft wipes. "other" is not a Studio type of its own: it is built as a
+// phone-type project on the screen-recording / trim-only edit (recipes/trim.py, as "apple home lg" + chime), so no channel or game graphics.
+const TYPE_CARDS = [
+  { id: "review", icon: "📦", name: "Product review", phrase: "a product review", desc: "You talking about a product, with a camera on the item.", ex: "e.g. “Best DHgate sneakers”" },
+  { id: "phone", icon: "📱", name: "App / phone tutorial", phrase: "an app / phone tutorial", desc: "Screen recording of a phone or app with your voice.", ex: "e.g. “Uber Eats promo code”" },
+  { id: "gaming", icon: "⛏", name: "Gaming / Top 10", phrase: "a gaming video", desc: "Gameplay with a ranked list or showcase.", ex: "e.g. “Top 5 Minecraft realms”" },
+  { id: "short", icon: "📲", name: "Short (vertical)", phrase: "a Short", desc: "A 9:16 clip for Shorts, TikTok or Reels.", ex: "e.g. “What is a lift kit?”" },
+  { id: "other", icon: "💬", name: "Talking / tech review / other", phrase: "a talking / tech video", desc: "Anything else: you talking about a gadget, news or a website. A clean trim with a calm music bed, no game or channel graphics.", ex: "e.g. “The new touchscreen MacBook”" },
+];
+// the user's own saved styles (my_style.js "Train your style"); a leftover test one ("Test style - delete me") is never offered
+// (user 2026-10-29 13:43: a screen recording came back as that test style, "I don't know what that even means")
+const myCards = () => Object.fromEntries(Object.entries(window.MY_CARDS || {}).filter(([, c]) => !/\b(test|delete|tmp|temp|scratch)\b/i.test(c.name)));
+const EXTRA_CARDS = { haul: { id: "haul", icon: "🛍", name: "Haul", phrase: "a haul", desc: "One long phone recording, many products back to back.", ex: "e.g. “30kg DHgate haul”" } };
 function newProjectModal(prefill = {}) {
   const types = S.state.types, chans = S.state.settings.channels;
   const picked = { main: [].concat(prefill.main || []).filter(Boolean), intro: "", intro_vo: "", broll: [] };
-  let type = prefill.type || "gaming", recent = { recordings: [], vo: [] };
+  // no video yet = the general type, never gaming (a wrong guess there is the Minecraft template)
+  let type = prefill.type || "other", recent = { recordings: [], vo: [] };
+  const card = id => TYPE_CARDS.find(c => c.id === id) || EXTRA_CARDS[id] || myCards()[id] || (types[id] ? { id, icon: types[id].icon, name: types[id].label, phrase: types[id].label, desc: types[id].blurb || "", ex: "" } : null);
   // video first (user 2026-10-21: "I don't see just add video, I see the three types"): pick the recording(s), the detect
   // chip sets the type; the type is only a small override select
   const m = modal(`<h2>New project</h2>
     <div class="np-sec"><div class="row" style="justify-content:space-between;align-items:center"><h3 style="margin:0">1 · Add your video <span class="dim" id="np-main-count"></span></h3>
-        <span class="row" style="gap:10px"><span class="muted tiny">or click recent recordings below · several = joined in the order you click</span><button class="primary" id="np-add-video">＋ Add video</button></span></div>
+        <span class="row" style="gap:10px"><span class="muted tiny">or click your recent recordings below (several = joined in that order)</span><button class="primary" id="np-add-video">＋ Add video</button></span></div>
       <div class="recent six" id="np-recent"><span class="muted small">loading…</span></div>
       <div class="sel-strip" id="np-sel"></div></div>
     <div class="np-detect" id="np-detect" style="display:none"></div>
-    <div class="row" style="align-items:flex-end;margin-top:10px">
-      <div class="field grow" style="margin:0"><label>Title (folder name)</label><input id="np-title" placeholder="filled in from your intro once a video is added" value="${esc(prefill.title || "")}"></div>
-      <div class="field" style="margin:0"><label>Type</label><select id="np-type">${Object.entries(types).map(([k, v]) => `<option value="${k}" ${k === type ? "selected" : ""}>${esc(v.icon)} ${esc(v.label)}</option>`).join("")}</select></div>
-      <div class="field" style="margin:0"><label>Channel</label><select id="np-ch">${chans.map(c => `<option ${c.types.includes(type) ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div>
-      <div class="field" style="margin:0"><label>Due</label><input id="np-due" type="date"></div>
+    <div class="row np-basics">
+      <div class="field grow" style="margin:0"><label for="np-title">Title</label><input id="np-title" placeholder="filled in from your intro once a video is added" value="${esc(prefill.title || "")}"></div>
+      <div class="field" style="margin:0"><label for="np-type">Type</label><select id="np-type">${Object.entries(types).map(([k, v]) => `<option value="${k}" ${k === type ? "selected" : ""}>${esc(v.icon)} ${esc(v.label)}</option>`).join("")}<option value="other" ${type === "other" ? "selected" : ""}>💬 Talking / tech review / other</option>${Object.values(myCards()).length ? `<optgroup label="Your saved styles (learned from your own videos)">${Object.values(myCards()).map(c => `<option value="${esc(c.id)}">✨ ${esc(c.name)}</option>`).join("")}</optgroup>` : ""}</select></div>
     </div>
-    ${modeOptsHtml({}, type)}
-    <div class="np-grid">
-      <div>
-        <div class="np-sec"><div class="row" style="justify-content:space-between"><h3 style="margin:0">B-roll <span class="dim" id="np-broll-count"></span></h3><span class="muted tiny" id="np-broll-hint"></span></div>
-          <div class="row"><button class="sm" id="np-broll-browse">add clips…</button></div><div class="list" id="np-broll-list" style="margin-top:6px"></div></div>
-      </div>
-      <div class="np-sec" style="margin-top:14px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Intro voice-over</h3><span class="muted tiny"><a id="np-refresh" title="re-read both folders now (they also refresh on their own every 5 s)">↻ refresh</a> · <a id="np-intro-browse">browse…</a></span></div>
-        <div class="muted tiny" style="margin:2px 0 6px">latest takes from Documents\\Audacity, newest first; new exports show up by themselves (a WAV, or browse to a rendered intro MP4)</div>
-        <div class="vo-list" id="np-vo"><span class="muted small">loading…</span></div><div class="picked small" id="np-intro-picked"></div></div>
-    </div>
+    ${modeOptsHtml({}, type, `<div class="row np-more-row">
+      <div class="field" style="margin:0"><label for="np-ch">Channel</label><select id="np-ch">${chans.map(c => `<option ${c.types.includes(type) ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div>
+      <div class="field" style="margin:0"><label for="np-due">Due</label><input id="np-due" type="date"></div></div>`,
+    `<div class="mo-row"><label class="mo-lbl" for="np-vo-sel">Intro voice</label><select id="np-vo-sel" class="np-vo-sel"></select><span class="muted tiny" id="np-vo-why"></span></div>
+    <div class="mo-row"><span class="mo-lbl">B-roll</span><span class="muted small" id="np-broll-hint"></span><button type="button" class="sm" id="np-broll-browse">＋ Add clips</button><span class="np-broll-list" id="np-broll-list"></span></div>`)}
     <div class="row" style="justify-content:flex-end;margin-top:14px"><button id="np-cancel">Cancel</button><button class="primary big" id="np-create">Create project</button></div>`, "wide");
   const syncOpts = wireModeOpts(m, () => type);
-  const hint = () => { $("#np-broll-hint", m).textContent = type === "gaming" ? "Minecraft: the pink Director flashes in the recording (and in any clip you add) are detected automatically and cut into B-roll\\." : "optional cutaway clips; add as many as you like"; };
+  const hint = () => { $("#np-broll-hint", m).textContent = type === "gaming" ? "picked for you from the pink Director flashes in your recording" : picked.broll.length ? "" : "picked for you; add your own clips if you have them"; };
   const renderMain = () => {
     $("#np-recent", m).innerHTML = recent.recordings.map(i => { const n = picked.main.indexOf(i.path); return `<div class="re ${n >= 0 ? "sel" : ""} ${i.used ? "used" : ""}" data-p="${esc(i.path)}" title="${esc(i.path)}">
         ${n >= 0 ? `<span class="order">${n + 1}</span>` : ""}<div class="rth" style="background-image:url('${thumbUrl(i.path, null, Math.max(2, Math.round(i.duration * 0.3)), 640)}')"><span class="dur">${fmtT(i.duration)}</span></div>
         <b>${esc(i.label || i.name)}</b><small>${esc(i.name)} · ${fmtSize(i.size)} · ${new Date(i.mtime * 1000).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}${i.broll ? " · B-roll ✓" : ""}${i.used ? " · in a project" : ""}</small>
-        <div class="re-acts"><button class="sm" data-ren="${esc(i.path)}" title="rename the file (and its .mkv twin)">rename</button></div></div>`; }).join("") + `<div class="re add" id="np-grid-add"><div class="rth"><span class="plus">＋</span></div><b>add more…</b><small>browse any MP4</small></div>`;
-    $("#np-grid-add", m).onclick = addFiles;
+        <div class="re-acts"><button class="sm" data-ren="${esc(i.path)}" title="rename the file (and its .mkv twin)">rename</button></div></div>`; }).join("");
     $$("#np-recent .re", m).forEach(el => el.onclick = e => { if (e.target.closest("button")) return; toggleMain(el.dataset.p); });
     $$("#np-recent [data-ren]", m).forEach(b => b.onclick = async e => { e.stopPropagation(); const i = recent.recordings.find(x => x.path === b.dataset.ren); const name = prompt("New file name (no extension):", (i.label || "").replace(/[<>:"/\\|?*]/g, "").slice(0, 60) || i.name.replace(/\.[^.]+$/, "")); if (!name) return; try { const r = await api("recent/rename", { path: i.path, name }); toast("Renamed", "ok"); const k = picked.main.indexOf(i.path); if (k >= 0) picked.main[k] = r.path; recent = await api("recent"); renderMain(); } catch (err) { toast(err.message, "bad"); } });
     const n = picked.main.length; $("#np-main-count", m).textContent = n > 1 ? `${n} clips, joined in this order` : "";
-    renderSel(); detectType();
+    renderSel(); detectType(); autoVo();
   };
   // ---- auto-detect: the first recording decides the type; the chip asks for one click to confirm
   let detFor = "", det = null, userPicked = !!prefill.type, userTitled = !!prefill.title;
-  const setType = t => { type = t; $("#np-type", m).value = t; hint(); syncOpts(); };
+  const setType = t => {
+    type = t; $("#np-type", m).value = t;
+    // the general type is the full-screen trim edit: tick Screen recording (a side-by-side one gets Trim only at Create)
+    const sc = $("#mo-screen", m); if (t === "other" && sc) { sc.checked = det ? det.screen !== false : true; sc.onchange(); }
+    const mc = myCards()[t];   // a custom video type (my_style.js): its base type's channel
+    const ch = (t === "other" || (mc && mc.vtype === "phone")) ? chans.find(c => c.types.includes("phone")) : mc && chans.find(c => c.types.includes(mc.vtype)); if (ch) $("#np-ch", m).value = ch.name;   // it builds as a phone-type project
+    hint(); syncOpts();
+  };
+  // detect result as one plain sentence + "change?"; when the detector isn't sure (or the user asks to change) the type cards
+  let cardsOpen = false;
+  const pickCard = t => { userPicked = true; cardsOpen = false; setType(t); const c = chans.find(c => c.types.includes(t)); if (c) $("#np-ch", m).value = c.name; applyChannel(); renderChip(); };
   const renderChip = () => {
     const el = $("#np-detect", m); if (!el || !det) return;
-    const r = det, T = types[r.type];
-    if (!T) { el.className = "np-detect low"; el.innerHTML = `<span class="ic">🤔</span><div class="grow"><b>Couldn't tell what kind of video this is</b><div class="muted tiny">no speech found in the samples — pick the type below</div></div>`; return; }
-    const conf = { high: ["sure", "st-final"], medium: ["likely", ""], low: ["not sure", "bad"] }[r.confidence] || ["", ""];
-    const cur = types[type], mine = type !== r.type;
-    el.className = "np-detect " + r.confidence;
-    el.innerHTML = `<span class="ic">${esc(T.icon)}</span><div class="grow"><div>Looks like: <b>${esc(T.label)}</b>${r.channel ? ` · ${esc(r.channel)}` : ""} <span class="pill ${conf[1]}">${conf[0]}</span>${mine ? ` <span class="muted tiny">· you picked ${esc(cur.label)}</span>` : ""}</div>
-      <div class="muted tiny">${r.reasons.map(esc).join(" · ")}${r.title ? ` · title from the intro: “${esc(r.title)}”` : ""}</div></div>
-      <button class="sm" id="np-det-change">${mine ? "use " + esc(T.label) : "change"}</button><button class="primary" id="np-det-go">Start ${esc(cur.icon)} ${esc(cur.label)} ▸</button>`;
+    const r = det, unsure = !card(r.type) || r.confidence === "low";
+    const why = `${(r.reasons || []).map(esc).join(" · ")}${r.title ? ` · title from the intro: “${esc(r.title)}”` : ""}`;
+    if (cardsOpen || (unsure && !userPicked)) {
+      const list = TYPE_CARDS.filter(c => c.id === "other" || types[c.id]);
+      list.splice(list.length - 1, 0, ...Object.values(myCards()));   // the user's own video types (my_style.js)
+      for (const id of [r.type, r.guess, type]) if (id && !list.some(c => c.id === id) && card(id)) list.splice(list.length - 1, 0, card(id));
+      const hintId = unsure ? r.guess : r.type;
+      el.className = "np-detect ask";
+      el.innerHTML = `<div class="grow"><div><b>What kind of video is it?</b> <span class="muted tiny">${unsure ? "couldn't tell for sure from the recording, pick the closest one" : "pick the one that fits"}</span></div>
+        ${why ? `<div class="muted tiny">${why}</div>` : ""}
+        <div class="np-cards">${list.map(c => `<button type="button" class="np-card ${c.id === type ? "on" : ""}" data-t="${esc(c.id)}"><b>${esc(c.icon)} ${esc(c.name)}${c.id === hintId ? ` <span class="pill">${unsure ? "closest match" : "detected"}</span>` : ""}</b><span>${esc(c.desc)}</span>${c.ex ? `<small>${esc(c.ex)}</small>` : ""}</button>`).join("")}</div></div>`;
+      $$("#np-detect .np-card", m).forEach(b => b.onclick = () => pickCard(b.dataset.t));
+      return;
+    }
+    const cur = card(type) || { icon: "", name: type, phrase: type, desc: "" }, mine = type !== r.type;
+    el.className = "np-detect " + (mine ? "medium" : r.confidence);
+    el.innerHTML = `<span class="ic">${esc(cur.icon)}</span><div class="grow"><div>${mine ? `You picked <b>${esc(cur.phrase)}</b>` : `Looks like <b>${esc(cur.phrase)}</b>`}${!mine && r.channel ? ` · ${esc(r.channel)}` : ""} — <a id="np-det-change">change?</a></div>
+      <div class="muted tiny">${esc(cur.desc)}${why ? ` · ${why}` : ""}</div></div>
+      <button class="primary" id="np-det-go">Start ${esc(cur.icon)} ${esc(cur.name)} ▸</button>`;
     $("#np-det-go", m).onclick = () => $("#np-create", m).click();
-    $("#np-det-change", m).onclick = () => { if (mine) { setType(r.type); userPicked = false; applyChannel(); renderChip(); return; } const tp = $("#np-type", m); tp.classList.add("flash"); tp.focus(); setTimeout(() => tp.classList.remove("flash"), 1200); };
+    $("#np-det-change", m).onclick = () => { cardsOpen = true; renderChip(); };
   };
   const applyChannel = () => { const opt = det && [...$("#np-ch", m).options].find(o => o.value === det.channel); if (opt && det.type === type) $("#np-ch", m).value = det.channel; };
   const detectType = async () => {
@@ -145,17 +268,31 @@ function newProjectModal(prefill = {}) {
     if (!p) { detFor = ""; det = null; el.style.display = "none"; return; }
     if (p === detFor) return;
     detFor = p; det = null; el.style.display = ""; el.className = "np-detect busy";
-    el.innerHTML = `<span class="spin"></span><div class="grow">Working out what kind of video this is…<div class="muted tiny">listening to the intro and looking at the right half (a few seconds; cached after the first time)</div></div>`;
-    try {
-      const r = await api("detect?path=" + enc(p));
-      if (detFor !== p || !$("#np-detect")) return;
+    el.innerHTML = `<span class="spin"></span><div class="grow">Checking your video…</div>`;
+    const apply = r => {
       det = r;
       if (r.type && !userPicked) { setType(r.type); applyChannel(); }
-      if (r.title && !userTitled) $("#np-title", m).value = r.title;
+      // the user's own saved style only when it clearly fits: same kind of video, a camera layout it was trained on that this
+      // recording has, and a sure answer (a style with no layout used to "fit" every talking video)
+      const mine = myCards();
+      const myFit = (r.my_types || []).find(x => mine["my:" + x.slug] && x.layout && r.camera === x.layout && r.confidence === "high");
+      if (myFit && !userPicked) { det = { ...r, type: "my:" + myFit.slug, guess: r.type }; setType(det.type); }
+      if (r.title && !userTitled) { $("#np-title", m).value = r.title; autoVo(); }
       // plain 16:9 capture with no cam = screen recording (user 2026-10-22: the detector must catch these)
       const sc = $("#mo-screen", m); if (sc && r.screen !== undefined && r.type !== "gaming") { sc.checked = !!r.screen; sc.onchange(); }
       renderChip();
-    } catch (e) { if (detFor === p) { el.className = "np-detect low"; el.innerHTML = `<span class="ic">⚠</span><div class="grow">Could not check this file: ${esc(e.message)}<div class="muted tiny">pick the type below</div></div>`; } }
+    };
+    try {
+      // the picture + file name answer first (~1-3 s). A sure answer is the end of it (user 2026-10-29 13:43: "why did it
+      // just keep going"); only an unsure one listens to the opening, and a medium one is checked quietly in the background
+      const q = await api("detect?quick=1&path=" + enc(p));
+      if (detFor !== p || !$("#np-detect")) return;
+      if (!q.quick || q.confidence === "high") return apply(q);
+      if (q.confidence === "medium") apply(q);
+      const r = await api("detect?path=" + enc(p));
+      if (detFor !== p || !$("#np-detect")) return;
+      apply(r);
+    } catch (e) { if (detFor === p) { det = { type: null, confidence: "low", reasons: ["could not check this file: " + e.message] }; renderChip(); } }
   };
   const info = {};   // path -> {duration,label} for clips that came from browse
   const addFiles = async () => { const ps = await pickFiles("video", true); for (const p of ps) { if (!picked.main.includes(p)) { picked.main.push(p); api("probe?path=" + enc(p)).then(r => { info[p] = r; renderSel(); }).catch(() => {}); } } if (ps.length && !$("#np-title", m).value) $("#np-title", m).value = base(ps[0]).replace(/\.[^.]+$/, ""); renderMain(); };
@@ -176,31 +313,59 @@ function newProjectModal(prefill = {}) {
     });
   };
   const toggleMain = p => { const k = picked.main.indexOf(p); if (k >= 0) picked.main.splice(k, 1); else picked.main.push(p); if (!$("#np-title", m).value && picked.main.length) { const i = recent.recordings.find(x => x.path === picked.main[0]); $("#np-title", m).value = (i && i.label && !i.label.startsWith("(")) ? i.label.replace(/[<>:"/\\|?*]/g, "").slice(0, 70) : base(picked.main[0]).replace(/\.[^.]+$/, ""); } renderMain(); };
-  const renderVo = () => {
-    $("#np-vo", m).innerHTML = recent.vo.map(i => `<div class="vo ${picked.intro_vo === i.path ? "sel" : ""}" data-p="${esc(i.path)}"><span>🎙</span><span class="t">${esc(i.name)}</span><span class="muted tiny">${fmtT(i.duration)} · ${new Date(i.mtime * 1000).toLocaleDateString()}</span></div>`).join("") || `<span class="muted small">no takes in Documents\\Audacity</span>`;
-    $$("#np-vo .vo", m).forEach(el => el.onclick = () => { picked.intro_vo = picked.intro_vo === el.dataset.p ? "" : el.dataset.p; picked.intro = ""; renderVo(); });
-    $("#np-intro-picked", m).textContent = picked.intro ? "✓ intro MP4: " + base(picked.intro) : picked.intro_vo ? "✓ " + base(picked.intro_vo) : "";
+  // intro voice-over: one select, picked for you when a take's name shares the video's words ("dhgate moncler.wav" for "Best
+  // Moncler on DHgate"), or a take recorded within a day of the video; the user only changes it when it's wrong
+  let voAuto = true;
+  const STOPW = new Set(["the", "and", "for", "with", "best", "review", "video", "from", "this", "that", "intro", "final", "part", "wav", "mp3", "mp4", "new"]);
+  const words = t => new Set(String(t || "").toLowerCase().replace(/\.[a-z0-9]+$/, "").split(/[^a-z0-9]+/).filter(w => w.length >= 3 && !STOPW.has(w) && !/^\d+$/.test(w)));
+  const autoVo = () => {
+    if (!voAuto || picked.intro) return;
+    const rec = recent.recordings.find(x => x.path === picked.main[0]);
+    const want = new Set([...words($("#np-title", m).value), ...words(base(picked.main[0] || "")), ...words(rec && rec.label)]);
+    let best = null, bs = 0;
+    for (const v of recent.vo) {
+      const shared = [...words(v.name)].filter(w => want.has(w)).length;
+      const near = rec && Math.abs(v.mtime - rec.mtime) < 36 * 3600 ? 1 : 0;
+      const sc = shared * 2 + near;
+      if (sc > bs && (shared >= 2 || (shared >= 1 && near))) { best = v; bs = sc; }
+    }
+    picked.intro_vo = best ? best.path : "";
+    renderVo(best ? "picked for you: it matches this video" : "");
   };
-  const renderBroll = () => { $("#np-broll-count", m).textContent = picked.broll.length || ""; $("#np-broll-list", m).innerHTML = picked.broll.map((p, i) => `<div class="item"><span class="t">${esc(base(p))}</span><button class="sm" data-bx="${i}">✕</button></div>`).join(""); $$("#np-broll-list [data-bx]", m).forEach(b => b.onclick = () => { picked.broll.splice(+b.dataset.bx, 1); renderBroll(); }); };
+  const renderVo = why => {
+    const sel = $("#np-vo-sel", m); if (!sel) return;
+    const cur = picked.intro || picked.intro_vo;
+    const extra = cur && !recent.vo.some(v => v.path === cur) ? [{ path: cur, name: base(cur) }] : [];
+    sel.innerHTML = `<option value="">No intro voice-over</option>` + [...extra, ...recent.vo].map(v => `<option value="${esc(v.path)}" ${v.path === cur ? "selected" : ""}>🎙 ${esc(v.name)}${v.duration ? ` · ${fmtT(v.duration)}` : ""}</option>`).join("") + `<option value="__browse">Browse for another file…</option>`;
+    if (why !== undefined) $("#np-vo-why", m).textContent = why;
+  };
+  const renderBroll = () => { $("#np-broll-list", m).innerHTML = picked.broll.map((p, i) => `<span class="np-chip">${esc(base(p))}<button type="button" data-bx="${i}" aria-label="remove ${esc(base(p))}">✕</button></span>`).join(""); $$("#np-broll-list [data-bx]", m).forEach(b => b.onclick = () => { picked.broll.splice(+b.dataset.bx, 1); renderBroll(); }); hint(); };
   hint();
   $("#np-type", m).onchange = e => { userPicked = true; setType(e.target.value); const c = chans.find(c => c.types.includes(type)); if (c) $("#np-ch", m).value = c.name; applyChannel(); renderChip(); };
   $("#np-add-video", m).onclick = () => addFiles();
   $("#np-title", m).addEventListener("input", () => { userTitled = true; });
-  $("#np-intro-browse", m).onclick = async () => { const ps = await pickFiles("media", false); if (!ps[0]) return; if (/\.(wav|mp3|m4a|flac)$/i.test(ps[0])) { picked.intro_vo = ps[0]; picked.intro = ""; } else { picked.intro = ps[0]; picked.intro_vo = ""; } renderVo(); };
+  $("#np-vo-sel", m).onchange = async e => {
+    voAuto = false; const v = e.target.value;
+    if (v === "__browse") { const ps = await pickFiles("media", false); if (ps[0]) { if (/\.(wav|mp3|m4a|flac)$/i.test(ps[0])) { picked.intro_vo = ps[0]; picked.intro = ""; } else { picked.intro = ps[0]; picked.intro_vo = ""; } } renderVo(""); return; }
+    picked.intro_vo = v; picked.intro = ""; renderVo("");
+  };
   $("#np-broll-browse", m).onclick = async () => { const ps = await pickFiles("video", true); picked.broll.push(...ps.filter(p => !picked.broll.includes(p))); renderBroll(); };
-  const load = async () => { recent = await api("recent"); renderMain(); renderVo(); };
+  const load = async () => { recent = await api("recent"); renderMain(); renderVo(); autoVo(); };
   load();
   const sig = r => JSON.stringify([r.recordings.map(x => [x.path, x.label]), r.vo.map(x => x.path)]);
-  const refreshLists = async () => { const r = await api("recent"); if (sig(r) !== sig(recent)) { recent = r; renderMain(); renderVo(); } };
+  const refreshLists = async () => { const r = await api("recent"); if (sig(r) !== sig(recent)) { recent = r; renderMain(); renderVo(); autoVo(); } };
   const relabel = setInterval(() => { if (!$("#np-recent")) return clearInterval(relabel); refreshLists().catch(() => {}); }, 5000);
-  $("#np-refresh", m).onclick = () => refreshLists().then(() => toast("Lists refreshed", "ok"));
   $("#np-cancel", m).onclick = () => { clearInterval(relabel); closeModal(); };
   $("#np-create", m).onclick = async () => {
     const title = $("#np-title", m).value.trim(); if (!title) return toast("Give it a title", "bad");
     const b = $("#np-create", m); b.disabled = true; b.textContent = picked.main.length > 1 ? "Joining recordings…" : "Creating…";
     try {
       const files = {}; if (picked.main.length) files.main = picked.main; if (picked.intro) files.intro = picked.intro; if (picked.intro_vo) files.intro_vo = picked.intro_vo; if (picked.broll.length) files.broll = picked.broll;
-      const p = await api("projects", { title, type, channel: $("#np-ch", m).value, due: $("#np-due", m).value, files, settings: readModeOpts(m) });
+      const settings = readModeOpts(m);
+      // general type = a phone-type project on the trim path: full-screen screen-recording edit, or Trim only for a side-by-side
+      if (type === "other") { settings.general = true; if (!settings.screen && !settings.trim_only) settings.trim_only = true; }
+      const myc = myCards()[type]; if (myc) settings.my_type = myc.slug;   // custom video type: the server adds its settings
+      const p = await api("projects", { title, type: myc ? myc.vtype : type === "other" ? "phone" : type, channel: $("#np-ch", m).value, due: $("#np-due", m).value, files, settings });
       clearInterval(relabel); closeModal(); await refresh(true); nav("project", p.id); toast("Project created", "ok");
     } catch (e) { toast(e.message, "bad"); b.disabled = false; b.textContent = "Create project"; }
   };
@@ -463,6 +628,12 @@ document.head.insertAdjacentHTML("beforeend", `<style>
 .np-detect .spin{width:18px;height:18px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--accent);animation:npspin .8s linear infinite;flex:none}
 @keyframes npspin{to{transform:rotate(360deg)}}
 #np-type.flash{outline:2px solid var(--accent);outline-offset:2px}
+.np-detect.ask{align-items:flex-start;border-color:rgba(255,177,61,.5);background:#1d1a14}
+.np-detect a#np-det-change{font-weight:600}
+.np-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px}
+.np-card{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:92px;padding:12px;text-align:left;border-radius:var(--r2);border:2px solid var(--line);background:var(--bg2);cursor:pointer}
+.np-card:hover{border-color:var(--line2)}.np-card.on{border-color:var(--accent);background:#16233a}
+.np-card span{font-size:12.5px;color:var(--muted);line-height:1.4}.np-card small{font-size:11.5px;color:var(--dim)}
 .drop-any{display:flex;align-items:center;gap:14px;text-align:left;padding:16px 18px;margin:0 0 18px;cursor:pointer;border:1.5px dashed var(--line2);border-radius:var(--r);background:var(--bg)}
 .drop-any:hover,.drop-any.over{border-color:var(--accent);background:#16233a}
 .drop-any .big{font-size:26px}.drop-any b{font-size:15px}

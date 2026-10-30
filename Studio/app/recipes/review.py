@@ -2,6 +2,7 @@
 Project layout: raw/camera.mp4 (or raw/edit.xml from Gling), optional raw/screen.mp4, raw/broll/*, raw/music.txt, raw/extra_cuts.json
 Output: output/final.mp4, output/preview_540p.mp4, output/report.md, output/broll_requests.md
 """
+import time
 from pathlib import Path
 
 from recipes import common as C
@@ -109,14 +110,20 @@ def job_steps(doc, action, force=False):
     script = str(C.REVIEW_SCRIPTS / "edit_review.py")
     if action in ("draft", "final", "all"):
         cmd = [py, "-X", "utf8", script, proj] + (["--fresh"] if force else [])
-        return [{"id": "edit", "label": "edit_review.py (the review pipeline)", "cmd": cmd, "cwd": proj, "force": True,
+        # intro lock (2026-10-24): a built intro is only re-made when this build may touch it (doc["intro_rebuild"],
+        # set by start_build from a batch with intro notes / {"intro": "rebuild"}) or on a fresh build
+        ienv = {"STUDIO_INTRO_LOCK": "1", "STUDIO_INTRO_REBUILD": "1" if (force or doc.get("intro_rebuild")) else "0",
+                "STUDIO_JOB_START": f"{time.time():.0f}"}
+        intro_py = [py, "-X", "utf8", str(C.store.APP / "tools" / "review_intro.py"), proj]
+        # intro alongside the main edit (2026-10-29, speed): it starts planning + rendering once the edit's cut is final
+        # (review_intro STUDIO_INTRO_STAGE=build) while the main video renders; the intro step after the edit only joins
+        return [{"id": "intro_build", "label": "Intro from your VO (alongside the edit)", "cmd": intro_py, "cwd": proj,
+                 "force": True, "background": True, "env": {**ienv, "STUDIO_INTRO_STAGE": "build"}},
+                {"id": "edit", "label": "edit_review.py (the review pipeline)", "cmd": cmd, "cwd": proj, "force": True,
                  "phases": PHASES, "stages": [ph[2] for ph in PHASES]},
-                # share_gpu: the next video in line starts while this intro is planned, checked and rendered (jobs.SHARE)
-                # intro lock (2026-10-24): a built intro is only re-made when this build may touch it (doc["intro_rebuild"],
-                # set by start_build from a batch with intro notes / {"intro": "rebuild"}) or on a fresh build
-                {"id": "intro", "label": "Intro from your VO + join", "cmd": [py, "-X", "utf8", str(C.store.APP / "tools" / "review_intro.py"), proj],
-                 "cwd": proj, "force": True, "share_gpu": True,
-                 "env": {"STUDIO_INTRO_LOCK": "1", "STUDIO_INTRO_REBUILD": "1" if (force or doc.get("intro_rebuild")) else "0"}},
+                # share_gpu: the next video in line starts while this intro is joined (jobs.SHARE)
+                {"id": "intro", "label": "Intro join", "cmd": intro_py, "cwd": proj, "force": True, "share_gpu": True,
+                 "wait_for": ["intro_build"], "env": {**ienv, "STUDIO_INTRO_STAGE": "join"}},
                 {"id": "check", "label": "QC check (10 fps)", "cmd": [py, "-X", "utf8", str(C.CHECK_VIDEO), "check", str(P["final"]), "--sheets", "flags", "--no-words"], "cwd": proj, "force": True},
                 C.claude_qc_step(doc, P["final"]), C.targets_step(doc),
                 # what the draft SAYS (2026-10-24, dhgate watchb spread: a draft full of retakes went out as ready): retakes
@@ -129,6 +136,11 @@ def job_steps(doc, action, force=False):
         # whole thing?"): output/final.mp4 is kept as it is, the intro is rendered again (one self-check fix round, not two),
         # joined back on and only the intro is QC-checked. The main edit (~5 min) and the whole-video checks are skipped.
         clip = Path(proj) / "intro" / "build" / "renders" / "intro.mp4"
+        # his intro text fixes only ("Update the intro now", tools/intro_text.py): the same intro with the new words, no AI QC
+        if doc.get("intro_retext"):
+            return [{"id": "intro", "label": "Intro: your text changes (same shots)", "cmd": [py, "-X", "utf8", str(C.store.APP / "tools" / "review_intro.py"), proj],
+                     "cwd": proj, "force": True, "env": {"STUDIO_INTRO_ONLY": "1", "STUDIO_INTRO_RETEXT": "1"}},
+                    {"id": "check", "label": "QC check of the intro (10 fps)", "cmd": [py, "-X", "utf8", str(C.CHECK_VIDEO), "check", str(clip), "--sheets", "flags", "--no-words"], "cwd": proj, "force": True}]
         return [{"id": "intro", "label": "Intro only: render + join (main edit kept)", "cmd": [py, "-X", "utf8", str(C.store.APP / "tools" / "review_intro.py"), proj],
                  "cwd": proj, "force": True, "env": {"STUDIO_INTRO_ONLY": "1"}},
                 {"id": "check", "label": "QC check of the intro (10 fps)", "cmd": [py, "-X", "utf8", str(C.CHECK_VIDEO), "check", str(clip), "--sheets", "flags", "--no-words"], "cwd": proj, "force": True},

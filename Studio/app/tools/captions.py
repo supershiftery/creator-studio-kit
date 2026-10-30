@@ -28,12 +28,15 @@ APP = Path(__file__).resolve().parents[1]
 FONTS = APP / "fonts"
 UI_DIR = APP.parent / "ui" / "captions"
 sys.path.insert(0, r"{{KIT}}/tools")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import caption_fixes as CF   # noqa: E402  AI typo pass + the editor's manual fixes (2026-10-29)
 
 # family names as libass sees them (nameID 1) -> the file that has to be in app\fonts
 FONT_FILES = {"Montserrat Black": "Montserrat-Black.ttf", "Montserrat ExtraBold": "Montserrat-ExtraBold.ttf", "Montserrat": "Montserrat-Bold.ttf",
               "Komika Axis": "KOMIKAX_.ttf", "Bangers": "Bangers-Regular.ttf", "The Bold Font": "THEBOLDFONT.ttf", "Anton": "Anton-Regular.ttf",
               "Poppins Black": "Poppins-Black.ttf", "Poppins ExtraBold": "Poppins-ExtraBold.ttf", "Poppins": "Poppins-Bold.ttf",
-              "Roboto Medium": "Roboto-Medium.ttf", "Roboto": "Roboto-Bold.ttf", "Bebas Neue": "BebasNeue-Regular.ttf"}
+              "Roboto Medium": "Roboto-Medium.ttf", "Roboto": "Roboto-Bold.ttf", "Bebas Neue": "BebasNeue-Regular.ttf",
+              "Poppins SemiBold": "Poppins-SemiBold.ttf", "Poppins Medium": "Poppins-Medium.ttf", "Courier Prime": "CourierPrime-Bold.ttf"}
 
 # size / outline / shadow / margin are fractions of the video height; colours are RGB hex. Pop styles sit at 22 % up,
 # above the lower-third graphics (phone code card, gaming IP cards, Shein test 2026-10-23); subtitle styles stay low.
@@ -59,10 +62,37 @@ PRESETS = {
     # 12 px outline, raised to 30 % up so the Shorts title / buttons at the bottom don't cover it.
     "doug_v": {"label": "Doug vertical (Short) · Anton, red/yellow/green", "fonts": [("Anton", 0)], "size": 120 / 1920, "color": "FFFFFF",
                "outline": 12 / 1920, "shadow": 2 / 1920, "caps": False, "words": 3, "chars": 16, "hl": "FF0000",
-               "hl_cycle": ["FF0000", "FFFF00", "00FF00"], "pop": 100, "margin": .30, "no_orphan": True},
+               "hl_cycle": ["FF0000", "FFFF00", "00FF00"], "pop": 100, "margin": .30, "no_orphan": True, "pick": False},
     "youtube": {"label": "YouTube CC box · Roboto", "fonts": [("Roboto Medium", 0), ("Roboto", 1)], "size": .064, "color": "FFFFFF",
                 "outline": .008, "shadow": 0, "caps": False, "words": 8, "chars": 42, "hl": None, "margin": .06, "box": "000000", "box_alpha": 0x40},
+    # 2026-10-29 (friends asked for the caption looks popular on YouTube / Shorts now): free Google Fonts only (Poppins,
+    # Anton, Bebas Neue, Courier Prime; OFL files in app\fonts). Clean looks only: no bursts, emojis, shakes or bounces
+    # (no-corny-effects rule); the one animation is a 90 ms scale-in on "single". "low": sits at the bottom, so the picker
+    # greys it out on gaming projects (no bottom captions on Minecraft videos).
+    "single": {"label": "One word · big pop", "fonts": [("Poppins Black", 0), ("Anton", 0)], "size": .11, "color": "FFFFFF",
+               "outline": .009, "shadow": .004, "caps": True, "words": 1, "chars": 14, "hl": None, "margin": .22, "anim": (80, 90)},
+    "karaoke": {"label": "Karaoke fill · Poppins ExtraBold", "fonts": [("Poppins ExtraBold", 0), ("Poppins", 1)], "size": .072, "color": "FFFFFF",
+                "outline": .007, "shadow": .003, "caps": True, "words": 4, "chars": 24, "hl": "FFC83D", "margin": .22, "karaoke": True},
+    "highlighter": {"label": "Highlighter box · spoken word on purple", "fonts": [("Poppins ExtraBold", 0), ("Poppins", 1)], "size": .076, "color": "FFFFFF",
+                    "outline": .007, "shadow": .003, "caps": True, "words": 3, "chars": 20, "hl": "FFFFFF", "margin": .22,
+                    "word_box": "7C3AED", "box_pad": .012},
+    "keywords": {"label": "Two-tone keywords · Anton", "fonts": [("Anton", 0)], "size": .1, "color": "FFFFFF",
+                 "outline": .007, "shadow": .004, "caps": True, "words": 4, "chars": 22, "hl": "FFB020", "margin": .22, "keywords": True},
+    "neon": {"label": "Soft neon glow · Bebas Neue", "fonts": [("Bebas Neue", 0), ("Anton", 0)], "size": .1, "color": "FFFFFF",
+             "outline": .002, "shadow": 0, "caps": True, "words": 3, "chars": 20, "hl": None, "margin": .22, "outline_color": "38E8FF",
+             "glow": "00C8FF", "glow_size": .014, "spacing": .002},
+    "podcast": {"label": "Podcast lower captions · Poppins SemiBold", "fonts": [("Poppins SemiBold", 0), ("Poppins", 1)], "size": .066, "color": "B8B8B8",
+                "outline": .003, "shadow": .003, "caps": False, "words": 8, "chars": 40, "hl": "FFFFFF", "pop": 100, "margin": .07, "low": True},
+    "minimal": {"label": "Minimal caps · Poppins Medium", "fonts": [("Poppins Medium", 0), ("Poppins", 1)], "size": .062, "color": "FFFFFF",
+                "outline": .002, "shadow": .002, "caps": True, "words": 5, "chars": 30, "hl": None, "margin": .08, "spacing": .004, "low": True},
+    "typewriter": {"label": "Typewriter · Courier Prime", "fonts": [("Courier Prime", 1), ("Roboto", 1)], "size": .066, "color": "FFFFFF",
+                   "outline": .012, "shadow": 0, "caps": False, "words": 5, "chars": 26, "hl": None, "margin": .1, "box": "000000",
+                   "box_alpha": 0x50, "reveal": True, "low": True},
 }
+for _k in ("clean", "youtube"):   # the older subtitle looks sit at the bottom too
+    PRESETS[_k]["low"] = True
+for _k in ("single", "karaoke", "highlighter", "keywords", "neon", "podcast", "minimal", "typewriter"):
+    PRESETS[_k]["fit"] = True
 # sizes: the first Chime captions (Arial 64 px at 1080p = .059) were "very small" (user 2026-10-23), so every preset is
 # bigger than that; the default is the most used pop look
 DEFAULT = "bold"
@@ -75,6 +105,22 @@ def style_for(settings):
     if not cfg.get("on"):
         return None
     return cfg.get("style") if cfg.get("style") in PRESETS else DEFAULT
+
+
+def where_of(settings):
+    """where the captions go: "all" (whole video) | "bookends" (intro and ending only); the editor's Captions tab + New Project"""
+    cfg = (settings or {}).get("captions")
+    return cfg.get("where") if isinstance(cfg, dict) and cfg.get("where") == "bookends" else "all"
+
+
+def keep_where(words, settings, dur=None, head=0.0):
+    """"Intro and ending only" (user 2026-10-29: some people want the intro and ending, some the whole video): the words in
+    the opening (the intro, at least 15 s) and the last 30 s (at most the last 10 %) keep their captions; the rest go."""
+    if where_of(settings) != "bookends" or not words:
+        return words
+    dur = dur or max(w["e"] for w in words)
+    head, tail = max(head, 15.0), dur - min(30.0, dur * 0.1)
+    return [w for w in words if w["s"] < head or w["s"] >= tail]
 
 
 def font_for(preset):
@@ -135,28 +181,105 @@ def _shown(txt, P):
     return txt.replace("{", "(").replace("}", ")")
 
 
-def build_ass(words, w, h, preset, start=0.0, margin=None, quiet=()):
+STOP = set("a an the and or but so if of to in on at by for with from as is are was were be been am i you he she it we they me my "
+           "your his her its our their this that these those there here just like really very do does did have has had not no yes "
+           "can could will would should what when where who how why all some any one get got go going gonna wanna let lets im it's "
+           "i'm you're that's don't dont about into out up down then than them".split())
+
+
+def _keyword(txts):
+    """two-tone styles: the one word in a group worth colouring (numbers / prices first, then the longest non-filler word)"""
+    best, score = None, 0
+    for k, t in enumerate(txts):
+        bare = re.sub(r"[^\w$%]", "", t).lower()
+        if not bare or bare in STOP:
+            continue
+        s = len(bare) + (10 if re.search(r"[\d$%]", bare) else 0)
+        if s > score and (len(bare) >= 4 or s >= 10):
+            best, score = k, s
+    return best
+
+
+def build_ass(words, w, h, preset, start=0.0, margin=None, quiet=(), shown=None):
+    """shown: a list that gets each caption group as it is drawn ({s, e, text}) for the editor (captions.json)"""
     P = PRESETS[preset]
     fam, bold = font_for(preset)
     box = "box" in P
-    style = (f"Style: Cap,{fam},{round(P['size'] * h)},{_bgr(P['color'])},{_bgr(P['color'])},"
-             f"{_bgr(P.get('box', '000000'), P.get('box_alpha', 0)) if box else '&H00000000'},{'&H80000000' if not box else _bgr('000000', 0xFF)},"
-             f"{-1 if bold else 0},0,0,0,100,100,0,0,{3 if box else 1},{max(1, round(P['outline'] * h))},{round(P['shadow'] * h)},2,"
-             f"{round(.06 * w)},{round(.06 * w)},{round((P['margin'] if margin is None else margin) * h)},1")
-    head = ("[Script Info]\nScriptType: v4.00+\nWrapStyle: 2\nScaledBorderAndShadow: yes\n"
+    mv = round((P['margin'] if margin is None else margin) * h)
+    # "fit" styles size off the short side, so a vertical 1080x1920 Short gets the same look as 1080p (not 1.8x wider text)
+    u = min(w, h) if P.get("fit") else h
+    spacing = round(P.get("spacing", 0) * u)
+    # karaoke: libass fills SecondaryColour -> PrimaryColour as each word is said ({\kf}), so the fill colour goes first
+    prim, sec = (P["hl"], P["color"]) if P.get("karaoke") else (P["color"], P["color"])
+    outc = _bgr(P.get("outline_color", "000000"))
+
+    def style(name, prim, sec, outline_c, back_c, border, outline, shadow):
+        return (f"Style: {name},{fam},{round(P['size'] * u)},{prim},{sec},{outline_c},{back_c},{-1 if bold else 0},0,0,0,100,100,{spacing},0,"
+                f"{border},{outline},{shadow},2,{round(.06 * w)},{round(.06 * w)},{mv},1")
+    styles = [style("Cap", _bgr(prim), _bgr(sec), _bgr(P.get('box', '000000'), P.get('box_alpha', 0)) if box else outc,
+                    '&H80000000' if not box else _bgr('000000', 0xFF), 3 if box else 1, max(1, round(P['outline'] * u)), round(P['shadow'] * u))]
+    if P.get("word_box"):   # opaque box (BorderStyle 3) behind the spoken word only: the other words in that layer are invisible
+        styles.append(style("Box", _bgr(P["hl"]), _bgr(P["hl"]), _bgr(P["word_box"]), _bgr("000000", 0xFF), 3, max(1, round(P["box_pad"] * u)), 0))
+    if P.get("glow"):   # wide blurred outline under the text, the text itself invisible in that layer
+        styles.append(style("Glow", _bgr(P["color"], 0xFF), _bgr(P["color"], 0xFF), _bgr(P["glow"], 0x30), _bgr("000000", 0xFF), 1,
+                            max(1, round(P["glow_size"] * u)), 0))
+    head = ("[Script Info]\nScriptType: v4.00+\nWrapStyle: " + ("0" if P.get("fit") else "2") + "\nScaledBorderAndShadow: yes\n"   # fit: wraps on a narrow Short
             f"PlayResX: {w}\nPlayResY: {h}\n\n[V4+ Styles]\n"
             "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, "
             "ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\n"
-            f"{style}\n\n[Events]\nFormat: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n")
+            + "\n".join(styles) + "\n\n[Events]\nFormat: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n")
     ev = []
+    hide = "{\\alpha&HFF&}"
     groups = chunks([x for x in words if x["s"] >= start and not any(q0 - .2 <= x["s"] < q1 for q0, q1 in quiet)], P)
     for i, g in enumerate(groups):
         g0 = g[0]["s"]
         nxt = groups[i + 1][0]["s"] if i + 1 < len(groups) else g[-1]["e"] + 1
         g1 = min(g[-1]["e"] + .3, nxt)
         txts = [_shown(x["w"], P) for x in g]
+        if shown is not None:
+            shown.append({"s": round(g0, 3), "e": round(g1, 3), "text": " ".join(txts)})
+        if P.get("glow"):
+            ev.append(f"Dialogue: 0,{_t(g0)},{_t(g1)},Glow,,0,0,0,,{{\\blur{max(2, round(P['glow_size'] * u * .8))}}}{' '.join(txts)}")
+        if P.get("karaoke"):   # one event; each word fills over the time until the next word starts
+            parts = []
+            for j, x in enumerate(g):
+                d = (g[j + 1]["s"] if j + 1 < len(g) else x["e"]) - x["s"]
+                parts.append(f"{{\\kf{max(1, round(d * 100))}}}{txts[j]}")
+            ev.append(f"Dialogue: 1,{_t(g0)},{_t(g1)},Cap,,0,0,0,,{' '.join(parts)}")
+            continue
+        if P.get("reveal"):   # typewriter: each word appears as it's said; the unsaid ones hold their place, invisible
+            for j, x in enumerate(g):
+                a = g0 if j == 0 else x["s"]
+                b = g[j + 1]["s"] if j + 1 < len(g) else g1
+                if b - a < .01:
+                    continue
+                said, rest = " ".join(txts[:j + 1]), " ".join(txts[j + 1:])
+                ev.append(f"Dialogue: 1,{_t(a)},{_t(b)},Cap,,0,0,0,,{said}" + (f" {hide}{rest}" if rest else ""))
+            continue
+        if P.get("anim"):   # quick scale-in on each new caption (single word style)
+            s0, ms = P["anim"]
+            ev.append(f"Dialogue: 1,{_t(g0)},{_t(g1)},Cap,,0,0,0,,{{\\fscx{s0}\\fscy{s0}\\t(0,{ms},\\fscx100\\fscy100)}}{' '.join(txts)}")
+            continue
+        if P.get("keywords"):   # two-tone: the group's keyword stays coloured the whole time
+            k = _keyword(txts)
+            parts = [f"{{\\c{_bgr(P['hl'])}}}{t}{{\\c{_bgr(P['color'])}}}" if j == k else t for j, t in enumerate(txts)]
+            ev.append(f"Dialogue: 1,{_t(g0)},{_t(g1)},Cap,,0,0,0,,{' '.join(parts)}")
+            continue
         if not P["hl"]:
-            ev.append(f"Dialogue: 0,{_t(g0)},{_t(g1)},Cap,,0,0,0,,{' '.join(txts)}")
+            ev.append(f"Dialogue: 1,{_t(g0)},{_t(g1)},Cap,,0,0,0,,{' '.join(txts)}")
+            continue
+        if P.get("word_box"):
+            for j, x in enumerate(g):
+                a = g0 if j == 0 else x["s"]
+                b = g[j + 1]["s"] if j + 1 < len(g) else g1
+                if b - a < .01:
+                    continue
+                # the spaces round the spoken word stay hidden too (a visible space glyph draws its own box sliver)
+                before, after = " ".join(txts[:j]), " ".join(txts[j + 1:])
+                boxed = (hide + before + " " if before else "") + "{\\r}" + txts[j] + (hide + " " + after if after else "")
+                plain = " ".join(hide + t + "{\\r}" if k == j else t for k, t in enumerate(txts))
+                ev.append(f"Dialogue: 0,{_t(a)},{_t(b)},Box,,0,0,0,,{boxed}")
+                ev.append(f"Dialogue: 1,{_t(a)},{_t(b)},Cap,,0,0,0,,{plain}")
             continue
         for j, x in enumerate(g):   # one event per spoken word: that word coloured (and popped), the rest plain
             a = g0 if j == 0 else x["s"]
@@ -279,8 +402,10 @@ def run(proj, video):
             print("captions off for this project")
         return
     style = style_for(doc.get("settings"))
-    intro = bool(cfg.get("intro"))
-    if ours and me.get("style") == style and me.get("intro") == intro:
+    where = where_of(doc.get("settings"))
+    intro = bool(cfg.get("intro")) or where == "bookends"   # "intro and ending only" includes the intro
+    fsig = CF.signature(doc)   # new manual fixes / undone AI fixes re-burn the render from its clean copy
+    if ours and me.get("style") == style and me.get("intro") == intro and me.get("where", "all") == where and me.get("fixes", fsig) == fsig:
         print(f"captions already burned ({style})")
         return
     work.mkdir(exist_ok=True)
@@ -288,11 +413,14 @@ def run(proj, video):
         os.replace(video, clean)
     off = _intro_end(proj)
     start = 0.0 if intro else off
-    words = transcribe(clean, work / f"words - {video.stem}.json", vocab)
+    words, changes = CF.apply(transcribe(clean, work / f"words - {video.stem}.json", vocab), doc)   # AI typo pass + the editor's fixes
+    words = keep_where(words, doc.get("settings"), head=off)
     w, h = probe(clean)
     ass = work / f"{video.stem}.ass"
     quiet = _quiet(proj, off)
-    ass.write_text(build_ass(words, w, h, style, start, quiet=quiet), encoding="utf-8")
+    shown = []
+    ass.write_text(build_ass(words, w, h, style, start, quiet=quiet, shown=shown), encoding="utf-8")
+    CF.record(proj, video.name, words, shown, changes, style)
     fam = font_for(style)[0]
     print(f"captions: {PRESETS[style]['label']} (font {fam}), {w}x{h}, from {start:.1f} s, paused over {len(quiet)} code cards", flush=True)
     tmp = video.with_name(video.stem + " .captions-tmp.mp4")
@@ -306,7 +434,8 @@ def run(proj, video):
             os.replace(clean, video)   # never leave the project without its render
         raise
     st = video.stat()
-    state[video.name] = {"size": st.st_size, "mtime": int(st.st_mtime), "style": style, "intro": intro, "font": fam}
+    state[video.name] = {"size": st.st_size, "mtime": int(st.st_mtime), "style": style, "intro": intro, "where": where, "font": fam,
+                         "fixes": fsig}
     json.dump(state, open(state_f, "w"), indent=1)
     print(f"captions burned into {video.name}")
 
@@ -327,7 +456,8 @@ def previews():
                         "-ss", str(at), "-frames:v", "1", "-vf", _filt(ass_f) + ",crop=640:120:0:150", str(UI_DIR / f"{key}.png")], check=True)
         ass_f.unlink()
         fam = font_for(key)[0]
-        meta.append({"key": key, "label": P["label"], "font": fam, "wanted": P["fonts"][0][0], "png": f"captions/{key}.png"})
+        meta.append({"key": key, "label": P["label"], "font": fam, "wanted": P["fonts"][0][0], "png": f"captions/{key}.png",
+                     "low": bool(P.get("low")), "pick": P.get("pick", True)})
     json.dump(meta, open(UI_DIR / "presets.json", "w"), indent=1)
     print("\n".join(f"{m['key']}: {m['font']}" + ("" if m["font"] == m["wanted"] else f" (stand-in for {m['wanted']})") for m in meta))
 

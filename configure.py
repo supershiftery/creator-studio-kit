@@ -109,7 +109,8 @@ def settings(a, v, update=False):
     new = {
         "roots": {"gaming": v["GAMING_ROOT"], "phone": v["PROJECTS_ROOT"], "review": v["PROJECTS_ROOT"]},
         "drive_root": v["DRIVE_FINISHED"], "recordings": [v["RECORDINGS"]], "vo_folder": v["VO_FOLDER"],
-        "music_root": v["MUSIC_ROOT"], "competitor_tracker": v["KIT"] + "/integrations/competitor-tracker",
+        "music_root": v["MUSIC_ROOT"], "music_extra_roots": [fwd(p) for p in a.get("music_extra_roots") or []],
+        "competitor_tracker": v["KIT"] + "/integrations/competitor-tracker",
         "channels": [{"name": c["name"], "types": c.get("types", ["review"]), "per_week": c.get("per_week", 2),
                       "drive": c.get("drive", c["name"]), **({"fillers": c["fillers"]} if c.get("fillers") else {})}
                      for c in a.get("channels", [])],
@@ -128,7 +129,7 @@ def folders(v):
             Path(v[k]).mkdir(parents=True, exist_ok=True)
         except OSError as e:
             print(f"  could not create {v[k]}: {e}")
-    for sub in ("Type Beats", "Lo-Fi", "Game Music", "Shorts", "_rejected (vocals or tags)"):
+    for sub in ("chill", "upbeat", "hype", "dark", "cinematic", "lo-fi"):   # the mood library (tools/music_kit.py fills it)
         Path(v["MUSIC_ROOT"], sub).mkdir(parents=True, exist_ok=True)
     (Path(v["PROJECTS_ROOT"]) / "Phone Videos").mkdir(parents=True, exist_ok=True)
 

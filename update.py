@@ -4,8 +4,9 @@
     From a new zip: unzip it somewhere else and double-click UPDATE.cmd in THAT folder (or: python update.py "D:\\your\\kit").
 
 It finds your installed kit, backs it up, copies in the new files and fills them in with your saved answers again.
-Kept as they are: your setup answers, Studio settings + projects list, promo codes, privacy terms, the AI director's
-taught examples and model choice, and anything you added yourself. Files you (or Claude) changed by hand are backed up,
+Kept as they are: your setup answers, Studio settings + projects list, promo codes, privacy terms, everything in my_style
+(your own video types, the rules your notes taught them, the AI director's taught examples), the model choice, and anything
+you added yourself. Files you (or Claude) changed by hand are backed up,
 replaced by the new version and listed in setup/LOCAL CHANGES.md: paste UPDATE PROMPT.md into Claude Code afterwards and
 Claude puts those changes back on top of the new version.
 """
@@ -25,7 +26,8 @@ MARKER = Path.home() / ".creator-studio-kit.json"
 # never copied over, never deleted: your data
 PROTECT_PREFIX = ("Studio/data/", "setup/_pristine/", "setup/answers.json", "setup/LOCAL CHANGES.md", "setup/update_key.json",
                   "_update_backups/", "_update_source/",
-                  "tools/_state/", "tools/privacy_templates/", "memory/", "watcher/")
+                  "tools/_state/", "tools/privacy_templates/", "memory/", "watcher/",
+                  "my_style/")   # everything you taught: your video types, their learned rules, taught examples
 PROTECT = {"tools/phone_edit/codes.json", "tools/privacy_terms.json", "tools/intro_library/kit/fonts/SegoeEmoji.ttf"}
 KEEP_THEIRS = {"tools/brain.json"}   # your model choice wins over the new default
 
@@ -278,6 +280,16 @@ def run_configure(kit):
 
 
 def finish(kit, new_ver, local, bzip):
+    # an updated kit was set up already (answers.json): the Studio's first-run setup wizard (v4) must not open for it
+    sf = kit / "Studio" / "data" / "settings.json"
+    try:
+        s = json.loads(sf.read_text(encoding="utf-8")) if sf.exists() else {}
+        if not s.get("setup_done"):
+            s["setup_done"] = True
+            sf.parent.mkdir(parents=True, exist_ok=True)
+            sf.write_text(json.dumps(s, indent=2), encoding="utf-8")
+    except (OSError, ValueError) as e:
+        print(f"(couldn't mark setup as done: {e})")
     if local:
         lines = [f"# Local changes found during the update to version {new_ver['version']}", "",
                  "These files were changed on this PC after setup (by you or by Claude). The update replaced them with the new",

@@ -4,34 +4,134 @@
   "label": "Clean subtitles \u00b7 Montserrat Bold",
   "font": "Poppins",
   "wanted": "Montserrat",
-  "png": "captions/clean.png"
+  "png": "captions/clean.png",
+  "low": true,
+  "pick": true
  },
  {
   "key": "bold",
   "label": "Bold pop (Hormozi) \u00b7 Montserrat Black",
   "font": "Poppins Black",
   "wanted": "Montserrat Black",
-  "png": "captions/bold.png"
+  "png": "captions/bold.png",
+  "low": false,
+  "pick": true
  },
  {
   "key": "beast",
   "label": "MrBeast style \u00b7 Komika Axis",
   "font": "Anton",
   "wanted": "Komika Axis",
-  "png": "captions/beast.png"
+  "png": "captions/beast.png",
+  "low": false,
+  "pick": true
  },
  {
   "key": "boldfont",
   "label": "The Bold Font \u00b7 tall caps",
   "font": "Anton",
   "wanted": "The Bold Font",
-  "png": "captions/boldfont.png"
+  "png": "captions/boldfont.png",
+  "low": false,
+  "pick": true
+ },
+ {
+  "key": "doug",
+  "label": "Doug (Gling) \u00b7 Anton, red/yellow/green",
+  "font": "Anton",
+  "wanted": "Anton",
+  "png": "captions/doug.png",
+  "low": false,
+  "pick": true
+ },
+ {
+  "key": "doug_v",
+  "label": "Doug vertical (Short) \u00b7 Anton, red/yellow/green",
+  "font": "Anton",
+  "wanted": "Anton",
+  "png": "captions/doug_v.png",
+  "low": false,
+  "pick": false
  },
  {
   "key": "youtube",
   "label": "YouTube CC box \u00b7 Roboto",
   "font": "Roboto Medium",
   "wanted": "Roboto Medium",
-  "png": "captions/youtube.png"
+  "png": "captions/youtube.png",
+  "low": true,
+  "pick": true
+ },
+ {
+  "key": "single",
+  "label": "One word \u00b7 big pop",
+  "font": "Poppins Black",
+  "wanted": "Poppins Black",
+  "png": "captions/single.png",
+  "low": false,
+  "pick": true
+ },
+ {
+  "key": "karaoke",
+  "label": "Karaoke fill \u00b7 Poppins ExtraBold",
+  "font": "Poppins ExtraBold",
+  "wanted": "Poppins ExtraBold",
+  "png": "captions/karaoke.png",
+  "low": false,
+  "pick": true
+ },
+ {
+  "key": "highlighter",
+  "label": "Highlighter box \u00b7 spoken word on purple",
+  "font": "Poppins ExtraBold",
+  "wanted": "Poppins ExtraBold",
+  "png": "captions/highlighter.png",
+  "low": false,
+  "pick": true
+ },
+ {
+  "key": "keywords",
+  "label": "Two-tone keywords \u00b7 Anton",
+  "font": "Anton",
+  "wanted": "Anton",
+  "png": "captions/keywords.png",
+  "low": false,
+  "pick": true
+ },
+ {
+  "key": "neon",
+  "label": "Soft neon glow \u00b7 Bebas Neue",
+  "font": "Bebas Neue",
+  "wanted": "Bebas Neue",
+  "png": "captions/neon.png",
+  "low": false,
+  "pick": true
+ },
+ {
+  "key": "podcast",
+  "label": "Podcast lower captions \u00b7 Poppins SemiBold",
+  "font": "Poppins SemiBold",
+  "wanted": "Poppins SemiBold",
+  "png": "captions/podcast.png",
+  "low": true,
+  "pick": true
+ },
+ {
+  "key": "minimal",
+  "label": "Minimal caps \u00b7 Poppins Medium",
+  "font": "Poppins Medium",
+  "wanted": "Poppins Medium",
+  "png": "captions/minimal.png",
+  "low": true,
+  "pick": true
+ },
+ {
+  "key": "typewriter",
+  "label": "Typewriter \u00b7 Courier Prime",
+  "font": "Courier Prime",
+  "wanted": "Courier Prime",
+  "png": "captions/typewriter.png",
+  "low": true,
+  "pick": true
  }
 ]

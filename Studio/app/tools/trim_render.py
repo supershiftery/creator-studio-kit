@@ -304,7 +304,12 @@ if cap_style:
                 break
     # style, chunking, size and highlight = the project's caption preset (tools/captions.py; the first Arial 64 was "very
     # small"); the words stay this file's own (medium.en on the edit, vocabulary, merged tokens, said-twice check)
-    ass = CAPS.build_ass([{"w": t, "s": ws_, "e": we_} for t, ws_, we_ in toks], 1920, 1080, cap_style)
+    # "Intro and ending only" (settings.captions.where = "bookends"): the first 15 s + the last 30 s of the edit
+    # AI typo pass + the editor's manual fixes (tools/caption_fixes.py, 2026-10-29) before the layout
+    cwords, cchanges = CAPS.CF.apply([{"w": t, "s": ws_, "e": we_} for t, ws_, we_ in toks], doc)
+    cwords, cshown = CAPS.keep_where(cwords, S, dur=sum(e - s for s, e in keep) / speed), []
+    ass = CAPS.build_ass(cwords, 1920, 1080, cap_style, shown=cshown)
+    CAPS.CF.record(proj, out.name, cwords, cshown, cchanges, cap_style)
     (work / "captions.ass").write_text(ass, encoding="utf-8")
     v = v[:-len("[v]")] + "," + CAPS._filt(work / "captions.ass") + "[v]"   # last on [v]: above the zooms, graphics and overlays
     ev = [ln for ln in ass.splitlines() if ln.startswith("Dialogue:")]

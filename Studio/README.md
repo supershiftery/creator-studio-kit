@@ -157,7 +157,7 @@ answers cached, so a rebuild never asks twice; every call logged in `_tools\_sta
 
 ### Teaching the AI director
 - `tools/teach.py`: every prompt carries the playbook (`tools/teach/playbook.md`) and the newest worked examples
-  (`tools/teach/examples/<task>/`). When a video is approved or you correct a decision:
+  (`my_style/examples/<task>/`, kept by every update). When a video is approved or you correct a decision:
   `python teach.py add intro_director --answer <director.json> --title ... --lesson "why"`.
 
 ## Batch 2026-10-24: Gling-style transcript cutter + redesign

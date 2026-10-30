@@ -29,6 +29,10 @@ STATE = os.path.join(HERE, "_state")
 CACHE = os.path.join(STATE, "claude_cache")
 LEDGER = os.path.join(STATE, "claude_ledger.jsonl")
 TEACH = os.path.join(HERE, "teach")
+# everything the user teaches lives in <kit>/my_style (updates never touch it): taught examples + their own video types
+MY_STYLE = os.environ.get("STUDIO_MY_STYLE") or os.path.join(os.path.dirname(HERE), "my_style")
+EXAMPLES = os.path.join(MY_STYLE, "examples")
+OLD_EXAMPLES = os.path.join(TEACH, "examples")
 CONFIG = os.path.join(HERE, "brain.json")
 DEFAULTS = {
     "claude": {"opus": "claude-opus-5-5", "sonnet": "claude-sonnet-5-5", "haiku": "claude-haiku-5-5"},
@@ -95,8 +99,47 @@ def playbook(task):
     return "\n".join(keep).strip()
 
 
+def migrate_examples():
+    """Kits before v4 kept taught examples in tools/teach/examples: copy them into my_style/examples once (the old folder
+    stays as it was, so nothing is lost if this runs half-way)."""
+    mark = os.path.join(EXAMPLES, ".moved")
+    if os.path.exists(mark) or not os.path.isdir(OLD_EXAMPLES):
+        return
+    import shutil
+    for root, _, files in os.walk(OLD_EXAMPLES):
+        for f in files:
+            src = os.path.join(root, f)
+            dst = os.path.join(EXAMPLES, os.path.relpath(src, OLD_EXAMPLES))
+            if not os.path.exists(dst):
+                os.makedirs(os.path.dirname(dst), exist_ok=True)
+                shutil.copy2(src, dst)
+    os.makedirs(EXAMPLES, exist_ok=True)
+    open(mark, "w").write("taught examples copied here from tools/teach/examples\n")
+
+
+def type_brief():
+    """A build of the user's own video type (STUDIO_MY_TYPE, set by the Studio): its playbook + the rules learned from notes."""
+    slug = os.environ.get("STUDIO_MY_TYPE")
+    if not slug:
+        return ""
+    parts = []
+    try:
+        parts.append(open(os.path.join(MY_STYLE, "types", slug + ".md"), encoding="utf-8").read().strip())
+    except OSError:
+        pass
+    try:
+        t = json.load(open(os.path.join(MY_STYLE, "types", slug + ".json"), encoding="utf-8"))
+        rules = [f"- [{r.get('category', 'other')}] {r['text']}" for r in t.get("rules") or [] if not r.get("off")]
+        if rules:
+            parts.append("Rules learned from the creator's revision notes on this type (always follow them):\n" + "\n".join(rules))
+    except (OSError, ValueError, KeyError):
+        pass
+    return "\n\n".join(p for p in parts if p)
+
+
 def examples(task, n=None):
-    d = os.path.join(TEACH, "examples", task)
+    migrate_examples()
+    d = os.path.join(EXAMPLES, task)
     if not os.path.isdir(d):
         return []
     files = sorted((os.path.join(d, f) for f in os.listdir(d) if f.endswith(".json")), key=os.path.getmtime, reverse=True)
@@ -112,6 +155,9 @@ def examples(task, n=None):
 def lesson(task):
     """Playbook + worked examples as one block to put before the real question."""
     parts = []
+    tb = type_brief()
+    if tb:
+        parts.append("THIS VIDEO IS THE CREATOR'S OWN VIDEO TYPE. Its style comes first:\n" + tb)
     pb = playbook(task)
     if pb:
         parts.append("HOW TO THINK ABOUT THIS (the senior editor's playbook):\n" + pb)
@@ -170,7 +216,7 @@ def ask(task, prompt, images=(), model="sonnet", timeout=300, raw=False, say=pri
     if not enabled():
         return None
     images = [p for p in images or () if p and os.path.exists(p)]
-    h = hashlib.sha256(f"{task}|claude|{model}|{SYSTEM}|{prompt}".encode())
+    h = hashlib.sha256((f"{task}|claude|{model}|{SYSTEM}|{prompt}" + (f"|{type_brief()}" if type_brief() else "")).encode())
     for p in images:
         h.update(open(p, "rb").read())
     cp = os.path.join(CACHE, f"{task}-{h.hexdigest()[:20]}.json")

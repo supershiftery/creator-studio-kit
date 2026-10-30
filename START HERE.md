@@ -6,16 +6,30 @@ cuts Shorts. It is editing software only: projects in, edited videos out (no thu
 
 ## What you need
 - A Windows 10/11 PC. An NVIDIA graphics card makes it much faster, but it isn't required. About 40 GB free on a fast drive.
-- **Claude Code**, signed in with a Claude plan (Pro or Max). The desktop app or the terminal both work: https://claude.com/claude-code
+- A Claude plan (Pro or Max). You don't need to install anything yourself: setup installs Claude Code, FFmpeg, Python and the rest.
 - Your own raw recordings, and music you own or have a licence for. None is included.
 
-## 3 steps
+## 2 steps
 1. **Unzip** this folder somewhere permanent, for example `D:\Creator Studio Kit`. Don't leave it in Downloads.
-2. **Open Claude Code in this folder** (desktop app: New session → choose this folder. Terminal: `cd` here, then type `claude`).
-3. **Open `MASTER PROMPT.md`**, copy everything under the line, and paste it as your first message. Claude reads the kit, installs
-   what's missing, asks you the setup questions (mostly click-buttons), configures everything, and does your first edit with you.
+2. **Double-click `SETUP.cmd`.** It installs everything (Windows may ask "allow changes?" a few times: click Yes) and puts a
+   **Creator Studio** shortcut on your Desktop. Then the **Studio opens with a setup window** that walks you through the rest,
+   one question per screen (about 3 minutes):
+   - **Check your PC**: FFmpeg, Node.js, Claude Code and your Claude sign-in. Anything missing has a fix button (signing in opens
+     a small Claude window: approve it in the browser, then click "Check again").
+   - **Your recordings**: the folder your recorder saves to (it shows the folders it found with videos in them).
+   - **Your projects**: where edits and drafts go (it suggests the drive with the most free space).
+   - **Your music**: a mood library, and it can find the music already on your PC and sort it for you.
+   - **Captions** on or off for new videos, and your **channel name** (optional).
+   - **Done**: make your first project. Optionally let Claude finish the extras (its editing skills, your style, and
+     switching renders over if you have no NVIDIA card).
+
+   Change any answer later: Studio → **Settings → Setup → Run setup again**.
 
 Setup takes about an hour, mostly downloads. Have one raw recording of each type of video you make ready to drop in.
+
+Asked Claude Code to "set this up for me" instead? Same thing: Claude runs the installer, opens the Studio and its setup window
+does the questions. If SETUP.cmd says **[MISSING]** for Python, double-click it once more. Still missing? Open Claude Code in
+this folder and say "SETUP failed, read setup\setup_log.txt and fix it".
 
 ## Already have an older version? Update it (5 minutes)
 Don't unzip the new kit over your old one, and don't set it up again.

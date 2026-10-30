@@ -13,6 +13,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 import traceback
 import urllib.parse
 from pathlib import Path
@@ -1601,7 +1602,9 @@ def prior_template(build):
     # ...unless he has turned that style off since (lv trainer 2026-10-23, R07's receipt: "the motion graphic just doesn't
     # seem as interesting"): then the rotation picks the next one
     for tj in (LIB / "templates" / "review").glob(f"{tid}-*/template.json"):
-        if json.loads(tj.read_text(encoding="utf-8")).get("status", "ready") != "ready":
+        # "test" counts as on: R21 is a pool style marked "test" and a revision rebuild swapped it for R02 (Best Mon Clear
+        # On DHG 2026-10-29)
+        if json.loads(tj.read_text(encoding="utf-8")).get("status", "ready") not in ("ready", "test"):
             return ""
     return tid
 
@@ -1711,8 +1714,30 @@ def main():
         say("no intro in this project: nothing to do")
         return
     final = OUT / "final.mp4"
-    if not final.exists():
+    # intro alongside the main edit (2026-10-29, speed): STUDIO_INTRO_STAGE=build runs as a background step next to
+    # edit_review.py. The intro needs the edit's cut list, sections, product moments and price pop-up, which are all
+    # written by the time the loudness pass starts (work/graph_audio.txt), so it waits for that and then plans + renders
+    # while the main video renders (Mon Clear: ~5 min of overlap). The normal run afterwards (STUDIO_INTRO_STAGE=join)
+    # finds the intro fresh and only joins it on.
+    stage = os.environ.get("STUDIO_INTRO_STAGE", "")
+    if stage == "build":
+        OUT.mkdir(exist_ok=True)
+        (OUT / "intro_stage.txt").unlink(missing_ok=True)
+        t0 = float(os.environ.get("STUDIO_JOB_START") or time.time())
+        marks = [PROJ / "work" / "graph_audio.txt", final]
+        while not any(m.exists() and m.stat().st_mtime >= t0 for m in marks):
+            if time.time() - t0 > 3 * 3600:
+                raise SystemExit("the main edit never reached its render (3 h); the join step builds the intro after it")
+            time.sleep(3)
+        say("intro: the main edit's cut is ready, building the intro while the main video renders")
+    elif not final.exists():
         raise SystemExit("output/final.mp4 is missing (edit_review.py first)")
+    if stage == "join" and (OUT / "intro_stage.txt").exists():
+        if (OUT / "intro_stage.txt").read_text(encoding="utf-8").startswith("failed"):
+            # one more try the old way (after the edit), like any failed step; never join an older intro instead
+            say("intro: the build alongside the edit failed, building it again now")
+            os.environ["STUDIO_INTRO_REBUILD"] = "1"
+            (PROJ / "intro" / "build" / "renders" / "intro.mp4").unlink(missing_ok=True)
     if Path(slot).suffix.lower() in AUDIO:
         build = PROJ / "intro" / "build"
         intro = build / "renders" / "intro.mp4"
@@ -1756,7 +1781,17 @@ def main():
         # settings still rebuilds. STUDIO_INTRO_LOCK unset = a build started by older Studio code = the old rules.
         locked = (os.environ.get("STUDIO_INTRO_LOCK") == "1" and os.environ.get("STUDIO_INTRO_REBUILD") != "1"
                   and intro.exists() and intro.stat().st_size > 100000)
-        if locked and not restyle and not stale(intro, slot):
+        # his intro text fixes (Editor / Watch double-click, 2026-10-29): a kept intro whose text changed is only re-rendered
+        # with the new words (intro_library/text_fixes.retext, ~4-5 min, same shots); STUDIO_INTRO_RETEXT = the "Update the
+        # intro now" button's intro-only build
+        tfix = doc.get("intro_text_fixes") or []
+        sys.path.insert(0, str(LIB))
+        import text_fixes
+        if os.environ.get("STUDIO_INTRO_RETEXT") == "1" and intro.exists() and intro.stat().st_size > 100000:
+            locked = True
+        if locked and not restyle and not stale(intro, slot) and not text_fixes.same(tfix, text_fixes.saved_fixes(build)):
+            text_fixes.retext(build, tfix, say=say, py=PY)
+        elif locked and not restyle and not stale(intro, slot):
             say("intro: kept as it is (locked: no note in this batch touches the intro)")
         elif restyle or stale(intro, slot) or (not locked and stale(
                 intro, PROJ / "work" / "sections.json", *[str(p) for p in (PROJ / "raw" / "broll").glob("*")],
@@ -1782,7 +1817,8 @@ def main():
             # + his special requests from New Project (2026-10-23): the intro director follows the ones about the intro
             ex.write_text(json.dumps({"product_price": prices[0] if prices else None, "product": product_noun(doc, slot),
                                      "brand": product_brand(doc, slot), "requests": doc.get("settings", {}).get("requests", ""),
-                                     "pins": pins, "avoid_music": doc.get("settings", {}).get("intro_music_skip") or []}),
+                                     "pins": pins, "avoid_music": doc.get("settings", {}).get("intro_music_skip") or [],
+                                     "text_fixes": tfix}),
                           encoding="utf-8")
             say(f"intro: building {tid} from {Path(slot).name} with {len(foot)} product clips")
             cmd = [PY, "-X", "utf8", str(LIB / "build_intro.py"), "--type", "review", "--template", tid, "--vo", slot,
@@ -1835,6 +1871,10 @@ def main():
     else:
         intro = Path(slot)
         say(f"intro: using the finished intro {intro.name}")
+    if stage == "build":
+        (OUT / "intro_stage.txt").write_text("ok\n", encoding="utf-8")
+        say("intro: built, the join waits for the main video")
+        return
     joined, prev = OUT / "final_intro.mp4", OUT / "preview_intro_540p.mp4"
     if stale(joined, intro, final):
         say("intro: joining intro + final")
@@ -1853,5 +1893,7 @@ if __name__ == "__main__":
         main()
     except BaseException as e:   # the edit itself stays good: report, don't fail the build
         OUT.mkdir(exist_ok=True)
+        if os.environ.get("STUDIO_INTRO_STAGE") == "build":   # the join step reads this and leaves the intro off
+            (OUT / "intro_stage.txt").write_text(f"failed: {e}\n", encoding="utf-8")
         (OUT / "intro_report.txt").write_text(f"intro FAILED: {e}\n\n{traceback.format_exc()}", encoding="utf-8")
         say(f"INTRO FAILED (draft kept without intro): {e}")

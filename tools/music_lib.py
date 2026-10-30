@@ -27,6 +27,8 @@ import time
 import numpy as np
 
 ROOT = r"{{MUSIC_ROOT}}"
+import music_kit as _kit  # noqa: E402  kit: library + extra roots from Studio -> Settings, genre from the audio
+ROOT, EXTRA_ROOTS = _kit.roots(ROOT)
 INDEX = os.path.join(ROOT, "_index.json")
 OVERRIDES = os.path.join(ROOT, "_music_overrides.json")
 VSCAN = os.path.join(ROOT, "_vocal_scan.json")     # the haul/short renderer's scan cache (same key format, kept in sync)
@@ -70,6 +72,7 @@ FOLDER = {
     "cinematic & background": {"epic": 1, "calm": 1}, "anime/piano covers": {"calm": 1.5, "emotional": 1.5},
     "anime/soundtracks": {"epic": 1.5, "emotional": 0.5}, "game & anime beats": {"hype": 1, "playful": 1},
     "game music": {"playful": 1.5, "epic": 0.5}, "pokemon": {"playful": 2}, "instrumentals (real songs)": {"smooth": 0.5, "upbeat": 0.5},
+    **_kit.MOOD_FOLDERS,   # kit: the mood library setup makes
 }
 
 
@@ -164,7 +167,7 @@ def _studio_busy():
     """a Studio job is rendering (one GPU build at a time): the Whisper scan waits"""
     try:
         import urllib.request
-        j = json.load(urllib.request.urlopen("http://localhost:8765/api/jobs", timeout=3))
+        j = json.load(urllib.request.urlopen(f"http://localhost:{_kit.port()}/api/jobs", timeout=3))
         return any(x.get("status") == "running" for x in j.get("jobs", []))
     except Exception:
         return False
@@ -253,14 +256,8 @@ def save_index(idx):
 
 
 def _files():
-    for dp, dn, fn in os.walk(ROOT):
-        rel_d = os.path.relpath(dp, ROOT)
-        if rel_d.split(os.sep)[0].lower() in SKIP_DIRS or os.path.basename(dp).startswith("_"):
-            dn[:] = []
-            continue
-        for f in fn:
-            if f.lower().endswith(EXT) and not f.startswith("_"):
-                yield os.path.join(dp, f)
+    yield from _kit.files(ROOT, EXTRA_ROOTS, SKIP_DIRS, EXT)   # kit: the library + extra roots
+
 
 
 def build_index(scan=True, say=print):
@@ -275,7 +272,7 @@ def build_index(scan=True, say=print):
     files = list(_files())
     say(f"{len(files)} music files under {ROOT}")
     for i, p in enumerate(files):
-        rel = os.path.relpath(p, ROOT)
+        rel = _kit.rel(p, ROOT)
         seen.add(rel)
         st = os.stat(p)
         sig = f"{st.st_size}:{int(st.st_mtime)}"
@@ -287,6 +284,7 @@ def build_index(scan=True, say=print):
             except Exception as e:
                 f = {"bad": f"{type(e).__name__}: {e}"[:120]}
             r = {"sig": sig, "cat": cat, "sub": sub, "genre": genre, **f}
+            r["genre"] = _kit.genre(rel, r, ROOT)   # kit: folders that mean nothing -> what setup decided / the audio
             T[rel] = r
             say(f"[{i + 1}/{len(files)}] features {rel[:90]}  bpm {r.get('bpm')}  {r.get('dur')} s")
             if i % 20 == 0:
@@ -296,7 +294,7 @@ def build_index(scan=True, say=print):
     _energy(T)
     for rel, r in T.items():
         if "bad" not in r:
-            r["moods"] = mood_scores(rel, r)
+            r["moods"] = _kit.pin(rel, mood_scores(rel, r))   # kit: a mood picked by hand stays
     save_index(idx)
     if scan:
         todo = [rel for rel, r in T.items() if "bad" not in r and (r.get("vocal") or {}).get("scanned") != "medium.en novad hp200 v3"]
@@ -407,6 +405,8 @@ def _overrides():
         o = {}
     # retired = got a YouTube copyright claim (Studio Uploads, 2026-10-26): never picked again, like block
     block = [b.lower() for b in o.get("block", [])] + [os.path.basename(r.get("track", "")).lower() for r in o.get("retired", [])]
+    # removed = he right-clicked it out of the Studio music picker (2026-10-29): never picked again, file stays on disk
+    block += [os.path.basename(r.get("track", "")).lower() for r in o.get("removed", [])]
     return [b for b in block if b], [a.lower() for a in o.get("allow", [])]
 
 
@@ -433,6 +433,31 @@ def retire(track, claim="", video="", project=""):
         lst.append({"track": str(track), "claim": claim, "video": video, "project": str(project), "date": time.strftime("%Y-%m-%d %H:%M")})
         json.dump(o, open(OVERRIDES, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     return lst
+
+
+def removed():
+    """file names he took out of the library from Studio (lower case)"""
+    try:
+        o = json.load(open(OVERRIDES, encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    return [os.path.basename(r.get("track", "")).lower() for r in o.get("removed", [])]
+
+
+def remove(track, undo=False):
+    """take a song out of the library (user 2026-10-29: "remove a song from the library simply by right-clicking on it").
+    Like retire() without the copyright claim: the picker and the Studio list skip it, the file stays on disk, undo = put back."""
+    try:
+        o = json.load(open(OVERRIDES, encoding="utf-8"))
+    except (OSError, ValueError):
+        o = {}
+    n = os.path.basename(str(track)).lower()
+    lst = [r for r in o.get("removed", []) if os.path.basename(r.get("track", "")).lower() != n]
+    if not undo:
+        lst.append({"track": str(track), "date": time.strftime("%Y-%m-%d %H:%M")})
+    o["removed"] = lst
+    json.dump(o, open(OVERRIDES, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+    return removed()
 
 
 def is_clean(r, rel=""):
@@ -481,7 +506,7 @@ def project_tracks(project):
     return None
 
 
-def candidates(kind, title="", text="", style=None, min_len=40, avoid=(), channel=None, project=None, idx=None):
+def _candidates(kind, title="", text="", style=None, min_len=40, avoid=(), channel=None, project=None, idx=None, relax=False):
     idx = idx or load_index()
     key, prof, want, why = video_mood(kind, title, text, style)
     channel = channel or CHANNEL_OF.get(kind, kind)
@@ -490,7 +515,7 @@ def candidates(kind, title="", text="", style=None, min_len=40, avoid=(), channe
     lo, hi = prof["energy"]
     out = []
     for rel, r in idx.get("tracks", {}).items():
-        if "bad" in r or r["genre"] not in prof["genres"] or not is_clean(r, rel) or banned(rel, channel):
+        if "bad" in r or (r["genre"] not in prof["genres"] and not relax) or not is_clean(r, rel) or banned(rel, channel):
             continue
         p = os.path.join(ROOT, rel)
         if _norm(p) in bad or not os.path.exists(p):
@@ -505,12 +530,20 @@ def candidates(kind, title="", text="", style=None, min_len=40, avoid=(), channe
         fit = sum(want.get(k, 0) * min(m.get(k, 0), 3) for k in want) / 3
         e = r.get("energy", 0.5)
         fit -= 2.0 * max(0, lo - e, e - hi)
-        fit += prof["genres"][r["genre"]]
+        fit += prof["genres"].get(r["genre"], -0.5)
         recent = _norm(p) in used or os.path.basename(p).lower() in used_names
         out.append({"track": p, "rel": rel, "fit": round(fit, 3), "recent": recent, "genre": r["genre"], "sub": r.get("sub") or r["cat"],
                     "energy": e, "bpm": r.get("bpm"), "usable": r.get("usable"),
                     "top": sorted(((v, k) for k, v in m.items() if v > 0.6), reverse=True)[:3]})
     return key, want, why, out
+
+
+def candidates(kind, title="", text="", style=None, min_len=40, avoid=(), channel=None, project=None, idx=None):
+    """kit: a small or unsorted library still gets music: under 3 fitting tracks, the other genres join (ranked lower)"""
+    res = _candidates(kind, title, text, style, min_len, avoid, channel, project, idx)
+    if len(res[3]) < 3:
+        res = _candidates(kind, title, text, style, min_len, avoid, channel, project, idx, relax=True)
+    return res
 
 
 def pick(kind, n=1, title="", text="", style=None, min_len=40, avoid=(), channel=None, project=None, seed=None, keep=True,
@@ -591,7 +624,7 @@ def info(path, idx=None):
     """the index record of a track (dur, usable, lead_in, bpm, energy, moods, vocal) or {}"""
     idx = idx or load_index()
     try:
-        return idx.get("tracks", {}).get(os.path.relpath(os.path.abspath(path), ROOT), {})
+        return idx.get("tracks", {}).get(_kit.rel(path, ROOT), {})
     except ValueError:
         return {}
 

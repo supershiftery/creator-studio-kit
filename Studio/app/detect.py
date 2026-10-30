@@ -6,14 +6,19 @@ Every type is recorded the same way (3840x1080 OBS side-by-side), so the file sh
 - the right half: the phone mirror is a narrow strip on black; a game or the desk camera fills the frame
 - length and where the file sits (60+ minute recordings are gaming, an {{GAMING_ROOT}} path is gaming)
 
-detect(path) -> {type, confidence: high|medium|low, scores, reasons, channel, title, heard}
+Nothing matching (or a close call) = "other", the general talking / tech / screen video (plain trim edit), never gaming.
+
+detect(path) -> {type (a CHANNEL type or "other"), confidence: high|medium|low, guess, scores, reasons, channel, title, heard}
 The result is cached per file (media-cache.json) so reopening the New Project screen is instant.
 """
 import json
 import re
 import subprocess
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+import cv2
 import numpy as np
 
 import media
@@ -49,36 +54,114 @@ WORDS = {
     ],
 }
 CHANNEL = {"gaming": "{{GAMING_CHANNEL}}", "phone": "{{PHONE_CHANNEL}}", "review": "{{REVIEW_CHANNEL}}", "haul": "{{REVIEW_CHANNEL}}", "short": "{{REVIEW_CHANNEL}}"}
-VERSION = 5   # bump when the rules change so cached answers are worked out again (3: screen flag, 2026-10-22; 4: haul, 5: short, 2026-10-23)
+# the general type (2026-10-29): a kit user's Apple touchscreen-laptop talk (plain 16:9) scored 0 everywhere, came back
+# type None and New Project kept its "gaming" default -> Minecraft wipes. Anything that fits none of the creator types is
+# "other": the plain trim / screen-recording edit (recipes/trim.py -> tools/trim_render.py), no channel graphics.
+GENERAL = "other"
+MIN_SCORE = 3   # below this the top type is a guess, not a match -> GENERAL
+# gaming needs one of these (said, in the file name, or the Minecraft Videos folder); realm / server / mods / length alone
+# also turn up in tech talk ("servers", "an hour long") and never make a video gaming on their own
+GAMEPLAY_RX = r"\bminecraft\b|\bbedrock\b|\bmcpe\b|\bcobblemon\b"
+VERSION = 8   # bump when the rules change so cached answers are worked out again (3: screen flag, 2026-10-22; 4: haul, 5: short, 2026-10-23; 6: general type; 7: camera layout + my types, 2026-10-29; 8: Minecraft hotbar on screen + 40 s listen)
 
 
 def _right_half_black(path, info):
     """Share of near-black pixels at the outer sides of the right half (phone mirror on a black desktop -> ~0.9+)."""
     w, h = max(2, info["width"] // 8) * 2, max(2, info["height"] // 4) * 2
-    vals = []
-    for f in (0.2, 0.45, 0.7):
-        raw = subprocess.run(["ffmpeg", "-v", "error", "-ss", f"{info['duration'] * f:.2f}", "-i", str(path),
+    def one(f):
+        raw = subprocess.run(["ffmpeg", "-v", "error", "-noaccurate_seek", "-ss", f"{info['duration'] * f:.2f}", "-i", str(path),
                               "-vf", f"crop=iw/2:ih:iw/2:0,scale={w}:{h}:flags=neighbor", "-frames:v", "1",
                               "-f", "rawvideo", "-pix_fmt", "gray", "-"], capture_output=True, creationflags=media.CREATE_NO_WINDOW).stdout
         if len(raw) != w * h:
-            continue
+            return None
         a = np.frombuffer(raw, np.uint8).reshape(h, w)
         sides = np.concatenate([a[:, : w // 4], a[:, -(w // 4):]], axis=1)
-        vals.append(float((sides < 18).mean()))
+        return float((sides < 18).mean())
+    with ThreadPoolExecutor(max_workers=3) as ex:   # the three frames at once
+        vals = [v for v in ex.map(one, (0.2, 0.45, 0.7)) if v is not None]
     return sum(vals) / len(vals) if vals else None
 
 
-def _listen(path, info):
-    """Opening minute + two 30 s samples further in, from the loudest (mic) track."""
-    best = 0
+def _hotbar(g):
+    """g = gray picture of the game area, 1920 wide. The Minecraft hotbar: 9 equal square slots in a row, centred, near the
+    bottom (above a Windows taskbar when the game is windowed). Found = a run of 9-11 evenly spaced full-height vertical
+    edges (28-130 px apart), centred within 6 % of the middle, with the bar's top + bottom edges about one slot apart.
+    Tested 2026-10-29: hit in every Minecraft recording, 0 of 90 reviews / phone / spreadsheet / desktop / Discord ones."""
+    H, W = g.shape
+    band = g[int(H * 0.62):, :].astype(np.float32)
+    gx = np.abs(cv2.Sobel(band, cv2.CV_32F, 1, 0, ksize=3)) > 60
+    gy = np.abs(cv2.Sobel(band, cv2.CV_32F, 0, 1, ksize=3)) > 60
+    for y0 in range(0, band.shape[0] - 16, 4):
+        pk = np.where(gx[y0:y0 + 16].mean(0) > 0.75)[0]
+        if len(pk) < 9:
+            continue
+        cs, st, pv = [], pk[0], pk[0]   # runs of edge columns -> their centres
+        for x in pk[1:]:
+            if x - pv > 8:
+                cs.append((st + pv) / 2)
+                st = x
+            pv = x
+        cs = np.array(cs + [(st + pv) / 2])
+        if len(cs) < 9:
+            continue
+        for i in range(len(cs)):
+            for j in range(i + 1, min(i + 4, len(cs))):
+                sp = cs[j] - cs[i]
+                if not 28 <= sp <= 130:
+                    continue
+                run, x = [cs[i]], cs[i]
+                while True:
+                    nx = cs[np.abs(cs - (x + sp)) <= 3]
+                    if not len(nx):
+                        break
+                    x = nx[0]
+                    run.append(x)
+                if not 9 <= len(run) <= 11 or abs((run[0] + run[-1]) / 2 / W - 0.5) > 0.06:
+                    continue
+                rows = gy[:, int(run[0]):int(run[-1])].mean(1)
+                near = [yy for yy in range(max(0, y0 - int(sp * 1.3)), min(len(rows), y0 + 16 + int(sp * 1.3))) if rows[yy] > 0.7]
+                if len(near) >= 2 and max(near) - min(near) >= sp * 0.6:
+                    return True
+    return False
+
+
+def _game_hud(path, info, n=6):
+    """Minecraft on screen? A few frames of the game area (right half of a side-by-side, else the whole picture), stops at
+    the first frame with the hotbar. A Minecraft recording where "Minecraft" is never said (user 2026-10-29: a Cobblemon
+    clip came back "other") is still gaming. ~0.2 s a frame."""
+    side = media.layout_of(info) == "side-by-side"
+    crop = "crop=iw/2:ih:iw/2:0," if side else ""
+    gw = info["width"] // (2 if side else 1)
+    h = int(round(info["height"] * 1920 / max(1, gw) / 2)) * 2
+    def grab(k):
+        t = info["duration"] * (0.1 + 0.8 * k / max(1, n - 1))
+        raw = subprocess.run(["ffmpeg", "-v", "error", "-noaccurate_seek", "-ss", f"{t:.2f}", "-i", str(path), "-vf", f"{crop}scale=1920:{h}:flags=area",
+                              "-frames:v", "1", "-f", "rawvideo", "-pix_fmt", "gray", "-"],
+                             capture_output=True, creationflags=media.CREATE_NO_WINDOW).stdout
+        return len(raw) == 1920 * h and _hotbar(np.frombuffer(raw, np.uint8).reshape(h, 1920))
+    with ThreadPoolExecutor(max_workers=n) as ex:   # all frames at once (round 2: one by one was 4-5 s on a 5K file)
+        return any(ex.map(grab, range(n)))
+
+
+_HUD = {}   # media.cache_key -> Minecraft hotbar seen
+
+
+def _mic_track(path, info):
     if len(info["audio"]) > 1:
         lv = media.track_levels(path, ss=20, t=30)
-        best = max(range(len(lv)), key=lambda i: lv[i]) if lv else 0
+        return max(range(len(lv)), key=lambda i: lv[i]) if lv else 0
+    return 0
+
+
+def _listen(path, info, spans=((0, 40),), best=None):
+    """What is said in these (start, seconds) spans, from the loudest (mic) track. The opening 40 s holds the greeting +
+    topic; detect() only asks for samples further in when that leaves a close call (was 2 min of audio = ~20 s a video)."""
+    best = _mic_track(path, info) if best is None else best
     d = info["duration"]
     parts = []
-    for ss, dur in ((0, 60), (d * 0.4, 30), (d * 0.7, 30)):
-        if ss and d < 150:
-            break   # short clip: the opening minute already covers it
+    for ss, dur in spans:
+        if ss >= d:
+            continue
         raw = subprocess.run(["ffmpeg", "-v", "error", "-ss", f"{ss:.2f}", "-t", str(dur), "-i", str(path), "-map", f"0:a:{best}",
                               "-ac", "1", "-ar", "16000", "-f", "s16le", "-"], capture_output=True, creationflags=media.CREATE_NO_WINDOW).stdout
         a = np.frombuffer(raw, np.int16).astype(np.float32) / 32768
@@ -175,7 +258,7 @@ def _vertical(path):
     return h > w * 1.2
 
 
-def detect(path, fresh=False):
+def detect(path, fresh=False, quick=False):
     path = str(path)
     c = media._load_cache()
     k = media.cache_key(path)
@@ -205,37 +288,119 @@ def detect(path, fresh=False):
                 add(t, min(pts, 3), "file name")
 
     heard = ""
+    hud = False
     info = media.probe(path) if Path(path).suffix.lower() != ".xml" else None
+    vertical = False
     if info and info["duration"]:
-        if info["duration"] >= 45 * 60:
-            add("gaming", 3, f"{int(info['duration'] // 60)} min long")
         phone, why = _phone_meta(path)
         # a vertical recording is a Short (Studio type "short", user 2026-10-23): no other type is ever filmed upright
-        if _vertical(path):
+        vertical = _vertical(path)
+        if vertical:
             add("short", 12, "vertical 9:16 recording")
             if info["duration"] <= 180:
                 add("short", 2, f"{int(info['duration'])} s long")
         if phone and media.layout_of(info) != "side-by-side":
             add("haul", 4, why)   # reviews / phone-app / gaming are all OBS side-by-side; a phone camera file is a haul
+        mirror = False
         if media.layout_of(info) == "side-by-side":
             # older hauls (#8-#21, the mulebuy / 15kg ones) were OBS side-by-side review-style recordings; the haul type is
             # the PHONE format (user 2026-10-23), so a side-by-side "haul" stays a review-pipeline video
             scores["haul"] -= 8
             reasons["haul"].append("OBS side-by-side (haul pipeline = phone recordings)")
             black = _right_half_black(path, info)
-            if black is not None and black >= 0.6:
+            mirror = black is not None and black >= 0.6
+            if mirror:
                 add("phone", 4, "phone mirror on the right")
-        try:
-            parts = _listen(path, info)
-        except Exception as e:  # noqa - no whisper -> still decide on the rest
-            parts = []
-            reasons["gaming"].append(f"(could not listen: {type(e).__name__})")
-        heard = " ".join(parts)
+        # the picture before the sound (user 2026-10-29: "clearly a gaming video", a Cobblemon clip where Minecraft is never
+        # said came back "other" after ~20 s of listening): the hotbar on screen = Minecraft
+        if not vertical and not mirror:
+            try:   # kept per file: the quick answer and the full check right after it ask the same question
+                hud = _HUD[k] if k in _HUD else _HUD.setdefault(k, _game_hud(path, info))
+            except Exception:  # noqa: never blocks the guess
+                hud = False
+        if hud:
+            add("gaming", 8, "Minecraft on screen (hotbar)")
+
+    def words(text):
         for t, rules in WORDS.items():
             for rx, pts, why in rules:
-                n = len(re.findall(rx, heard, re.I))
+                n = len(re.findall(rx, text, re.I))
                 if n:
                     add(t, pts + min(n - 1, 2), why)   # repeats count a little, never swamp the channel name
+
+    if quick:   # the picture-only answer New Project shows at once, while the full check listens
+        return _decide(path, info, dict(scores), {t: list(r) for t, r in reasons.items()}, "", name, s, hud, quick=True)
+    cam = {}   # the camera look (mediapipe, ~10 s on a 5K file) runs while Whisper listens, not after it
+    cam_t = None
+    # only when one of the user's own styles is tied to a camera layout (my_style): ~10 s on a 5K file for nothing otherwise
+    try:
+        import mystyle
+        need_cam = any((t.get("style") or {}).get("layout") for t in mystyle.list_types())
+    except Exception:  # noqa
+        need_cam = False
+    if info and info["duration"] and need_cam:
+        def look():
+            try:
+                cam["r"] = media.camera_layout(path, n=8, info=info)["camera"]
+            except Exception as e:  # noqa: never blocks the type guess
+                cam["err"] = f"{type(e).__name__}: {e}"[:200]
+        cam_t = threading.Thread(target=look, daemon=True)
+        cam_t.start()
+        base_scores, base_reasons = dict(scores), {t: list(r) for t, r in reasons.items()}
+        try:
+            mic = _mic_track(path, info)
+            heard = " ".join(_listen(path, info, ((0, 40),), best=mic))
+            words(heard)
+            # still a close call on a longer video: two 25 s samples further in (no extra listening for clear answers)
+            top2 = sorted(scores.values(), reverse=True)[:2]
+            if info["duration"] >= 150 and not hud and not vertical and (top2[0] < 5 or top2[0] - top2[1] < 4):
+                d = info["duration"]
+                heard = (heard + " " + " ".join(_listen(path, info, ((d * 0.4, 25), (d * 0.7, 25)), best=mic))).strip()
+                scores.update(base_scores)
+                for t in reasons:
+                    reasons[t] = list(base_reasons[t])
+                words(heard)
+        except Exception as e:  # noqa - no whisper -> still decide on the rest
+            reasons["gaming"].append(f"(could not listen: {type(e).__name__})")
+    out = _decide(path, info, scores, reasons, heard, name, s, hud)
+    # what the camera shows (media.camera_layout: 1cam / 2cam / screen_cam / vertical / no_face) and the user's own video
+    # types (my_style) that fit it, 2026-10-29
+    if info and info["duration"] and not need_cam:
+        try:
+            import mystyle
+            out["camera"], out["my_types"] = "unknown", mystyle.matches(out)
+        except Exception:  # noqa
+            pass
+    if cam_t:
+        cam_t.join()
+        try:
+            if "r" not in cam:
+                raise RuntimeError(cam.get("err", "no answer"))
+            out["camera"] = cam["r"]
+            import mystyle
+            out["my_types"] = mystyle.matches(out)
+        except Exception as e:  # noqa: never blocks the type guess
+            out["camera"], out["camera_error"] = "unknown", f"{type(e).__name__}: {e}"[:200]
+    c.setdefault(k, {})["detect"] = out
+    media._save_cache()
+    return out
+
+
+def _decide(path, info, scores, reasons, heard, name, s, hud, quick=False):
+    """scores + reasons so far -> the answer New Project shows. quick = picture / file signals only (nothing heard yet)."""
+    def add(t, pts, why):
+        scores[t] += pts
+        if why not in reasons[t]:
+            reasons[t].append(why)
+
+    # gaming only on a real gameplay signal (Minecraft said / in the name / on screen / the Minecraft Videos folder); then a
+    # 45+ min recording backs it up. Without one, server / mods / "hello youtube" talk stays a hint (max 2, below MIN_SCORE)
+    if hud or re.search(GAMEPLAY_RX, heard + " " + name, re.I) or "sits in Minecraft Videos" in reasons["gaming"]:
+        if info and info["duration"] >= 45 * 60:
+            add("gaming", 3, f"{int(info['duration'] // 60)} min long")
+    elif scores["gaming"] > 2:
+        scores["gaming"] = 2
+        reasons["gaming"].append("no Minecraft / gameplay signal")
 
     phone = bool(info and info["width"] and _phone_meta(path)[0])
     # weak haul talk alone ("next one") is not a haul (friend's "apple home lg" screen recording scored 1); a haul needs a
@@ -247,7 +412,7 @@ def detect(path, fresh=False):
     elif info and info["width"] and media.layout_of(info) != "side-by-side":
         add("haul", 4, "not the review side-by-side")
     ranked = sorted(scores, key=lambda t: -scores[t])
-    if phone and set(ranked[:2]) == {"haul", "review"} and scores[ranked[0]] - scores[ranked[1]] < 4:
+    if not quick and phone and set(ranked[:2]) == {"haul", "review"} and scores[ranked[0]] - scores[ranked[1]] < 4:
         k = _haul_check(path, info, heard)   # close call: the director looks at the frames
         if k:
             add(k, 3, f"AI look at the frames: {k}")
@@ -255,6 +420,13 @@ def detect(path, fresh=False):
     top, second = ranked[0], ranked[1]
     margin = scores[top] - scores[second]
     confidence = "high" if scores[top] >= 5 and margin >= 4 else "medium" if scores[top] >= 3 and margin >= 2 else "low"
+    single = bool(info and info["width"] and media.layout_of(info) == "single")
+    # nothing matched (top < MIN_SCORE) or a close call (low): the general type, never the first key (gaming). A plain 16:9
+    # talk with real speech and no creator signal IS the general type ("medium": one-click change); a side-by-side or a
+    # silent file is a real don't-know ("low": New Project asks with the type cards)
+    kind = GENERAL if scores[top] < MIN_SCORE or confidence == "low" else top
+    if scores[top] < MIN_SCORE:
+        confidence = "medium" if single and len(heard.strip()) >= 40 else "low"
     channel = CHANNEL[top]
     if top == "haul":   # the channel = the Raw Videos folder it sits in ("Raw Videos\{{REVIEW_CHANNEL}}\...") when known
         m = re.search(r"raw videos[\\/]+([^\\/]+)", path, re.I)
@@ -269,14 +441,22 @@ def detect(path, fresh=False):
     # every one of the user's own recordings is the 3840-wide OBS side-by-side (cam + screen); a plain 16:9 capture with
     # no cam (friend's "apple home lg", 1920x1080 website walkthrough, 2026-10-22) is a screen recording: full screen,
     # no cam box / phone layout. New Project ticks "Screen recording" from this.
-    # a phone camera file / haul is never a "screen recording" (the haul pipeline does its own full-frame edit)
-    screen = bool(info and info["width"] and media.layout_of(info) == "single") and top not in ("haul", "short") and not phone
-    out = {"v": VERSION, "screen": screen, "type": top if scores[top] > 0 else None, "confidence": confidence if scores[top] > 0 else "low",
-           "scores": scores, "reasons": reasons[top][:4], "channel": channel,
-           "title": title_from(heard), "heard": heard[:300]}
-    c.setdefault(k, {})["detect"] = out
-    media._save_cache()
-    return out
+    # a phone camera file / haul is never a "screen recording" (the haul pipeline does its own full-frame edit); a full-screen
+    # Minecraft capture is gameplay, not a screen recording
+    screen = single and (kind == GENERAL or top not in ("haul", "short", "gaming")) and not phone
+    if kind == GENERAL:
+        why = ["no channel name, Minecraft or product / app words heard" if scores[top] < MIN_SCORE else
+               f"close call: {top} {scores[top]} vs {second} {scores[second]}"]
+        why += ["plain 16:9 picture" if single else "OBS side-by-side" if info and media.layout_of(info) == "side-by-side" else ""]
+        why += [] if heard.strip() or quick else ["no speech found in the samples"]
+        out_reasons, channel = [w for w in why if w], ""
+    else:
+        out_reasons = reasons[top][:4]
+    # guess = the closest creator type when it fell back to general (New Project marks that card "closest match")
+    return {"v": VERSION, "screen": screen, "type": kind, "confidence": confidence, "quick": quick,
+            "guess": top if kind == GENERAL and scores[top] > 0 else None,
+            "scores": scores, "reasons": out_reasons, "channel": channel,
+            "title": title_from(heard), "heard": heard[:300]}
 
 
 if __name__ == "__main__":

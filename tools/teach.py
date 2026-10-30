@@ -1,7 +1,8 @@
 """Teach the pipeline brain (Claude) to reason like the senior editor (2026-10-22).
 
 Fine-tuning isn't possible, so it's taught the way a new editor is: a written playbook (teach/playbook.md) plus worked
-examples of approved decisions (teach/examples/<task>/*.json), which claude_brain puts in front of every prompt
+examples of approved decisions (<kit>/my_style/examples/<task>/*.json, kept by every update; kits before v4 kept them in
+teach/examples, copied over on first run), which claude_brain puts in front of every prompt
 (newest examples first, examples_per_prompt in brain.json).
 
     python teach.py add <task> [--from <cache file>|latest] [--answer <json>] --title "..." --lesson "..."
@@ -18,11 +19,15 @@ import glob
 import json
 import os
 import re
+import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CACHE = os.path.join(HERE, "_state", "claude_cache")
-EX = os.path.join(HERE, "teach", "examples")
+sys.path.insert(0, HERE)
+import claude_brain  # noqa: E402
+EX = claude_brain.EXAMPLES   # <kit>/my_style/examples: kept by every update
+claude_brain.migrate_examples()
 
 
 def latest(task):
