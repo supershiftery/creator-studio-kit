@@ -13,6 +13,7 @@ import webbrowser
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import no_console_flash  # noqa: E402,F401  # hides every console window the jobs below start (pythonw: no console of its own)
 import server  # noqa: E402
 import store  # noqa: E402
 

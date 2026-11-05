@@ -13,6 +13,7 @@ Progress: status.json next to request.json (the wizard polls it). Without Claude
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -37,7 +38,12 @@ MOODS = ("chill", "upbeat", "hype", "dark", "cinematic", "lo-fi")
 def status(step, pct, **kw):
     print(f"[{pct:3.0f}%] {step}", flush=True)
     if WORK:
-        mystyle._write(WORK / "status.json", {"state": kw.pop("state", "running"), "step": step, "pct": round(pct), **kw})
+        done = kw.get("state") in ("done", "failed")
+        try:
+            mystyle._write(WORK / "status.json", {"state": kw.pop("state", "running"), "step": step, "pct": round(pct), **kw})
+        except OSError:   # a progress line is never worth losing the training for; the last one has to arrive
+            if done:
+                raise
 
 
 def run(cmd, **kw):
@@ -223,6 +229,10 @@ def ask_claude(name, base, measured, raw_m, sheets, extra=""):
                            extra=extra, keys="; ".join(f"{k} = {v}" for k, v in mystyle.SETTING_KEYS.items()),
                            cats=json.dumps(list(mystyle.CATEGORIES)),
                            presets=json.dumps(PRESETS or ["bold", "karaoke", "minimal"]), moods=json.dumps(list(MOODS)))
+    if base == "auto" or name == "their own style":
+        prompt += ('\n\nThey did not say what kind of videos these are. Add to the JSON: "base": one of ' + json.dumps(list(mystyle.BASES)) +
+                   " (" + "; ".join(f"{k} = {v}" for k, v in mystyle.BASE_LABELS.items()) + '; gaming only for gameplay with a voice over it; '
+                   'talking when unsure), and "name": a short plain name for this style, 2-4 words, e.g. "Calm tech reviews".')
     prompt += "\n\nFrame sheets:\n" + "\n".join(f"- {s}" for s in sheets)
     cmd = [chat.claude_exe(), "-p", prompt, "--model", chat.MODEL, "--output-format", "json", "--max-turns", str(4 + len(sheets) * 2),
            "--no-session-persistence", "--tools", "Read", "--allowedTools", "Read", "--setting-sources", "", "--strict-mcp-config",
@@ -310,11 +320,60 @@ def fallback_playbook(st):
     return "\n".join(lines)
 
 
+def fetch_links(links, room):
+    """YouTube / TikTok / Instagram links (a video, a playlist, a channel) -> up to `room` local copies of the first 8 minutes in
+    720p, only to measure and look at; deleted again when training ends. Returns (paths, a name for the style, problems)."""
+    import creator_tools
+    dl, paths, name, errs = WORK / "dl", [], "", []
+    dl.mkdir(exist_ok=True)
+    for url in links:
+        if len(paths) >= room:
+            break
+        if re.search(r"youtube\.com/(@[^/]+|c/[^/]+|channel/[^/]+|user/[^/]+)/?(\?|$)", url):
+            url = url.split("?")[0].rstrip("/") + "/videos"   # a channel's front page holds shelves, not its videos
+        status(f"getting your examples ({len(paths)} of {room})", 1)
+        r = subprocess.run(creator_tools._ytdlp() + [
+            "--encoding", "utf-8", "--no-warnings", "--no-progress", "--ignore-errors", "--windows-filenames", "--yes-playlist",
+            "--playlist-items", f"1:{room - len(paths)}", "-S", "res:720,vcodec:h264,acodec:aac", "--merge-output-format", "mp4",
+            "--download-sections", "*0:00-8:00", "-P", str(dl), "-o", "%(autonumber)s-%(id)s.%(ext)s", "--print", "after_move:FILE %(filepath)s",
+            "--print", "before_dl:NAME %(playlist_title)s|%(uploader)s", url],
+            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=1800, creationflags=CREATE_NO_WINDOW,
+            stdin=subprocess.DEVNULL)
+        got = 0
+        for line in r.stdout.splitlines():
+            if line.startswith("FILE ") and os.path.isfile(line[5:]):
+                paths.append(line[5:])
+                got += 1
+            elif line.startswith("NAME ") and not name:
+                pl, up = (line[5:].split("|") + [""])[:2]
+                name = next((x for x in (up, pl) if x and x != "NA"), "")
+        if not got:
+            errs.append(f"{url}: " + ((r.stderr or "").strip().splitlines() or ["couldn't download it"])[-1][:160])
+    return paths, name, errs
+
+
+def pick_base(look, measured):
+    """what the videos are closest to: Claude saw them; without Claude only vertical is sure, the rest is the plain trim (gaming
+    and review add graphics and camera moves that a wrong guess would put on the wrong video)"""
+    b = (look or {}).get("base")
+    if b in mystyle.BASES:
+        return b
+    layouts = Counter(m.get("layout") for m in measured)
+    return "short" if layouts and layouts.most_common(1)[0][0] == "vertical" else "talking"
+
+
 def main():
     import project_import
     req = json.loads((WORK / "request.json").read_text(encoding="utf-8"))
     items = req.get("items") or [{"path": p, "kind": "finished"} for p in req.get("examples") or []] + \
         ([{"path": req["raw"], "kind": "raw"}] if req.get("raw") else [])
+    auto_base, link_name, link_errs = req["base"] == "auto", "", []
+    if req.get("links"):
+        room = max(1, 5 - len([i for i in items if i["kind"] == "finished"]))
+        got, link_name, link_errs = fetch_links(req["links"], room)
+        items = items + [{"path": x, "kind": "finished"} for x in got]
+        if not items and not (req.get("wishes") or "").strip():
+            raise RuntimeError("couldn't get those links. " + "; ".join(link_errs)[:300])
     fin = [i for i in items if i["kind"] == "finished"]
     raws = [i for i in items if i["kind"] == "raw"][:1]
     refs = [i for i in items if i["kind"] == "reference"][:4]
@@ -362,11 +421,16 @@ def main():
     if measured or extra:
         status("Claude is looking at everything", 76)
         try:
-            look = ask_claude(req["name"], req["base"], measured, raw_m, sheets, "\n".join(extra) + ("\n" if extra else ""))
+            look = ask_claude(req["name"] or "their own style", req["base"], measured, raw_m, sheets, "\n".join(extra) + ("\n" if extra else ""))
         except Exception as e:  # noqa: the numbers still make a type
             print("claude look failed:", type(e).__name__, e)
     status("writing your style", 95)
     st = build_style(measured, raw_m, look, projects)
+    if auto_base and not req.get("slug"):
+        req["base"] = pick_base(look, measured)
+    if not req.get("name"):
+        first = next((Path(i["path"]).stem for i in items if not i.get("from_project") and "dl" not in Path(i["path"]).parts[-2:-1]), "")
+        req["name"] = ((look or {}).get("name") or (f"{link_name} style" if link_name else "") or (f"{first[:40]} style" if first else "My style")).strip()[:60]
     pb = (look or {}).get("playbook") or fallback_playbook(st)
     if req.get("slug"):   # teach an existing type more: new numbers replace the old, rules and pieces are added
         t = mystyle.load_type(req["slug"])
@@ -402,7 +466,8 @@ def main():
                                          "category": r.get("category") if r.get("category") in mystyle.CATEGORIES else "other",
                                          "settings": {k: v for k, v in (r.get("settings") or {}).items() if k in mystyle.SETTING_KEYS},
                                          "how": "trained"})
-    status("done", 100, state="done", slug=t["slug"], claude=bool(look))
+    shutil.rmtree(WORK / "dl", ignore_errors=True)
+    status("done", 100, state="done", slug=t["slug"], name=t["name"], claude=bool(look), link_errors=link_errs)
 
 
 if __name__ == "__main__":
@@ -411,5 +476,6 @@ if __name__ == "__main__":
     except Exception as e:
         import traceback
         traceback.print_exc()
+        shutil.rmtree(WORK / "dl", ignore_errors=True)
         status(f"failed: {type(e).__name__}: {e}", 100, state="failed")
         sys.exit(1)

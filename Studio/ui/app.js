@@ -84,11 +84,26 @@ async function refresh(keep) {
   renderSideJobs();
   if (!keep) render();
 }
+// every page change goes in the window history, so the mouse back/forward buttons (and Alt+Left/Right) move between
+// pages (user 2026-10-30). NAV_POP: the change came FROM the history, don't add it again.
+let NAV_POP = false;
 function nav(view, pid) {
+  const same = S.view === view && S.pid === (pid || null);
   S.view = view; S.pid = pid || null;
+  if (!NAV_POP && !same) try { history.pushState({ view, pid: S.pid }, ""); } catch (e) { }
   $$("nav a").forEach(a => a.classList.toggle("active", a.dataset.view === view));
   render();
 }
+window.addEventListener("popstate", e => {
+  const st = e.state; if (!st || !st.view) return;
+  NAV_POP = true; try { nav(st.view, st.pid); } finally { NAV_POP = false; }   // nav = the latest wrapper (app9)
+});
+// side buttons: WebView2 does not always turn them into back/forward, so do it here (preventDefault stops a double step)
+window.addEventListener("mouseup", e => {
+  if (e.button !== 3 && e.button !== 4) return;
+  e.preventDefault(); e.button === 3 ? history.back() : history.forward();
+});
+try { history.replaceState({ view: S.view, pid: S.pid }, ""); } catch (e) { }
 async function render() {
   const main = $("#main");
   if (S.view === "dashboard") { main.innerHTML = viewDashboard(); loadHub(); loadTodo($("#todo-card"), false); enhanceDashboard(); }

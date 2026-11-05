@@ -4,6 +4,7 @@ Drive finished videos, recordings not yet in a project, VO takes, intro template
 import json
 import os
 import re
+import threading
 import time
 from pathlib import Path
 
@@ -118,8 +119,20 @@ def drive_recent(n=12):
     return {"ok": True, "root": str(root), "files": out[:n], "total": len(out)}
 
 
+_REC = {"t": 0, "key": None, "out": None}
+
+
 def unassigned_recordings(docs, n=12):
     used = {(d.get("source") or "").lower() for d in docs}
+    # the folder walk is ~0.2 s (stat per file): reuse it for 20 s unless a project took a recording (speed pass 2026-10-29)
+    key = (frozenset(used), n)
+    if _REC["key"] == key and time.time() - _REC["t"] < 20:
+        return _REC["out"]
+    _REC.update(t=time.time(), key=key, out=_unassigned(used, n))
+    return _REC["out"]
+
+
+def _unassigned(used, n):
     s = store.settings()
     out = []
     for r in s["recordings"]:
@@ -175,17 +188,33 @@ def music():
     return out
 
 
+def _gather():
+    data = {}
+    for k, fn in (("competitors", competitors), ("library", library), ("realms", realms), ("watchers", watchers), ("drive", drive_recent),
+                  ("vo", vo_recent), ("intros", intros), ("music", music)):
+        try:
+            data[k] = fn()
+        except Exception as e:  # noqa
+            data[k] = {"error": str(e)}
+    _cache.update(t=time.time(), data=data)
+    return data
+
+
 def snapshot(docs, max_age=60):
     if _cache["data"] and time.time() - _cache["t"] < max_age:
         data = dict(_cache["data"])
+    elif _cache["data"] and max_age > 0:   # stale: last numbers now, new ones in the background (speed pass 2026-10-29)
+        if not _cache.get("bg"):
+            _cache["bg"] = True
+
+            def bg():
+                try:
+                    _gather()
+                finally:
+                    _cache["bg"] = False
+            threading.Thread(target=bg, name="hub-refresh", daemon=True).start()
+        data = dict(_cache["data"])
     else:
-        data = {}
-        for k, fn in (("competitors", competitors), ("library", library), ("realms", realms), ("watchers", watchers), ("drive", drive_recent),
-                      ("vo", vo_recent), ("intros", intros), ("music", music)):
-            try:
-                data[k] = fn()
-            except Exception as e:  # noqa
-                data[k] = {"error": str(e)}
-        _cache.update(t=time.time(), data=data)
+        data = dict(_gather())
     data["recordings"] = unassigned_recordings(docs)
     return data

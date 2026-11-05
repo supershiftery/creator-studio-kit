@@ -15,7 +15,7 @@ cuts Shorts. It is editing software only: projects in, edited videos out (no thu
    **Creator Studio** shortcut on your Desktop. Then the **Studio opens with a setup window** that walks you through the rest,
    one question per screen (about 3 minutes):
    - **Check your PC**: FFmpeg, Node.js, Claude Code and your Claude sign-in. Anything missing has a fix button (signing in opens
-     a small Claude window: approve it in the browser, then click "Check again").
+     your browser: press Authorize and the Studio notices by itself).
    - **Your recordings**: the folder your recorder saves to (it shows the folders it found with videos in them).
    - **Your projects**: where edits and drafts go (it suggests the drive with the most free space).
    - **Your music**: a mood library, and it can find the music already on your PC and sort it for you.

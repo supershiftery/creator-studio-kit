@@ -42,7 +42,7 @@ function myCard() {
     const h = main.querySelector("h1"); (h && h.nextElementSibling ? h.nextElementSibling : h || main).after(c);
   }
   c.dataset.sig = sig;
-  c.innerHTML = `<div class="row" style="justify-content:space-between"><h2 style="margin:0">Train your style</h2><button class="primary" id="my-new">＋ Train a new style</button></div>
+  c.innerHTML = `<div class="row" style="justify-content:space-between"><h2 style="margin:0">Train your style</h2><button class="primary" id="my-new">＋ Make a video type from examples</button></div>
     <p class="small">Show the Studio how <b>your</b> videos look and it edits the same way. Then every note you give on a video teaches it a bit more. Updates never erase what it learned.</p>
     <div class="list">${MY.types.map(t => `<div class="item my-row" data-slug="${esc(t.slug)}" style="cursor:pointer"><span class="t"><b>✨ ${esc(t.name)}</b> <span class="muted tiny">${esc(myStyleLine(t))}</span></span><span class="pill">${(t.rules || []).length} learned</span></div>`).join("") || `<span class="muted small">No styles yet. Train one in about a minute.</span>`}</div>`;
   $("#my-new", c).onclick = () => myTrain();
@@ -92,24 +92,46 @@ async function myTypeModal(slug) {
 }
 
 // ---------------------------------------------------------------- Train (new style, or teach an existing one more)
-function myTrain(existing) {
-  const items = [], past = new Set();
-  let base = existing ? existing.base : "talking", pastList = null;
-  const m = modal(`<h2>${existing ? `Teach “${esc(existing.name)}” more` : "Train a new style"}</h2>
-    ${existing ? "" : `<div class="field"><label>1 · Name it</label><input id="my-name" placeholder="e.g. Sunday message, Tech unboxing, Car vlog"></div>
-    <div class="field"><label>2 · Your videos are closest to…</label><div class="row" style="flex-wrap:wrap;gap:6px">${Object.entries(MY.bases).map(([k, v]) => `<button type="button" class="sm my-base ${k === base ? "primary" : ""}" data-b="${esc(k)}" title="${esc(MY_BASE_HINT[k] || "")}">${esc(v)}</button>`).join("")}</div><div class="muted tiny" id="my-base-hint">${esc(MY_BASE_HINT[base])}</div></div>`}
-    <div class="field"><label>${existing ? "1" : "3"} · Show it how you edit</label>
-      <div id="my-drop" style="border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;cursor:pointer">
-        <b>Drop anything here</b> or click to choose<div class="muted small" style="margin-top:4px">finished videos you like · a raw recording · a project from Premiere, CapCut, Filmora, DaVinci Resolve, Vegas, Kdenlive or Shotcut · a clip with a feature you want · your logo or intro</div></div>
-      <div class="list" id="my-items" style="margin-top:8px"></div>
-      <a id="my-past-open" class="small">or pick videos you already made in the Studio (their notes are learned too) ▸</a><div id="my-past" class="list" style="display:none;max-height:220px;overflow:auto;margin-top:6px"></div></div>
-    <div class="field"><label>${existing ? "2" : "4"} · Anything it should always do? <span class="muted tiny">(optional, in your own words)</span></label>
-      <textarea id="my-wish" rows="3" style="width:100%" placeholder="e.g. Keep it calm. Captions always on. No flashy transitions."></textarea></div>
-    <details><summary class="small">Start every video with a text card (a verse, a quote, a message)</summary>
-      <textarea id="my-open" rows="3" style="width:100%;margin-top:6px" placeholder="e.g. For God so loved the world… - John 3:16"></textarea></details>
+// 2026-11-04 testers don't know what type of video to pick: one box (links or files), the Studio works out the type and the name.
+// opts.onDone(slug): New Project comes back with the new style picked
+function myTrain(existing, opts = {}) {
+  const items = [], past = new Set(), links = [];
+  let base = existing ? existing.base : "auto", pastList = null;
+  const bases = { auto: "Work it out for me", ...MY.bases };
+  const m = modal(`<h2>${existing ? `Teach “${esc(existing.name)}” more` : "Show it how your videos should look"}</h2>
+    <p class="small">Give it examples you like. It studies them and makes a video type just for you. No settings to pick.</p>
+    <div class="field"><label for="my-link">Paste a link <span class="muted tiny">(a YouTube playlist, channel or video, a TikTok, an Instagram reel)</span></label>
+      <div class="row" style="gap:8px"><input id="my-link" class="grow" placeholder="https://www.youtube.com/playlist?list=…"><button id="my-link-add">Add</button></div></div>
+    <div class="field"><label>and / or add files</label>
+      <div id="my-drop" tabindex="0" style="border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;cursor:pointer">
+        <b>Drop files here</b> or click to choose<div class="muted small" style="margin-top:4px">videos · XML, FCPXML or EDL · projects from Premiere, CapCut, Filmora, Kdenlive or Shotcut · your logo or intro</div></div></div>
+    <div class="list" id="my-links"></div><div class="list" id="my-items" style="margin-top:6px"></div>
+    <details style="margin-top:10px"><summary class="small">More options (not needed)</summary>
+      ${existing ? "" : `<div class="field" style="margin-top:8px"><label for="my-name">Name <span class="muted tiny">(blank = it names it)</span></label><input id="my-name" placeholder="e.g. Sunday message, Car vlog"></div>
+      <div class="field"><label for="my-base">These videos are closest to</label><select id="my-base">${Object.entries(bases).map(([k, v]) => `<option value="${esc(k)}" ${k === base ? "selected" : ""}>${esc(v)}</option>`).join("")}</select></div>`}
+      <div class="field" style="margin-top:8px"><label for="my-wish">Anything it should always do?</label><textarea id="my-wish" rows="2" style="width:100%" placeholder="e.g. Keep it calm. Captions always on. No flashy transitions."></textarea></div>
+      <div class="field"><label for="my-open">Start every video with a text card (a verse, a quote, a message)</label><textarea id="my-open" rows="2" style="width:100%" placeholder="e.g. For God so loved the world… - John 3:16"></textarea></div>
+      <a id="my-past-open" class="small">Learn from videos you already made in the Studio ▸</a><div id="my-past" class="list" style="display:none;max-height:220px;overflow:auto;margin-top:6px"></div></details>
     <div id="my-prog" style="display:none;margin-top:10px" class="small"></div>
-    <div class="row" style="justify-content:flex-end;margin-top:14px"><button id="my-cancel">Cancel</button><button class="primary" id="my-go">${existing ? "Teach it" : "Start training"}</button></div>`, "wide");
-  $$(".my-base", m).forEach(b => b.onclick = () => { base = b.dataset.b; $$(".my-base", m).forEach(x => x.classList.toggle("primary", x === b)); $("#my-base-hint", m).textContent = MY_BASE_HINT[base] || ""; });
+    <div class="row" style="justify-content:flex-end;margin-top:14px"><button id="my-cancel">Cancel</button><button class="primary big" id="my-go">${existing ? "Teach it" : "Make my video type"}</button></div>`, "wide");
+  if ($("#my-base", m)) $("#my-base", m).onchange = e => { base = e.target.value; };
+  const drawLinks = () => {
+    $("#my-links", m).innerHTML = links.map((l, i) => `<div class="item"><span class="t">🔗 ${esc(l.title || l.url)} <span class="muted tiny">${l.list ? `studies the first ${Math.min(5, l.count)} of ${l.count} videos` : "one video"}</span></span><button class="sm" data-lx="${i}" aria-label="Remove">✕</button></div>`).join("");
+    $$("[data-lx]", m).forEach(b => b.onclick = () => { links.splice(+b.dataset.lx, 1); drawLinks(); });
+  };
+  const addLink = async () => {
+    const inp = $("#my-link", m), url = inp.value.trim(), btn = $("#my-link-add", m); if (!url) return;
+    if (links.some(l => l.url === url)) { inp.value = ""; return; }
+    btn.disabled = true; btn.textContent = "Checking…";
+    try {
+      const r = await api("tools/dl-probe?url=" + enc(url));
+      links.push({ url, title: r.playlist ? r.title : "", list: !!r.playlist, count: r.playlist ? r.entries.length : 1 });
+      inp.value = ""; drawLinks();
+    } catch (e) { toast(e.message, "bad"); }
+    btn.disabled = false; btn.textContent = "Add";
+  };
+  $("#my-link-add", m).onclick = addLink;
+  $("#my-link", m).onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); addLink(); } };
   const short = p => String(p).split(/[\\/]/).pop();
   const draw = () => {
     $("#my-items", m).innerHTML = items.map((it, i) => `<div class="item" style="flex-wrap:wrap"><span class="t">${esc(short(it.path))}</span>
@@ -132,6 +154,7 @@ function myTrain(existing) {
   };
   const dz = $("#my-drop", m);
   dz.onclick = async () => add(await pickFiles("any", true));
+  dz.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); dz.click(); } };
   dz.ondragover = e => { e.preventDefault(); dz.style.borderColor = "var(--accent, #3ec6ff)"; };
   dz.ondragleave = () => { dz.style.borderColor = ""; };
   dz.ondrop = e => { e.preventDefault(); dz.style.borderColor = ""; add(dropPaths(e)); };
@@ -143,24 +166,29 @@ function myTrain(existing) {
     el.innerHTML = pastList.map(p => `<label class="item" style="cursor:pointer"><input type="checkbox" data-pid="${esc(p.id)}"> <span class="t">${esc(p.title)} <span class="muted tiny">${esc(p.kind || "")}${p.notes ? ` · ${p.notes} note(s)` : ""}</span></span></label>`).join("") || `<span class="muted small">No finished videos in the Studio yet.</span>`;
     $$("[data-pid]", el).forEach(c => c.onchange = () => c.checked ? past.add(c.dataset.pid) : past.delete(c.dataset.pid));
   };
-  $("#my-cancel", m).onclick = () => { clearInterval(MY.poll); closeModal(); };
+  $("#my-cancel", m).onclick = () => { closeModal(); if (opts.onCancel) opts.onCancel(); };
   $("#my-go", m).onclick = async () => {
     const name = existing ? existing.name : $("#my-name", m).value.trim();
-    if (!name) return toast("Give your style a name", "bad");
+    if ($("#my-link", m).value.trim()) await addLink();
     const wishes = $("#my-wish", m).value.trim(), opening_text = $("#my-open", m).value.trim();
-    if (!items.length && !past.size && !wishes && !opening_text) return toast("Give it something to learn from: drop a video or a project, pick a past video, or write what it should do", "bad");
-    const b = $("#my-go", m); b.disabled = true; b.textContent = "Training…";
+    if (!items.length && !links.length && !past.size && !wishes && !opening_text) return toast("Give it something to learn from: paste a link or drop a video or project file", "bad");
+    const b = $("#my-go", m), again = existing ? "Teach it" : "Make my video type"; b.disabled = true; b.textContent = "Studying…";
     try {
-      const r = await api("mystyle/wizard", { name, base, items, past: [...past], wishes, opening_text, slug: existing ? existing.slug : "" });
+      const r = await api("mystyle/wizard", { name, base, items, links: links.map(l => l.url), past: [...past], wishes, opening_text, slug: existing ? existing.slug : "" });
       const pr = $("#my-prog", m); pr.style.display = "";
       clearInterval(MY.poll);
       MY.poll = setInterval(async () => {
         let s; try { s = await api("mystyle/wizard?job=" + enc(r.job)); } catch (e) { return; }
-        pr.innerHTML = `<div class="row"><span class="spin"></span><span>${esc(s.step)}</span><span class="muted">${s.pct || 0}%</span></div><div class="muted tiny">You can close this window: training keeps going.</div>`;
-        if (s.state === "done") { clearInterval(MY.poll); toast(`“${name}” is trained${s.claude ? "" : " (Claude wasn't reachable: it learned from the numbers only)"}`, "ok"); await myLoad(); myTypeModal(s.slug); }
-        else if (s.state === "failed") { clearInterval(MY.poll); toast(s.step, "bad"); b.disabled = false; b.textContent = existing ? "Teach it" : "Start training"; }
+        pr.innerHTML = `<div class="row"><span class="spin"></span><span>${esc(s.step)}</span><span class="muted">${s.pct || 0}%</span></div><div class="muted tiny">This takes a few minutes. You can close this window: it keeps going.</div>`;
+        if (s.state === "done") {
+          clearInterval(MY.poll); await myLoad();
+          toast(`“${s.name || name}” is ready${s.claude ? "" : " (Claude wasn't reachable: it learned from the numbers only)"}${(s.link_errors || []).length ? `. ${s.link_errors.length} link(s) couldn't be read` : ""}`, "ok");
+          if (!pr.isConnected) return;   // they closed it and moved on: don't pop anything over what they're doing
+          opts.onDone ? opts.onDone(s.slug) : myTypeModal(s.slug);
+        }
+        else if (s.state === "failed") { clearInterval(MY.poll); toast(s.step, "bad"); b.disabled = false; b.textContent = again; }
       }, 2000);
-    } catch (e) { toast(e.message, "bad"); b.disabled = false; b.textContent = existing ? "Teach it" : "Start training"; }
+    } catch (e) { toast(e.message, "bad"); b.disabled = false; b.textContent = again; }
   };
 }
 

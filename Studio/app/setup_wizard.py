@@ -11,6 +11,7 @@ Fixes (FFmpeg, Python packages, Node, Claude Code) run hidden, one at a time; si
 import importlib.util
 import json
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -27,6 +28,7 @@ SETUP = KIT / "setup"
 ANSWERS = SETUP / "answers.json"
 NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 NEW_CONSOLE = 0x00000010 if sys.platform == "win32" else 0
+NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 DETACHED = 0x00000008 if sys.platform == "win32" else 0
 TOKEN = "{{" + "KIT" + "}}"   # split, so configure.py never fills this file's own check in
 VIDEO_EXT = {".mp4", ".mov", ".mkv", ".m4v", ".avi", ".webm"}
@@ -42,6 +44,8 @@ FINISH_PROMPT = ("Read MASTER PROMPT.md in this folder and follow everything und
                  "'Then adapt the kit to me'.")
 _fix = {"name": "", "proc": None, "log": None, "ok": None, "msg": ""}
 _gpu = {"v": None}
+_auth_memo = {"t": 0, "v": None}
+_signin = {"proc": None, "state": "idle", "url": "", "msg": "", "out": [], "email": ""}
 
 
 # ------------------------------------------------------------------------------------------------ helpers
@@ -78,7 +82,28 @@ def _which(cmd):
     return shutil.which(cmd) or (str(_home() / ".local" / "bin" / f"{cmd}.exe") if (_home() / ".local" / "bin" / f"{cmd}.exe").exists() else None)
 
 
-def _signed_in():
+def _auth():
+    """Claude Code's own answer ({"loggedIn", "email", ...}). Asking it beats looking for its files: a leftover file from an
+    old sign-in used to count as signed in. An old Claude Code without `auth status` falls back to the files."""
+    now = time.time()
+    if now - _auth_memo["t"] < 3:
+        return _auth_memo["v"]
+    v = None
+    exe = _which("claude")
+    if exe:
+        try:
+            r = subprocess.run([exe, "auth", "status", "--json"], capture_output=True, text=True, encoding="utf-8", errors="replace",
+                               timeout=20, creationflags=NO_WINDOW, stdin=subprocess.DEVNULL)
+            v = json.loads(r.stdout)
+        except (OSError, ValueError, subprocess.TimeoutExpired):
+            v = None
+    if not isinstance(v, dict) or "loggedIn" not in v:
+        v = {"loggedIn": _signed_in_files()}
+    _auth_memo.update(t=now, v=v)
+    return v
+
+
+def _signed_in_files():
     if os.environ.get("ANTHROPIC_API_KEY"):
         return True
     if (_home() / ".claude" / ".credentials.json").exists():
@@ -87,6 +112,144 @@ def _signed_in():
         return bool(json.loads((_home() / ".claude.json").read_text(encoding="utf-8")).get("oauthAccount"))
     except (OSError, ValueError):
         return False
+
+
+def _signed_in():
+    return bool(_auth().get("loggedIn"))
+
+
+# ------------------------------------------------------------------------------------------------ Claude sign-in
+# 2026-11-04, a tester could not sign in: the button opened Claude's whole first-run screen in a black window (theme, login menu,
+# trust question) and left them to find their way. Now the wizard runs `claude auth login` itself with no window: the browser opens,
+# they click Authorize, and this notices by itself. A sign-in link + a box for the code are there when the browser doesn't open.
+# Signed in is then proved with one tiny real question, so an account with no paid plan says so here and not on the first build.
+PLAN_MSG = "You're signed in, but this Claude account can't use Claude Code. It needs a Pro or Max plan: upgrade at claude.ai, or use another account."
+
+
+def _signin_set(**kw):
+    _signin.update(kw)
+
+
+def _prove_claude(exe):
+    """one tiny real question: (works, what to tell them)"""
+    try:
+        r = subprocess.run([exe, "-p", "Reply with the word OK", "--model", "haiku", "--max-turns", "1", "--no-session-persistence",
+                            "--tools", "", "--setting-sources", "", "--strict-mcp-config", "--disable-slash-commands", "--output-format", "json"], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=90,
+                           creationflags=NO_WINDOW, stdin=subprocess.DEVNULL, cwd=str(KIT))
+    except subprocess.TimeoutExpired:
+        return True, ""   # slow is not "can't": the first build will tell
+    except OSError as e:
+        return False, f"Couldn't start Claude: {e}"
+    try:
+        d = json.loads(r.stdout)
+        text, bad = str(d.get("result") or ""), bool(d.get("is_error"))
+    except ValueError:
+        text, bad = (r.stdout or r.stderr or "").strip(), r.returncode != 0
+    if not bad:
+        return True, ""
+    if re.search(r"subscription|upgrade|plan|credit|billing|access", text, re.I):
+        return False, PLAN_MSG
+    return False, "Claude answered with a problem: " + text[-200:]
+
+
+def _signin_watch(p, exe):
+    t0 = time.time()
+    while time.time() - t0 < 900:
+        if p is not _signin.get("proc"):
+            return   # cancelled or started again
+        _auth_memo["t"] = 0
+        if _signed_in():
+            break
+        if p.poll() is not None:
+            time.sleep(1)
+            _auth_memo["t"] = 0
+            if _signed_in():
+                break
+            if not _signin["url"]:   # a Claude Code too old for `auth login`: its own first-run screen is the only way
+                subprocess.Popen([exe], cwd=str(KIT), creationflags=NEW_CONSOLE)
+                return _signin_set(state="window", msg="Sign in in the window that opened. This page turns green by itself.")
+            return _signin_set(state="failed", msg=("".join(_signin["out"]).strip().splitlines() or ["Sign-in stopped."])[-1][:200])
+        time.sleep(2)
+    else:
+        try:
+            p.kill()
+        except OSError:
+            pass
+        return _signin_set(state="failed", msg="Sign-in timed out. Try again.")
+    _signin_set(state="checking", msg="")
+    ok, msg = _prove_claude(exe)
+    _signin_set(state="ok" if ok else "failed", msg=msg, email=_auth().get("email") or "")
+
+
+def signin_start(switch=False):
+    refresh_path()
+    exe = _which("claude")
+    if not exe:
+        return {"ok": False, "msg": "Install Claude Code first."}
+    signin_cancel()
+    if switch:
+        subprocess.run([exe, "auth", "logout"], capture_output=True, timeout=30, creationflags=NO_WINDOW, stdin=subprocess.DEVNULL)
+    _auth_memo["t"] = 0
+    p = subprocess.Popen([exe, "auth", "login", "--claudeai"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                         creationflags=NO_WINDOW, cwd=str(KIT))
+    _signin_set(proc=p, state="waiting", url="", msg="", out=[], email="")
+
+    def read():
+        buf = b""
+        while True:
+            c = p.stdout.read(1)
+            if not c:
+                return
+            buf += c
+            if c in b"\n> ":
+                t = buf.decode("utf-8", "replace")
+                if p is _signin.get("proc"):
+                    _signin["out"] = (_signin["out"] + [t])[-40:]
+                    m = re.search(r"https://\S+", "".join(_signin["out"]))
+                    if m and c in b"\n":
+                        _signin["url"] = m.group(0)
+                    if re.search(r"invalid code", "".join(_signin["out"][-6:]), re.I):
+                        _signin["msg"] = "That code didn't work. Copy the whole code from the page and try again."
+                buf = b""
+    threading.Thread(target=read, daemon=True).start()
+    threading.Thread(target=_signin_watch, args=(p, exe), daemon=True).start()
+    return {"ok": True}
+
+
+def signin_cancel():
+    p = _signin.get("proc")
+    _signin_set(proc=None, state="idle", msg="")
+    if p and p.poll() is None:
+        try:
+            p.kill()
+        except OSError:
+            pass
+
+
+def api_signin(q, body):
+    if q is not None and not body:   # GET: where it stands
+        return {k: _signin.get(k) for k in ("state", "url", "msg", "email")}
+    act = body.get("action")
+    if act == "start":
+        return signin_start()
+    if act == "switch":
+        return signin_start(switch=True)
+    if act == "cancel":
+        signin_cancel()
+        return {"ok": True}
+    if act == "open":
+        if _signin.get("url"):
+            os.startfile(_signin["url"])  # noqa
+        return {"ok": bool(_signin.get("url"))}
+    if act == "code":
+        p, code = _signin.get("proc"), (body.get("code") or "").strip()
+        if not (p and p.poll() is None and code):
+            return {"ok": False, "msg": "Press Sign in first."}
+        _signin.update(msg="", out=[])
+        p.stdin.write((code + "\n").encode())
+        p.stdin.flush()
+        return {"ok": True}
+    return {"ok": False, "msg": "Unknown action."}
 
 
 def _hyperframes():
@@ -250,7 +413,8 @@ def checks():
          "detail": "Installed." if claude else "Not found. Claude plans intros, checks drafts and makes your notes happen.",
          "fix": "" if claude else "Install Claude Code"},
         {"id": "signin", "label": "Signed in to Claude", "ok": bool(claude) and _signed_in(),
-         "detail": ("Signed in." if _signed_in() else "Not signed in yet. You need a Claude Pro or Max plan.") if claude
+         "detail": (f"Signed in{' as ' + _auth().get('email') if _auth().get('email') else ''}." if _signed_in()
+                    else "One click: your browser opens, you press Authorize, done. You need a Claude Pro or Max plan.") if claude
          else "Install Claude Code first.", "fix": "Sign in" if claude and not _signed_in() else ""},
         {"id": "gpu", "label": "NVIDIA graphics card", "ok": True, "info": True,
          "detail": f"{gpu}: fast renders." if gpu else "None found. Videos still render, just slower (Claude switches the settings at the end)."},
@@ -327,13 +491,8 @@ def api_suggest(q, body):
 
 def api_fix(q, body):
     name = body.get("name", "")
-    if name == "signin":   # interactive: its own window, the user signs in in the browser it opens
-        refresh_path()
-        exe = _which("claude")
-        if not exe:
-            return {"ok": False, "msg": "Install Claude Code first."}
-        subprocess.Popen([exe], cwd=str(KIT), creationflags=NEW_CONSOLE)   # first start = Claude's own sign-in steps
-        return {"ok": True, "window": True}
+    if name == "signin":   # no window: the browser opens, api_signin reports back
+        return dict(signin_start(), signin=True)
     if name == "claude_finish":   # the Done screen: Claude adapts the rest (skills, no-NVIDIA renders, style) in its own window
         refresh_path()
         exe = _which("claude")
@@ -445,6 +604,8 @@ ROUTES = {
     ("GET", "setup/wizard/checks"): api_checks,
     ("GET", "setup/wizard/suggest"): api_suggest,
     ("POST", "setup/wizard/fix"): api_fix,
+    ("GET", "setup/wizard/signin"): api_signin,
+    ("POST", "setup/wizard/signin"): api_signin,
     ("POST", "setup/wizard/apply"): api_apply,
     ("POST", "setup/wizard/after"): api_after,
 }

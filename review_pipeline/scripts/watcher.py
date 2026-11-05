@@ -8,6 +8,9 @@
 import json, os, re, shutil, subprocess, sys, time, traceback
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import no_console_flash  # noqa: E402,F401  # hides every console window the jobs below start (pythonw: no console of its own)
+
 HERE = Path(__file__).resolve().parent
 PY = Path(sys.executable).with_name("python.exe")  # console python for the edit (pythonw has no stdout)
 VIDEO = {".mp4", ".mov", ".mkv", ".m4v"}

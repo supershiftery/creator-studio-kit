@@ -175,7 +175,8 @@ function wzWire(id) {
         const r = await api("setup/wizard/fix", { name: b.dataset.fix });
         if (!r.ok) { b.disabled = false; return toast(r.msg, "bad"); }
         if (r.msg) toast(r.msg, "ok");
-        if (r.window) { b.disabled = false; if (b.dataset.fix === "signin") toast("Sign in in the new window, then click Check again", "ok"); return; }
+        if (r.signin) { b.disabled = false; return wzSignIn(); }
+        if (r.window) { b.disabled = false; return; }
       } catch (e) { b.disabled = false; return toast(e.message, "bad"); }
       wzChecks();
     });
@@ -189,6 +190,61 @@ function wzWire(id) {
     };
   }
 }
+
+// Claude sign-in (2026-11-04): a popup that watches by itself. Browser opens -> Authorize -> this turns green and closes.
+// Also opens from the "Claude isn't signed in" bar when a sign-in runs out after setup.
+async function wzSignIn(started) {
+  const box = document.createElement("div"); box.id = "wz-si"; document.body.appendChild(box);
+  let timer = null, showCode = false, last = "";
+  const close = () => { clearTimeout(timer); box.remove(); $("#wz-si-bar")?.remove(); WZ.checks = null; if (WZ.el && WZ_STEPS[WZ.step][0] === "check") wzDraw(); };
+  const draw = r => {
+    const sig = JSON.stringify([r, showCode]); if (sig === last) return; last = sig;
+    const code = $("#wzs-code", box)?.value || "";
+    const failed = r.state === "failed", ok = r.state === "ok", busy = r.state === "checking";
+    box.innerHTML = `<div class="wzs-card"><h2>${ok ? "✓ You're signed in" : failed ? "Sign-in didn't finish" : busy ? "Checking your Claude plan…" : "Sign in to Claude"}</h2>
+      ${ok ? `<p>${r.email ? `Signed in as <b>${esc(r.email)}</b>. ` : ""}Claude is ready to edit.</p><div class="wzs-row"><button class="primary big" id="wzs-done">Continue</button><button id="wzs-switch">Use another account</button></div>`
+      : failed ? `<p class="wz-err">${esc(r.msg || "Sign-in stopped.")}</p><div class="wzs-row"><button class="primary big" id="wzs-again">Try again</button><button id="wzs-switch">Use another account</button><button id="wzs-x">Close</button></div>`
+      : busy ? `<p><span class="wz-spin" style="display:inline-block;vertical-align:middle"></span> One moment.</p>`
+      : r.state === "window" ? `<p>${esc(r.msg)}</p><div class="wzs-row"><button id="wzs-x">Close</button></div>`
+      : `<ol class="wzs-steps"><li>Your browser just opened on Claude's page.</li><li>Sign in if it asks, then press <b>Authorize</b>.</li><li>Come back here: this turns green by itself.</li></ol>
+         <p class="wzs-wait"><span class="wz-spin"></span> Waiting for you to finish in the browser…</p>
+         ${r.msg ? `<p class="wz-err">${esc(r.msg)}</p>` : ""}
+         <div class="wzs-row"><button id="wzs-open" ${r.url ? "" : "disabled"}>Browser didn't open? Open the page</button><button id="wzs-x">Cancel</button></div>
+         ${showCode || r.msg ? `<label class="wzs-code">If the page shows you a code, paste it here<span class="wzs-row"><input id="wzs-code" autocomplete="off" value="${esc(code)}"><button class="primary" id="wzs-send">Send code</button></span></label>` : `<button class="wzs-link" id="wzs-show">The page gave me a code</button>`}
+         <p class="wzs-small">You need a Claude Pro or Max plan. A free account can't run Claude Code.</p>`}</div>`;
+    const on = (id, fn) => { const b = $("#" + id, box); if (b) b.onclick = fn; };
+    const act = async (action, extra) => { try { const x = await api("setup/wizard/signin", { action, ...extra }); if (x && x.ok === false) toast(x.msg, "bad"); } catch (e) { toast(e.message, "bad"); } tick(); };
+    on("wzs-done", close);
+    on("wzs-x", async () => { await act("cancel"); close(); });
+    on("wzs-again", () => act("start"));
+    on("wzs-switch", () => act("switch"));
+    on("wzs-open", () => { showCode = true; act("open"); });
+    on("wzs-show", () => { showCode = true; last = ""; draw(r); });
+    on("wzs-send", () => act("code", { code: $("#wzs-code", box).value }));
+  };
+  const tick = async () => {
+    clearTimeout(timer);
+    let r; try { r = await api("setup/wizard/signin"); } catch (e) { r = null; }
+    if (!box.isConnected) return;
+    if (r) draw(r);
+    if (!r || !["ok", "failed"].includes(r.state)) timer = setTimeout(tick, 1500);
+  };
+  if (started === "start") await api("setup/wizard/signin", { action: "start" }).catch(e => toast(e.message, "bad"));
+  tick();
+}
+
+// signed out after setup (the sign-in ran out, another account was removed): say so once, with the one button that fixes it
+async function wzSignInBar() {
+  let c; try { c = await api("setup/wizard/checks"); } catch (e) { return; }
+  const si = (c.checks || []).find(x => x.id === "signin");
+  if (!si || si.ok || !si.fix || $("#wz-si-bar") || WZ.el) return;
+  const bar = document.createElement("div"); bar.id = "wz-si-bar";
+  bar.innerHTML = `<b>Claude isn't signed in.</b> Intros, draft checks and your notes need it.<button class="primary" id="wzb-go">Sign in</button><button id="wzb-x">Later</button>`;
+  document.body.appendChild(bar);
+  $("#wzb-go", bar).onclick = () => wzSignIn("start");
+  $("#wzb-x", bar).onclick = () => bar.remove();
+}
+setTimeout(wzSignInBar, 6000);
 
 async function wzChecks() {
   clearInterval(WZ.poll);
@@ -312,5 +368,14 @@ wzStyle.textContent = `
 #wz .wz-sum{display:grid;grid-template-columns:110px 1fr;gap:6px 14px;margin:0 0 16px}#wz .wz-sum dt{color:#9aa3b5}#wz .wz-sum dd{margin:0;color:#fff;overflow-wrap:anywhere}
 #wz .wz-note{background:#16222f;border:1px solid #2c4a66;border-radius:10px;padding:11px 14px;color:#d5dae4}
 #wz .wz-claude{margin-top:12px;padding:12px 14px;border:1px solid #39414f;border-radius:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}#wz .wz-claude b{color:#fff}
+#wz-si{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.72);display:grid;place-items:center;padding:16px}
+#wz-si .wzs-card{width:min(560px,100%);background:#14171d;border:1.5px solid #4a5366;border-radius:14px;padding:24px;color:#e8ebf1;font-size:16px}
+#wz-si h2{margin:0 0 12px;color:#fff}#wz-si .wzs-steps{margin:0 0 14px;padding-left:22px;line-height:1.7}
+#wz-si .wzs-wait{display:flex;gap:10px;align-items:center;font-weight:600;color:#fff}#wz-si .wzs-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#wz-si .wz-spin{width:22px;height:22px;flex:none;border:3px solid #39414f;border-top-color:var(--accent);border-radius:50%;animation:wzspin .9s linear infinite}
+#wz-si .wz-err{color:#ff9a9a}#wz-si .wzs-small{font-size:14px;color:#a9b1c1;margin:14px 0 0}
+#wz-si .wzs-link{background:none;border:0;padding:0;margin-top:12px;color:#8fb8ff;text-decoration:underline;cursor:pointer;font-size:15px}
+#wz-si .wzs-code{display:flex;flex-direction:column;gap:6px;margin-top:14px;font-weight:600}#wz-si .wzs-code input{flex:1;min-width:0;font-size:16px;padding:10px;background:#0b0d11;border:1.5px solid #4a5366;border-radius:8px;color:#fff}
+#wz-si-bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:9000;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#2a2214;border:1.5px solid #ffb13d;border-radius:12px;padding:10px 16px;color:#fff;font-size:15px;max-width:calc(100% - 32px)}
 @media (max-width:760px){#wz .wz-shell{grid-template-columns:1fr}#wz .wz-rail{display:none}#wz .wz-capwrap{grid-template-columns:1fr}}`;
 document.head.appendChild(wzStyle);

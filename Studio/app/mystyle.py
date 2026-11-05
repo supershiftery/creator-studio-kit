@@ -82,7 +82,16 @@ def _write(p, data):
     p.parent.mkdir(parents=True, exist_ok=True)
     tmp = p.with_suffix(p.suffix + ".tmp")
     tmp.write_text(json.dumps(data, indent=1, ensure_ascii=False), encoding="utf-8")
-    os.replace(tmp, p)
+    # Windows refuses the swap while anyone has the file open: the Train screen reads status.json every 2 s, and that failure
+    # killed a training run at 80% (2026-11-04)
+    for n in range(40):
+        try:
+            os.replace(tmp, p)
+            return
+        except PermissionError:
+            if n == 39:
+                raise
+            time.sleep(0.25)
 
 
 def slugify(name):
@@ -575,15 +584,17 @@ def past_projects():
     return out[:80]
 
 
-def start_analysis(name, base, items=None, past=None, wishes="", opening_text="", slug=None, examples=None, raw=None):
+def start_analysis(name, base, items=None, past=None, wishes="", opening_text="", slug=None, examples=None, raw=None, links=None):
     """Train: a name + what the videos are closest to + anything the user drops (items: [{path, kind, note, role}]),
     projects already made in the Studio (ids: their render is a finished example, their notes become rules), wishes in
     their own words, an opening text card. slug = teach an existing type more."""
     if slug:
         t0 = load_type(slug)
         name, base = t0["name"], t0["base"]
-    if base not in BASES:
+    # "auto" (2026-11-04, testers don't know which type they make): style_learn works it out from what it sees, name too
+    if base != "auto" and base not in BASES:
         raise ValueError("pick what your videos are closest to")
+    links = [str(u).strip() for u in links or [] if str(u).strip()]
     items = [dict(i) for i in items or [] if i and i.get("path")]
     items += [{"path": p, "kind": "finished"} for p in examples or [] if p] + ([{"path": raw, "kind": "raw"}] if raw else [])
     for i in items:
@@ -602,12 +613,12 @@ def start_analysis(name, base, items=None, past=None, wishes="", opening_text=""
         past_notes += [n["text"] for n in d.get("notes") or [] if n.get("kind") == "text" and n.get("text") and n.get("from") != "editor"]
     if len([i for i in items if i["kind"] == "finished"]) > 5:
         raise ValueError("5 finished videos are plenty: take a few out")
-    if not (items or past_notes or (wishes or "").strip() or (opening_text or "").strip()):
+    if not (items or links or past_notes or (wishes or "").strip() or (opening_text or "").strip()):
         raise ValueError("give it something to learn from: a finished video, a project file, a past project or a few words")
-    job = f"{slugify(name)}-{time.strftime('%H%M%S')}"
+    job = f"{slugify(name or 'style')}-{time.strftime('%H%M%S')}"
     d = WORK / job
     d.mkdir(parents=True, exist_ok=True)
-    _write(d / "request.json", {"name": name, "base": base, "items": items, "past_notes": past_notes[:60], "wishes": wishes or "",
+    _write(d / "request.json", {"name": name, "base": base, "items": items, "links": links, "past_notes": past_notes[:60], "wishes": wishes or "",
                                 "opening_text": opening_text or "", "slug": slug or ""})
     _write(_status_path(job), {"state": "running", "step": "starting", "pct": 0})
     py = store.settings().get("python") or sys.executable
@@ -643,9 +654,9 @@ def api_type(q, body):
 
 
 def api_wizard_start(q, body):
-    return start_analysis((body.get("name") or "").strip() or "My style", body.get("base"), body.get("items"), body.get("past"),
+    return start_analysis((body.get("name") or "").strip(), body.get("base") or "auto", body.get("items"), body.get("past"),
                           body.get("wishes") or "", body.get("opening_text") or "", body.get("slug") or None,
-                          body.get("examples"), body.get("raw") or None)
+                          body.get("examples"), body.get("raw") or None, body.get("links"))
 
 
 def api_past(q, body):

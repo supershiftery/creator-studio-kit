@@ -195,3 +195,5 @@ body.edit-full .tx{position:fixed;inset:0;z-index:40;height:100vh;padding:12px;b
 .pbar-seg button{border:0;border-radius:0;min-width:46px;background:var(--bg2)}
 .pbar-seg button+button{border-left:1px solid var(--line2)}
 .pbar-seg button.on{background:var(--accent);color:#fff;font-weight:600}
+/* the project-page .prog box above also matched the cards' 4px bar: its padding squashed the fill to 0 px and left an empty box (2026-10-29) */
+.pcard .prog{padding:0;height:6px;border:0;margin-top:10px;background:var(--bg3)}

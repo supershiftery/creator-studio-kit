@@ -999,17 +999,27 @@ new MutationObserver(tlSideNav).observe($("#side"), { childList: true, subtree: 
 tlSideNav();
 function viewTools() {
   const tiles = $$("#side nav:not(.nav-foot) a[data-view]").filter(a => !TL_KEEP_NAV.includes(a.dataset.view));
-  const desc = { dashboard: "What needs you today and this week", tracker: "Uploads per channel against your targets", todo: "Your to-do list", ideas: "Video ideas from trends", competitors: "What other channels are posting", thumbs: "Thumbnails each video still needs", uploads: "Send finished videos to YouTube" };
-  return `<h1>Channel tools</h1><p class="sub">Everything around the editing: planning, tracking and publishing.</p>
-    <div class="tl-tiles">${tiles.map(a => `<button class="tl-tile" data-tile="${esc(a.dataset.view)}">${a.querySelector("svg") ? a.querySelector("svg").outerHTML : ""}<b>${esc(a.textContent.replace(/\d+$/, "").trim())}</b><small>${esc(desc[a.dataset.view] || "")}</small></button>`).join("")}
-    ${$("#btn-search") ? `<button class="tl-tile" data-tile="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><b>Search transcripts</b><small>Find anything you said in any video (Ctrl K)</small></button>` : ""}</div>`;
+  const desc = { dashboard: "What needs you today and this week", tracker: "Uploads per channel against your targets", todo: "Your to-do list", ideas: "Video ideas from trends", competitors: "What other channels are posting", thumbs: "Thumbnails each video still needs", uploads: "Send finished videos to YouTube", ...(window.CT_DESC || {}) };
+  // three groups instead of one long grid (overnight 2026-10-29: 14 tiles were too many to scan); a tile no group names
+  // (a new tool) lands in the last group
+  const tile = a => `<button class="tl-tile" data-tile="${esc(a.dataset.view)}">${a.querySelector("svg") ? a.querySelector("svg").outerHTML : ""}<b>${esc(a.textContent.replace(/\d+$/, "").trim())}</b><small>${esc(desc[a.dataset.view] || "")}</small></button>`;
+  const search = $("#btn-search") ? `<button class="tl-tile" data-tile="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><b>Search transcripts</b><small>Find anything you said in any video (Ctrl K)</small></button>` : "";
+  const groups = [["Plan your week", ["dashboard", "tracker", "todo"]],
+    ["Find video ideas", ["ideas", "ct_brainstorm", "competitors", "ct_insights", "ct_comment_miner"]],
+    ["Make and publish", ["ct_planner", "ct_title_lab", "ct_thumb_check", "ct_hook_doctor", "ct_repurpose", "thumbs", "uploads"]],
+    ["Handy tools", ["ct_download"]]];
+  const named = new Set(groups.flatMap(g => g[1]));
+  const extra = tiles.filter(a => !named.has(a.dataset.view));
+  return `<h1>Channel tools</h1><p class="sub">Everything around the editing: planning, ideas and publishing.</p>
+    ${groups.map(([name, keys], gi) => { const ts = keys.map(k => tiles.find(a => a.dataset.view === k)).filter(Boolean).concat(gi === groups.length - 1 ? extra : []);
+      return ts.length || (gi === 0 && search) ? `<h2 class="tl-group">${esc(name)}</h2><div class="tl-tiles">${ts.map(tile).join("")}${gi === 0 ? search : ""}</div>` : ""; }).join("")}`;
 }
 const _render9 = render;
 render = async function () {
   if (S.view === "tools") { $("#main").innerHTML = viewTools(); $$("[data-tile]").forEach(b => b.onclick = () => b.dataset.tile === "search" ? $("#btn-search").click() : $(`#side nav a[data-view="${b.dataset.tile}"]`).click()); wireCommon(); return; }
   return _render9();
 };
-if (S.view === "dashboard") { S.view = "projects"; $$("nav a").forEach(a => a.classList.toggle("active", a.dataset.view === "projects")); }
+if (S.view === "dashboard") { S.view = "projects"; $$("nav a").forEach(a => a.classList.toggle("active", a.dataset.view === "projects")); try { history.replaceState({ view: "projects", pid: null }, ""); } catch (e) { } }
 
 // ---------------------------------------------------------------- Text size (2026-10-29, the user is visually impaired: "everything small")
 // Normal / Large / Extra large zoom the whole Studio; saved in settings.ui_text_size (default Large), Ctrl + / Ctrl − / Ctrl 0

@@ -267,3 +267,4 @@ body.tl-full #p-progress .tlp{font-size:16px}
 .tle-tabs button{padding:0 10px}
 .tle kbd{font-size:15px;padding:2px 7px;border-radius:6px}
 .tle-panel button.sm,.tle-drawer button.sm{font-size:15px;min-height:44px;padding:0 14px}
+.tl-group{font-size:15px;margin:22px 0 10px;color:var(--muted);text-transform:none;font-weight:700}

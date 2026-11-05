@@ -205,7 +205,7 @@ function newProjectModal(prefill = {}) {
     <div class="np-detect" id="np-detect" style="display:none"></div>
     <div class="row np-basics">
       <div class="field grow" style="margin:0"><label for="np-title">Title</label><input id="np-title" placeholder="filled in from your intro once a video is added" value="${esc(prefill.title || "")}"></div>
-      <div class="field" style="margin:0"><label for="np-type">Type</label><select id="np-type">${Object.entries(types).map(([k, v]) => `<option value="${k}" ${k === type ? "selected" : ""}>${esc(v.icon)} ${esc(v.label)}</option>`).join("")}<option value="other" ${type === "other" ? "selected" : ""}>💬 Talking / tech review / other</option>${Object.values(myCards()).length ? `<optgroup label="Your saved styles (learned from your own videos)">${Object.values(myCards()).map(c => `<option value="${esc(c.id)}">✨ ${esc(c.name)}</option>`).join("")}</optgroup>` : ""}</select></div>
+      <div class="field" style="margin:0"><label for="np-type">Type</label><select id="np-type">${Object.entries(types).map(([k, v]) => `<option value="${k}" ${k === type ? "selected" : ""}>${esc(v.icon)} ${esc(v.label)}</option>`).join("")}<option value="other" ${type === "other" ? "selected" : ""}>💬 Talking / tech review / other</option>${Object.values(myCards()).length ? `<optgroup label="Your saved styles (learned from your own videos)">${Object.values(myCards()).map(c => `<option value="${esc(c.id)}" ${c.id === type ? "selected" : ""}>✨ ${esc(c.name)}</option>`).join("")}</optgroup>` : ""}<option value="_teach">✨ Not sure? Make one from examples…</option></select></div>
     </div>
     ${modeOptsHtml({}, type, `<div class="row np-more-row">
       <div class="field" style="margin:0"><label for="np-ch">Channel</label><select id="np-ch">${chans.map(c => `<option ${c.types.includes(type) ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div>
@@ -237,7 +237,12 @@ function newProjectModal(prefill = {}) {
   };
   // detect result as one plain sentence + "change?"; when the detector isn't sure (or the user asks to change) the type cards
   let cardsOpen = false;
-  const pickCard = t => { userPicked = true; cardsOpen = false; setType(t); const c = chans.find(c => c.types.includes(t)); if (c) $("#np-ch", m).value = c.name; applyChannel(); renderChip(); };
+  // don't know which one? show it examples: it makes a type, then New Project comes back with the same video and that type picked
+  const teach = () => {
+    const back = { main: picked.main.slice(), title: $("#np-title", m).value };
+    myTrain(null, { onCancel: () => newProjectModal({ ...prefill, ...back }), onDone: slug => { closeModal(); newProjectModal({ ...prefill, ...back, type: "my:" + slug }); } });
+  };
+  const pickCard = t => { if (t === "_teach") return teach(); userPicked = true; cardsOpen = false; setType(t); const c = chans.find(c => c.types.includes(t)); if (c) $("#np-ch", m).value = c.name; applyChannel(); renderChip(); };
   const renderChip = () => {
     const el = $("#np-detect", m); if (!el || !det) return;
     const r = det, unsure = !card(r.type) || r.confidence === "low";
@@ -248,6 +253,7 @@ function newProjectModal(prefill = {}) {
       for (const id of [r.type, r.guess, type]) if (id && !list.some(c => c.id === id) && card(id)) list.splice(list.length - 1, 0, card(id));
       const hintId = unsure ? r.guess : r.type;
       el.className = "np-detect ask";
+      list.push({ id: "_teach", icon: "✨", name: "None of these / not sure", desc: "Show it a YouTube playlist, a few videos or a project file (XML, Premiere, CapCut…). It makes a type for you.", ex: "" });
       el.innerHTML = `<div class="grow"><div><b>What kind of video is it?</b> <span class="muted tiny">${unsure ? "couldn't tell for sure from the recording, pick the closest one" : "pick the one that fits"}</span></div>
         ${why ? `<div class="muted tiny">${why}</div>` : ""}
         <div class="np-cards">${list.map(c => `<button type="button" class="np-card ${c.id === type ? "on" : ""}" data-t="${esc(c.id)}"><b>${esc(c.icon)} ${esc(c.name)}${c.id === hintId ? ` <span class="pill">${unsure ? "closest match" : "detected"}</span>` : ""}</b><span>${esc(c.desc)}</span>${c.ex ? `<small>${esc(c.ex)}</small>` : ""}</button>`).join("")}</div></div>`;
@@ -341,7 +347,8 @@ function newProjectModal(prefill = {}) {
   };
   const renderBroll = () => { $("#np-broll-list", m).innerHTML = picked.broll.map((p, i) => `<span class="np-chip">${esc(base(p))}<button type="button" data-bx="${i}" aria-label="remove ${esc(base(p))}">✕</button></span>`).join(""); $$("#np-broll-list [data-bx]", m).forEach(b => b.onclick = () => { picked.broll.splice(+b.dataset.bx, 1); renderBroll(); }); hint(); };
   hint();
-  $("#np-type", m).onchange = e => { userPicked = true; setType(e.target.value); const c = chans.find(c => c.types.includes(type)); if (c) $("#np-ch", m).value = c.name; applyChannel(); renderChip(); };
+  if (myCards()[type]) setType(type);   // back from "make one from examples": that type's channel too
+  $("#np-type", m).onchange = e => { if (e.target.value === "_teach") { e.target.value = type; return teach(); } userPicked = true; setType(e.target.value); const c = chans.find(c => c.types.includes(type)); if (c) $("#np-ch", m).value = c.name; applyChannel(); renderChip(); };
   $("#np-add-video", m).onclick = () => addFiles();
   $("#np-title", m).addEventListener("input", () => { userTitled = true; });
   $("#np-vo-sel", m).onchange = async e => {

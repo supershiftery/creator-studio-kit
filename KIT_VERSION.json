@@ -1,7 +1,11 @@
 {
- "version": 4,
- "released": "2026-10-29",
+ "version": 5,
+ "released": "2026-11-05",
  "changes": [
+  "Signing in to Claude is one click: your browser opens, you press Authorize, and the Studio turns green by itself. No black window, no menus. If the browser doesn't open there's a button for the page and a box for the code. It also checks your account can really use Claude, says so right away if it needs a Pro or Max plan, and lets you switch accounts. If a sign-in runs out later, a bar offers the same button.",
+  "Not sure what type your video is? Pick 'Not sure? Make one from examples' in New Project: paste a YouTube playlist, channel or video link, a TikTok or an Instagram reel, or drop videos and project files (XML, FCPXML, EDL, Premiere, CapCut, Filmora, Kdenlive, Shotcut). It studies them, works out the type, names it, and comes back to your project with it picked.",
+  "Video Downloader in Channel tools: YouTube videos, Shorts and playlists, TikTok and Instagram, as MP4 or MP3.",
+  "Mouse back and forward buttons now move between pages.",
   "Already set up? Updating keeps everything: your folders, channels, settings and projects stay, and the new setup window never opens for you (don't run SETUP.cmd).",
   "New editor: a Filmora-style timeline with a Revise view. Watch your draft, pause and type or say what to change, and it's added at that moment. Double-click a caption to fix a word, or double-click a product review intro's words to retype them (Save, or Save + update intro now: about 4-5 minutes, same shots).",
   "Train your style: Settings -> Train your style. Name it, pick what your videos are closest to, then drop anything: finished videos you like, a raw recording, a project from Premiere, CapCut, Filmora, Kdenlive or Shotcut (or an XML / FCPXML / EDL / OpenTimelineIO export from DaVinci Resolve, Vegas, Final Cut or Avid), a clip with a feature you want, your logo or an opening clip. Or pick videos you already made in the Studio (their notes are learned too), say what it should always do in your own words, or add a text card to open every video (a verse, a quote). The Studio measures camera layout, cuts, pauses, zooms, music and head turns, Claude looks at the frames and writes the style. Your logo / opening / ending go into every build by themselves, and every note you give on a video of that style teaches it more (Settings shows what it learned; remove anything). No Minecraft graphics on a gaming-based style unless your examples have them.",

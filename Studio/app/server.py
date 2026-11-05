@@ -2169,6 +2169,11 @@ import intro_text  # noqa: E402
 ROUTES.update({k: _nle(fn) for k, fn in intro_text.ROUTES.items()})
 intro_text.BUILD = lambda doc: start_build(doc, "intro", machine="here")
 
+# Creator tools (overnight 2026-10-29): competitor insights (what's working, gaps, channels) + Claude tools (Title Lab,
+# Idea Brainstorm, Comment Miner, Hook Doctor, Repurpose Kit) as background jobs; ui/creator_tools.js
+import creator_tools  # noqa: E402
+ROUTES.update({k: _nle(fn) for k, fn in creator_tools.ROUTES.items()})
+
 
 
 # ------------------------------------------------------------------ who is asking (assistant access, 2026-10-25)
@@ -2252,8 +2257,16 @@ class Handler(BaseHTTPRequestHandler):
 
     def _json(self, obj, code=200):
         data = json.dumps(obj, ensure_ascii=False, default=str).encode("utf-8")
+        # gzip the big ones (state is ~650 KB every 15 s, ~10x smaller zipped; matters most on the phone over Tailscale)
+        gz = len(data) > 16384 and "gzip" in (self.headers.get("Accept-Encoding") or "")
+        if gz:
+            import gzip
+            data = gzip.compress(data, compresslevel=4)
         self.send_response(code)
         self.send_header("Content-Type", "application/json; charset=utf-8")
+        if gz:
+            self.send_header("Content-Encoding", "gzip")
+            self.send_header("Vary", "Accept-Encoding")
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
