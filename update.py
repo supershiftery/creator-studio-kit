@@ -223,6 +223,8 @@ def main():
     cfg_old = load_configure(old)
     shipped, filled = shipped_hashes(old, cfg_old)
     new_files = json.loads((NEW / "manifest.json").read_text(encoding="utf-8"))["files"]
+    new_files = {r: h for r, h in new_files.items() if not r.startswith(".git/")}   # older manifests listed the repo's own files
+    shipped = {r: h for r, h in shipped.items() if not r.startswith(".git/")}
 
     # 1. what did you change yourself?
     local = []
